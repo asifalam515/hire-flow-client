@@ -1,9 +1,10 @@
+"use client"
+
 import {
   ArrowRight,
   Check,
   Eye,
   EyeOff,
-  GitHub,
   Lock,
   Mail,
   Sparkles,
@@ -113,7 +114,7 @@ export default function SignUp({
             <SocialButton
               onClick={onGithub}
               label="GitHub"
-              icon={<GitHub className="h-4 w-4" />}
+              icon={<GitHubIcon />}
             />
           </div>
 
@@ -328,6 +329,17 @@ function GoogleIcon() {
       <path
         fill="#EA4335"
         d="M12 10.2v3.96h5.5c-.24 1.42-1.7 4.16-5.5 4.16-3.31 0-6-2.74-6-6.12s2.69-6.12 6-6.12c1.88 0 3.14.8 3.86 1.49l2.63-2.54C16.84 3.5 14.66 2.5 12 2.5 6.98 2.5 2.92 6.56 2.92 11.6S6.98 20.7 12 20.7c6.92 0 9.18-4.86 9.18-7.34 0-.5-.05-.86-.13-1.16H12z"
+      />
+    </svg>
+  )
+}
+
+function GitHubIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden>
+      <path
+        fill="currentColor"
+        d="M12 .5a12 12 0 00-3.8 23.4c.6.1.8-.2.8-.6v-2.1c-3.3.7-4-1.6-4-1.6-.5-1.2-1.2-1.5-1.2-1.5-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 .1 1.6-.8 1.9-1.3-.3-.4-.7-1-.9-1.2-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.4 1.2-3.3-.1-.3-.5-1.6.1-3.3 0 0 1-.3 3.3 1.2a11.4 11.4 0 016 0C17.8 4.1 18.8 4.4 18.8 4.4c.6 1.7.2 3 .1 3.3.8.9 1.2 2 1.2 3.3 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1 .8 2v3c0 .4.2.7.8.6A12 12 0 0012 .5z"
       />
     </svg>
   )
