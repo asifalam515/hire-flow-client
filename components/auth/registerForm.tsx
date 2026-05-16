@@ -10,7 +10,10 @@ import {
   Sparkles,
   User,
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useState, type FormEvent } from "react"
+
+import { authClient } from "@/lib/auth"
 
 /**
  * PremiumSignUp
@@ -38,6 +41,7 @@ export default function SignUp({
   onGithub,
   onSignIn,
 }: Props) {
+  const router = useRouter()
   const [values, setValues] = useState<SignUpValues>({
     name: "",
     email: "",
@@ -46,6 +50,9 @@ export default function SignUp({
   const [showPassword, setShowPassword] = useState(false)
   const [agree, setAgree] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [socialLoading, setSocialLoading] = useState<
+    "google" | "github" | null
+  >(null)
   const [error, setError] = useState<string | null>(null)
 
   const strength = getStrength(values.password)
@@ -63,12 +70,81 @@ export default function SignUp({
     }
     try {
       setLoading(true)
-      await onSubmit?.(values)
+
+      if (onSubmit) {
+        await onSubmit(values)
+      } else {
+        const result = await authClient.signUp.email({
+          email: values.email,
+          password: values.password,
+          name: values.name,
+          callbackURL: "/",
+        })
+
+        if (result.error) {
+          throw new Error(result.error.message || "Registration failed.")
+        }
+
+        router.push("/")
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.")
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleGoogleAuth() {
+    setError(null)
+    if (onGoogle) {
+      onGoogle()
+      return
+    }
+
+    try {
+      setSocialLoading("google")
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/",
+      })
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Unable to continue with Google."
+      )
+    } finally {
+      setSocialLoading(null)
+    }
+  }
+
+  async function handleGithubAuth() {
+    setError(null)
+    if (onGithub) {
+      onGithub()
+      return
+    }
+
+    try {
+      setSocialLoading("github")
+      await authClient.signIn.social({
+        provider: "github",
+        callbackURL: "/",
+      })
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Unable to continue with GitHub."
+      )
+    } finally {
+      setSocialLoading(null)
+    }
+  }
+
+  function handleSignIn() {
+    if (onSignIn) {
+      onSignIn()
+      return
+    }
+
+    router.push("/")
   }
 
   return (
@@ -107,14 +183,16 @@ export default function SignUp({
           {/* OAuth */}
           <div className="mt-7 grid grid-cols-2 gap-3">
             <SocialButton
-              onClick={onGoogle}
-              label="Google"
+              onClick={handleGoogleAuth}
+              label={socialLoading === "google" ? "Please wait..." : "Google"}
               icon={<GoogleIcon />}
+              disabled={loading || socialLoading !== null}
             />
             <SocialButton
-              onClick={onGithub}
-              label="GitHub"
+              onClick={handleGithubAuth}
+              label={socialLoading === "github" ? "Please wait..." : "GitHub"}
               icon={<GitHubIcon />}
+              disabled={loading || socialLoading !== null}
             />
           </div>
 
@@ -241,7 +319,7 @@ export default function SignUp({
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || socialLoading !== null}
               className="group relative mt-2 flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-sm font-medium text-white shadow-lg shadow-violet-600/30 transition hover:shadow-violet-600/50 disabled:opacity-60"
             >
               <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
@@ -256,7 +334,7 @@ export default function SignUp({
             Already have an account?{" "}
             <button
               type="button"
-              onClick={onSignIn}
+              onClick={handleSignIn}
               className="font-medium text-white underline-offset-4 hover:underline"
             >
               Sign in
@@ -306,16 +384,19 @@ function SocialButton({
   onClick,
   label,
   icon,
+  disabled,
 }: {
   onClick?: () => void
   label: string
   icon: React.ReactNode
+  disabled?: boolean
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-white/90 transition hover:border-white/20 hover:bg-white/10"
+      disabled={disabled}
+      className="flex h-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 text-sm font-medium text-white/90 transition hover:border-white/20 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {icon}
       {label}

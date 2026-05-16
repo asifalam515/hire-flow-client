@@ -1,10 +1,9 @@
-import SignUp from "@/components/auth/registerForm"
+import GreenhouseRegister from "@/components/auth/GreenhouseRegister"
 
 const page = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold underline">Register Page is here</h1>
-      <SignUp></SignUp>
+      <GreenhouseRegister />
     </div>
   )
 }
