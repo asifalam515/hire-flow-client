@@ -35,7 +35,7 @@ export default function GreenhouseLogin() {
         <div className="w-full max-w-[440px] mx-auto lg:mx-0">
           {/* Logo */}
           <div className="mb-[15vh] flex items-center text-[22px]">
-            <span className="text-[#1f3d2d] font-medium tracking-tight">greenhouse</span>
+            <span className="text-[#1f3d2d] font-medium tracking-tight">Hire Flow</span>
           </div>
 
           {/* Heading */}
@@ -44,7 +44,7 @@ export default function GreenhouseLogin() {
           </h1>
 
           <p className="text-[14px] text-gray-800 mb-6 leading-relaxed max-w-[380px]">
-            Search smarter, apply faster and take control of your job search with MyGreenhouse.
+            Search smarter, apply faster and take control of your job search with Hire Flow.
           </p>
           
           <p className="text-[14px] text-gray-800 mb-10">
@@ -76,7 +76,7 @@ export default function GreenhouseLogin() {
 
           {/* Footer */}
           <div className="mt-24 text-[13px] text-gray-800">
-            Looking for your organization&apos;s Greenhouse account?{" "}
+            Looking for your organization&apos;s Hire Flow account?{" "}
             <Link href="/login" className="text-[#008060] font-medium hover:underline underline-offset-2">
               Sign in
             </Link>
