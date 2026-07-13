@@ -1,6 +1,6 @@
 @agent.md
 
-Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Newest Jobs for You  section from my Figma design. add basisc hover animation .when its click on the card ,it will show share and save icon
+Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Steps to Our Achivevement in Hiring from my Figma design.all numbers should have smooth counting animation 
 
 
 Your objective is to build this as a clean, responsive, and standalone Next.js Server Component saved to `src/components/shared/[SectionName].tsx`.

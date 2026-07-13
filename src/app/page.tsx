@@ -2,6 +2,9 @@ import { Navbar } from "@/components/shared/Navbar";
 import { HeroSection } from "@/components/shared/HeroSection";
 import { PopularCategory } from "@/components/shared/PopularCategory";
 import { NewestJobs } from "@/components/shared/NewestJobs";
+import { StepsToDreamJob } from "@/components/shared/StepsToDreamJob";
+import { TopCompanies } from "@/components/shared/TopCompanies";
+import { OurAchievements } from "@/components/shared/OurAchievements";
 
 export default function Home() {
   return (
@@ -14,6 +17,9 @@ export default function Home() {
         <HeroSection />
         <PopularCategory />
         <NewestJobs />
+        <StepsToDreamJob />
+        <TopCompanies />
+        <OurAchievements />
       </main>
     </div>
   );
