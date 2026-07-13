@@ -1,6 +1,6 @@
 @agent.md
 
-Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Navbar and Hero section from my Figma design. 
+Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the popular category section from my Figma design. add basisc hover animation here
 
 
 Your objective is to build this as a clean, responsive, and standalone Next.js Server Component saved to `src/components/shared/[SectionName].tsx`.

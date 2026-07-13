@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/shared/Navbar";
 import { HeroSection } from "@/components/shared/HeroSection";
+import { PopularCategory } from "@/components/shared/PopularCategory";
 
 export default function Home() {
   return (
@@ -7,9 +8,10 @@ export default function Home() {
       {/* Top Floating Navbar */}
       <Navbar />
 
-      {/* Main Hero Content */}
+      {/* Main Hero & Sections Content */}
       <main className="flex-1 flex flex-col justify-center">
         <HeroSection />
+        <PopularCategory />
       </main>
     </div>
   );
