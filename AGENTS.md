@@ -1,6 +1,6 @@
 @agent.md
 
-Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Steps to Our Our Blog from my Figma design.but use my public/images images.instaed of full copy that image  just use the styling and layout and content from there 
+Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Steps to Our Our Blog from my Figma design.but use my public/images images.instaed of full copy that image  just use the styling and layout and content from there .backgroud color should be rgb(239 245 255) #EFF5FF
 
 
 Your objective is to build this as a clean, responsive, and standalone Next.js Server Component saved to `src/components/shared/[SectionName].tsx`.

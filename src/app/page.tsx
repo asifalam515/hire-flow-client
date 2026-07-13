@@ -6,6 +6,7 @@ import { StepsToDreamJob } from "@/components/shared/StepsToDreamJob";
 import { TopCompanies } from "@/components/shared/TopCompanies";
 import { OurAchievements } from "@/components/shared/OurAchievements";
 import { OurBlog } from "@/components/shared/OurBlog";
+import { EmployerCta } from "@/components/shared/EmployerCta";
 
 export default function Home() {
   return (
@@ -22,6 +23,7 @@ export default function Home() {
         <TopCompanies />
         <OurAchievements />
         <OurBlog />
+        <EmployerCta />
       </main>
     </div>
   );
