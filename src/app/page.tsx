@@ -5,6 +5,7 @@ import { NewestJobs } from "@/components/shared/NewestJobs";
 import { StepsToDreamJob } from "@/components/shared/StepsToDreamJob";
 import { TopCompanies } from "@/components/shared/TopCompanies";
 import { OurAchievements } from "@/components/shared/OurAchievements";
+import { OurBlog } from "@/components/shared/OurBlog";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
         <StepsToDreamJob />
         <TopCompanies />
         <OurAchievements />
+        <OurBlog />
       </main>
     </div>
   );

@@ -1,6 +1,6 @@
 @agent.md
 
-Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Steps to Our Achivevement in Hiring from my Figma design.all numbers should have smooth counting animation 
+Adopt the Next.js UI/UX Engineer persona. I have uploaded a screenshot of the Steps to Our Our Blog from my Figma design.but use my public/images images.instaed of full copy that image  just use the styling and layout and content from there 
 
 
 Your objective is to build this as a clean, responsive, and standalone Next.js Server Component saved to `src/components/shared/[SectionName].tsx`.
