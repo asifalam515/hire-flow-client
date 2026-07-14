@@ -7,6 +7,7 @@ import { TopCompanies } from "@/components/shared/TopCompanies";
 import { OurAchievements } from "@/components/shared/OurAchievements";
 import { OurBlog } from "@/components/shared/OurBlog";
 import { EmployerCta } from "@/components/shared/EmployerCta";
+import { Footer } from "@/components/shared/Footer";
 
 export default function Home() {
   return (
@@ -25,6 +26,9 @@ export default function Home() {
         <OurBlog />
         <EmployerCta />
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

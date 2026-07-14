@@ -14,11 +14,13 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  activeRole: 'candidate' | 'employer';
 
   // Actions
   setUser: (user: User | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setActiveRole: (role: 'candidate' | 'employer') => void;
   login: (credentials: LoginCredentials) => Promise<User | null>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<User | null>;
@@ -34,6 +36,7 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: false,
         isLoading: false,
         error: null,
+        activeRole: 'candidate',
 
         // Atomic Setters
         setUser: (user) =>
@@ -46,6 +49,8 @@ export const useAuthStore = create<AuthState>()(
         setLoading: (isLoading) => set({ isLoading }),
 
         setError: (error) => set({ error }),
+
+        setActiveRole: (activeRole) => set({ activeRole }),
 
         clearError: () => set({ error: null }),
 
@@ -121,6 +126,7 @@ export const useAuthStore = create<AuthState>()(
         partialize: (state) => ({
           user: state.user,
           isAuthenticated: state.isAuthenticated,
+          activeRole: state.activeRole,
         }),
       }
     ),

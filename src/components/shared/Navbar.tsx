@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function Navbar() {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, activeRole, setActiveRole } = useAuthStore();
 
   return (
     <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 transition-all duration-300">
@@ -73,12 +73,31 @@ export function Navbar() {
 
           <div className="hidden sm:block h-5 w-px bg-border/80" />
 
-          <Link
-            href="/employer"
-            className="hidden md:inline-flex text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-          >
-            Employer
-          </Link>
+          {/* Role Switcher Pill */}
+          <div className="hidden md:flex items-center rounded-xl bg-slate-100 dark:bg-zinc-800 p-1 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setActiveRole('candidate')}
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                activeRole === 'candidate'
+                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Candidate
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveRole('employer')}
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                activeRole === 'employer'
+                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Employer
+            </button>
+          </div>
 
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-3">
@@ -96,7 +115,11 @@ export function Navbar() {
               </Button>
             </div>
           ) : (
-            <Link href="/auth/register">
+            <Link
+              href={
+                activeRole === 'employer' ? '/employer/sign-up' : '/candidates/sign-up'
+              }
+            >
               <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 h-9 shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 flex items-center gap-2 text-sm">
                 <LogIn className="size-4" />
                 <span>Sign Up</span>
