@@ -1,10 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/button';
-import { Search, Bell, LogIn, LogOut } from 'lucide-react';
+import {
+  Search,
+  Bell,
+  LogIn,
+  LogOut,
+  ChevronDown,
+  LayoutDashboard,
+  Building2,
+  PlusCircle,
+  MessageSquare,
+  Settings,
+  Users,
+  Briefcase,
+  User as UserIcon,
+} from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -21,6 +35,39 @@ const NAV_ITEMS: NavItem[] = [
 
 export function Navbar() {
   const { user, isAuthenticated, logout, activeRole, setActiveRole } = useAuthStore();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const isRecruiter = user?.role === 'RECRUITER' || (isAuthenticated && activeRole === 'employer');
+
+  const getDisplayName = () => {
+    if (!user) return 'User';
+    if (user.firstName && user.lastName) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+    if (user.company?.name) {
+      return user.company.name;
+    }
+    return user.email.split('@')[0];
+  };
+
+  const getAvatarLetter = () => {
+    if (!user) return 'U';
+    if (user.company?.name) return user.company.name.charAt(0).toUpperCase();
+    if (user.firstName) return user.firstName.charAt(0).toUpperCase();
+    return user.email.charAt(0).toUpperCase();
+  };
 
   return (
     <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 transition-all duration-300">
@@ -71,48 +118,226 @@ export function Navbar() {
             <span className="absolute top-2 right-2 size-2 rounded-full bg-blue-600 ring-2 ring-white dark:ring-zinc-900" />
           </button>
 
-          <div className="hidden sm:block h-5 w-px bg-border/80" />
-
-          {/* Role Switcher Pill */}
-          <div className="hidden md:flex items-center rounded-xl bg-slate-100 dark:bg-zinc-800 p-1 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => setActiveRole('candidate')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                activeRole === 'candidate'
-                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Candidate
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveRole('employer')}
-              className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
-                activeRole === 'employer'
-                  ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Employer
-            </button>
-          </div>
+          {/* Role Switcher Pill - shown when not logged in */}
+          {!isAuthenticated && (
+            <>
+              <div className="hidden sm:block h-5 w-px bg-border/80" />
+              <div className="hidden md:flex items-center rounded-xl bg-slate-100 dark:bg-zinc-800 p-1 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setActiveRole('candidate')}
+                  className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                    activeRole === 'candidate'
+                      ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Candidate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveRole('employer')}
+                  className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                    activeRole === 'employer'
+                      ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Employer
+                </button>
+              </div>
+            </>
+          )}
 
           {isAuthenticated && user ? (
-            <div className="flex items-center space-x-3">
-              <span className="hidden xl:inline-block text-xs font-semibold text-muted-foreground bg-blue-50 dark:bg-muted px-3 py-1 rounded-full">
-                {user.email}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => logout()}
-                className="rounded-xl border-border/80 hover:bg-destructive/10 hover:text-destructive font-semibold transition-all flex items-center gap-1.5 h-9"
+            <div className="relative flex items-center" ref={dropdownRef}>
+              <div className="h-6 w-px bg-border/80 mr-3.5 hidden sm:block" />
+
+              {/* Profile Trigger Button */}
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2.5 p-1 sm:pl-1 sm:pr-2.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all focus:outline-none group cursor-pointer"
               >
-                <LogOut className="size-4" />
-                <span className="hidden sm:inline">Logout</span>
-              </Button>
+                {/* Avatar Circle with Online Dot */}
+                <div className="relative size-9 sm:size-10 rounded-full bg-red-600 text-white font-extrabold flex items-center justify-center text-base sm:text-lg shadow-sm shrink-0 overflow-hidden border border-red-500/30">
+                  {user.company?.logoUrl ? (
+                    <img
+                      src={user.company.logoUrl}
+                      alt={user.company.name || 'Logo'}
+                      className="size-full object-cover"
+                    />
+                  ) : (
+                    <span>{getAvatarLetter()}</span>
+                  )}
+                  {/* Green Online Indicator Dot */}
+                  <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-900 shadow-sm" />
+                </div>
+
+                {/* Name and Chevron */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate max-w-[150px]">
+                    {getDisplayName()}
+                  </span>
+                  <ChevronDown
+                    className={`size-4 text-zinc-500 transition-transform duration-200 ${
+                      isDropdownOpen ? 'rotate-180 text-blue-600' : ''
+                    }`}
+                  />
+                </div>
+              </button>
+
+              {/* Dropdown Menu Box */}
+              {isDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2.5 w-56 sm:w-60 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  {/* Header info on mobile or quick badge */}
+                  <div className="px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 mb-1 sm:hidden">
+                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                      {getDisplayName()}
+                    </p>
+                    <p className="text-[11px] font-medium text-zinc-500 truncate mt-0.5">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {isRecruiter ? (
+                    <>
+                      <Link
+                        href="/jobs"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <LayoutDashboard className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Dashboard</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/profile"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Building2 className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Employer profile</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/jobs/new"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <PlusCircle className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Post job</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/notifications"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Bell className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Notification</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/messages"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <MessageSquare className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Message</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/settings"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Settings className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Account setting</span>
+                      </Link>
+
+                      <Link
+                        href="/employer/hiring"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Users className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Manage hiring</span>
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/candidates/dashboard"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <LayoutDashboard className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Dashboard</span>
+                      </Link>
+
+                      <Link
+                        href="/cv-builder"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <UserIcon className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Candidate profile</span>
+                      </Link>
+
+                      <Link
+                        href="/candidates/applications"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Briefcase className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>My applications</span>
+                      </Link>
+
+                      <Link
+                        href="/candidates/notifications"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Bell className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Notification</span>
+                      </Link>
+
+                      <Link
+                        href="/candidates/messages"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <MessageSquare className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Message</span>
+                      </Link>
+
+                      <Link
+                        href="/candidates/settings"
+                        onClick={() => setIsDropdownOpen(false)}
+                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                      >
+                        <Settings className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                        <span>Account setting</span>
+                      </Link>
+                    </>
+                  )}
+
+                  <div className="my-1.5 border-t border-zinc-100 dark:border-zinc-800" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center px-4 py-2.5 text-xs sm:text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer text-left"
+                  >
+                    <LogOut className="size-4 mr-3" />
+                    <span>Log out</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <Link

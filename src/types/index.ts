@@ -10,6 +10,9 @@ export interface CompanySummary {
   id: string;
   name: string;
   slug: string;
+  field?: string | null;
+  description?: string | null;
+  logoUrl?: string | null;
 }
 
 export interface CandidateProfileSummary {
@@ -21,7 +24,10 @@ export interface CandidateProfileSummary {
 export interface User {
   id: string;
   email: string;
+  firstName?: string | null;
+  lastName?: string | null;
   role: Role;
+  isEmailVerified?: boolean;
   companyId?: string | null;
   company?: CompanySummary | null;
   candidateProfile?: CandidateProfileSummary | null;

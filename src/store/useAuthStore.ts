@@ -22,6 +22,18 @@ interface AuthState {
   setError: (error: string | null) => void;
   setActiveRole: (role: 'candidate' | 'employer') => void;
   login: (credentials: LoginCredentials) => Promise<User | null>;
+  registerEmployer: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    companyName: string;
+    companyField?: string;
+    companyDescription: string;
+    logoUrl?: string;
+  }) => Promise<{ user: User; verification?: { otpCode: string; expiresIn: number } }>;
+  verifyOtp: (data: { email: string; otpCode: string }) => Promise<{ verified: boolean; user: User }>;
+  resendOtp: (email: string) => Promise<{ verification: { otpCode: string; expiresIn: number } }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<User | null>;
   clearError: () => void;
@@ -58,8 +70,12 @@ export const useAuthStore = create<AuthState>()(
         login: async (credentials: LoginCredentials) => {
           set({ isLoading: true, error: null });
           try {
-            const response = await apiClient.post<{ user: User }>('/auth/login', credentials);
+            const response = await apiClient.post<{ user: User; accessToken?: string }>('/auth/login', credentials);
             const user = response.data?.user || (response.data as unknown as User);
+
+            if (typeof window !== 'undefined' && response.data?.accessToken) {
+              localStorage.setItem('accessToken', response.data.accessToken);
+            }
 
             set({
               user,
@@ -81,6 +97,86 @@ export const useAuthStore = create<AuthState>()(
           }
         },
 
+        registerEmployer: async (data) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.post<{
+              user: User;
+              accessToken?: string;
+              verification?: { otpCode: string; expiresIn: number };
+            }>('/auth/employer/register', data);
+
+            const user = response.data?.user || (response.data as unknown as User);
+
+            if (typeof window !== 'undefined' && response.data?.accessToken) {
+              localStorage.setItem('accessToken', response.data.accessToken);
+            }
+
+            set({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            return response.data;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
+          }
+        },
+
+        verifyOtp: async (data) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.post<{
+              verified: boolean;
+              user: User;
+            }>('/auth/verify-otp', data);
+
+            const user = response.data?.user || (response.data as unknown as User);
+
+            set({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            return response.data;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
+          }
+        },
+
+        resendOtp: async (email: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.post<{
+              verification: { otpCode: string; expiresIn: number };
+            }>('/auth/resend-otp', { email });
+
+            set({ isLoading: false, error: null });
+            return response.data;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Resending verification code failed';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
+          }
+        },
+
         logout: async () => {
           set({ isLoading: true });
           try {
@@ -88,12 +184,18 @@ export const useAuthStore = create<AuthState>()(
           } catch (err) {
             console.error('Logout error:', err);
           } finally {
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('accessToken');
+            }
             set({
               user: null,
               isAuthenticated: false,
               isLoading: false,
               error: null,
             });
+            if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+              window.location.href = '/';
+            }
           }
         },
 

@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8050/api/v1';
 
 export interface ApiErrorResponse {
   success: false;
@@ -64,14 +64,28 @@ export async function apiClient<T>(
     });
   }
 
+  const isFormData =
+    typeof FormData !== 'undefined' && customConfig.body instanceof FormData;
+
+  let authHeader: Record<string, string> = {};
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('accessToken');
+    if (token && !(headers as Record<string, string>)?.['Authorization']) {
+      authHeader = { Authorization: `Bearer ${token}` };
+    }
+  }
+
+  const mergedHeaders: Record<string, string> = {
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
+    ...authHeader,
+    ...(headers as Record<string, string>),
+  };
+
   const config: RequestInit = {
     ...customConfig,
     // CRITICAL: Ensure credentials (`credentials: 'include'`) are passed for HttpOnly refresh/session cookies
     credentials: customConfig.credentials ?? 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...headers,
-    },
+    headers: mergedHeaders,
   };
 
   try {
@@ -147,3 +161,21 @@ apiClient.patch = <T>(endpoint: string, body?: any, options?: FetchOptions) =>
 
 apiClient.delete = <T>(endpoint: string, options?: FetchOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'DELETE' });
+
+/**
+ * Helper to upload an image file (File or Blob) to our backend Cloudinary service.
+ */
+export async function uploadFileToCloudinary(
+  file: File | Blob,
+  folder: string = 'hire-flow/uploads'
+): Promise<{ url: string; publicId: string; width?: number; height?: number }> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const res = await apiClient.post<{ url: string; publicId: string; width: number; height: number }>(
+    `/upload/image?folder=${encodeURIComponent(folder)}`,
+    formData
+  );
+
+  return res.data;
+}

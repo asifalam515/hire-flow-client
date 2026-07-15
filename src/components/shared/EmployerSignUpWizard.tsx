@@ -8,12 +8,15 @@ import {
   CheckCircle2,
   Eye,
   EyeOff,
+  Loader2,
   RefreshCw,
   ScanLine,
   ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import React, { useEffect, useRef, useState } from 'react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { uploadFileToCloudinary } from '@/lib/api';
 
 interface Testimonial {
   name: string;
@@ -62,7 +65,10 @@ const TESTIMONIALS: Testimonial[] = [
 ];
 
 export function EmployerSignUpWizard() {
+  const { registerEmployer, verifyOtp, resendOtp, isLoading, error: authError, clearError } = useAuthStore();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [simulatedDevOtp, setSimulatedDevOtp] = useState<string | null>(null);
 
   // Form State - Step 1
   const [firstName, setFirstName] = useState('');
@@ -79,11 +85,12 @@ export function EmployerSignUpWizard() {
   const [companyDescription, setCompanyDescription] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
   // Form State - Step 3 (OTP)
-  const [otp, setOtp] = useState<string[]>(['1', '', '', '']);
+  const [otp, setOtp] = useState<string[]>(['', '', '', '']);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [timer, setTimer] = useState(299); // 4 minutes 59 seconds
+  const [timer, setTimer] = useState(600); // 10 minutes
 
   // Testimonial Carousel State
   const [customTestimonialIndex, setCustomTestimonialIndex] = useState<number | null>(null);
@@ -112,11 +119,24 @@ export function EmployerSignUpWizard() {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setLogoFile(file);
-      setLogoPreview(URL.createObjectURL(file));
+      const localBlobUrl = URL.createObjectURL(file);
+      setLogoPreview(localBlobUrl);
+
+      try {
+        setIsUploadingLogo(true);
+        const res = await uploadFileToCloudinary(file, 'hire-flow/logos');
+        if (res?.url) {
+          setLogoPreview(res.url);
+        }
+      } catch (err) {
+        console.error('Instant Cloudinary upload error:', err);
+      } finally {
+        setIsUploadingLogo(false);
+      }
     }
   };
 
@@ -142,21 +162,100 @@ export function EmployerSignUpWizard() {
 
   const handleStep1Submit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
+    clearError();
+
+    if (password !== confirmPassword) {
+      setFormError('Passwords do not match. Please try again.');
+      return;
+    }
+    if (password.length < 8) {
+      setFormError('Password must be at least 8 characters long.');
+      return;
+    }
+
     setCustomTestimonialIndex(null);
     setStep(2);
   };
 
-  const handleStep2Submit = (e: React.FormEvent) => {
+  const handleStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setCustomTestimonialIndex(null);
-    setStep(3);
+    setFormError(null);
+    clearError();
+
+    try {
+      let finalLogoUrl = logoPreview || undefined;
+      if (logoFile && finalLogoUrl && finalLogoUrl.startsWith('blob:')) {
+        try {
+          setIsUploadingLogo(true);
+          const uploadRes = await uploadFileToCloudinary(logoFile, 'hire-flow/logos');
+          finalLogoUrl = uploadRes.url;
+        } catch (err) {
+          console.warn('Could not complete fallback Cloudinary logo upload, proceeding with local string:', err);
+        } finally {
+          setIsUploadingLogo(false);
+        }
+      }
+
+      const res = await registerEmployer({
+        firstName,
+        lastName,
+        email,
+        password,
+        companyName,
+        companyField: companyField || undefined,
+        companyDescription,
+        logoUrl: finalLogoUrl,
+      });
+
+      if (res?.verification?.otpCode) {
+        setSimulatedDevOtp(res.verification.otpCode);
+      }
+
+      setCustomTestimonialIndex(null);
+      setTimer(600); // 10 minutes countdown
+      setStep(3);
+    } catch (err: any) {
+      setFormError(err instanceof Error ? err.message : 'Registration failed. Please verify your company details.');
+    }
   };
 
-  const handleStep3Submit = (e: React.FormEvent) => {
+  const handleStep3Submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.join('').length === 4) {
+    setFormError(null);
+    clearError();
+
+    const enteredCode = otp.join('');
+    if (enteredCode.length !== 4) {
+      setFormError('Please enter the complete 4-digit verification code.');
+      return;
+    }
+
+    try {
+      await verifyOtp({
+        email,
+        otpCode: enteredCode,
+      });
+
       setCustomTestimonialIndex(null);
       setStep(4); // Success completed state
+    } catch (err: any) {
+      setFormError(err instanceof Error ? err.message : 'Invalid verification code. Please try again.');
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setFormError(null);
+    clearError();
+    try {
+      const res = await resendOtp(email);
+      if (res?.verification?.otpCode) {
+        setSimulatedDevOtp(res.verification.otpCode);
+      }
+      setTimer(600); // reset 10 mins
+      setOtp(['', '', '', '']);
+    } catch (err: any) {
+      setFormError(err instanceof Error ? err.message : 'Failed to resend verification code.');
     }
   };
 
@@ -246,6 +345,22 @@ export function EmployerSignUpWizard() {
                 Please enter your personal details to set up your account and personalize your experience
               </p>
             </div>
+
+            {(formError || authError) && (
+              <div className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium flex items-center justify-between">
+                <span>{formError || authError}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormError(null);
+                    clearError();
+                  }}
+                  className="font-bold ml-2 hover:underline"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleStep1Submit} className="space-y-4">
               <div>
@@ -395,6 +510,22 @@ export function EmployerSignUpWizard() {
               </p>
             </div>
 
+            {(formError || authError) && (
+              <div className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium flex items-center justify-between">
+                <span>{formError || authError}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormError(null);
+                    clearError();
+                  }}
+                  className="font-bold ml-2 hover:underline"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             <form onSubmit={handleStep2Submit} className="space-y-4">
               {/* Logo Uploader */}
               <div className="flex flex-col items-center justify-center my-4">
@@ -407,17 +538,34 @@ export function EmployerSignUpWizard() {
                   ) : (
                     <ScanLine className="size-6 sm:size-7 text-zinc-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                   )}
+                  {isUploadingLogo && (
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-xs flex flex-col items-center justify-center text-white p-1 z-10 animate-in fade-in">
+                      <Loader2 className="size-5 animate-spin text-blue-400 mb-1" />
+                      <span className="text-[10px] font-bold tracking-tight">Uploading...</span>
+                    </div>
+                  )}
                   <input
                     id="logo-upload"
                     type="file"
                     accept="image/*"
                     onChange={handleLogoUpload}
+                    disabled={isUploadingLogo}
                     className="hidden"
                   />
                 </label>
-                <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-2">
-                  {logoFile ? logoFile.name : 'Upload your logo'}
-                </span>
+                <div className="text-xs font-medium mt-2.5 flex items-center gap-1.5">
+                  {isUploadingLogo ? (
+                    <span className="text-blue-600 dark:text-blue-400 font-semibold flex items-center gap-1.5">
+                      <Loader2 className="size-3.5 animate-spin" /> Uploading to Cloudinary...
+                    </span>
+                  ) : logoFile ? (
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                      ✓ {logoFile.name} (Cloudinary Ready)
+                    </span>
+                  ) : (
+                    <span className="text-zinc-500 dark:text-zinc-400">Upload your logo (Cloudinary enabled)</span>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -469,9 +617,17 @@ export function EmployerSignUpWizard() {
               <div className="pt-2">
                 <Button
                   type="submit"
-                  className="w-full h-12 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-white font-bold text-sm sm:text-base shadow-lg shadow-zinc-900/15 dark:shadow-none transition-all cursor-pointer"
+                  disabled={isLoading}
+                  className="w-full h-12 rounded-xl bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-white font-bold text-sm sm:text-base shadow-lg shadow-zinc-900/15 dark:shadow-none transition-all cursor-pointer disabled:opacity-70"
                 >
-                  Finish Up
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin mr-2 inline" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Finish Up'
+                  )}
                 </Button>
                 
                 <button
@@ -497,6 +653,43 @@ export function EmployerSignUpWizard() {
                 We&apos;ve sent a verification code to your email. Please enter the code in the box below to verify your account.
               </p>
             </div>
+
+            {(formError || authError) && (
+              <div className="mb-4 p-3.5 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 text-red-600 dark:text-red-400 text-xs sm:text-sm font-medium flex items-center justify-between">
+                <span>{formError || authError}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormError(null);
+                    clearError();
+                  }}
+                  className="font-bold ml-2 hover:underline"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {simulatedDevOtp && (
+              <div className="my-3 p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-300 text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-between gap-2 shadow-sm">
+                <span>
+                  <strong>Dev Simulation Code:</strong>{' '}
+                  <code className="px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900 font-mono text-sm sm:text-base font-extrabold ml-1">
+                    {simulatedDevOtp}
+                  </code>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOtp(simulatedDevOtp.split(''));
+                    setFormError(null);
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow transition-colors shrink-0 cursor-pointer"
+                >
+                  Auto-fill Code
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleStep3Submit} className="space-y-6 my-2">
               {/* OTP 4 Input Boxes */}
@@ -527,14 +720,21 @@ export function EmployerSignUpWizard() {
 
               <Button
                 type="submit"
-                disabled={otp.join('').length < 4}
+                disabled={otp.join('').length < 4 || isLoading}
                 className={`w-full h-12 rounded-xl font-bold text-base transition-all ${
-                  otp.join('').length === 4
+                  otp.join('').length === 4 && !isLoading
                     ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25 cursor-pointer'
                     : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed border border-zinc-200/60 dark:border-zinc-700/60'
                 }`}
               >
-                Verify
+                {isLoading ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin mr-2 inline" />
+                    Verifying Code...
+                  </>
+                ) : (
+                  'Verify'
+                )}
               </Button>
             </form>
 
@@ -542,11 +742,12 @@ export function EmployerSignUpWizard() {
               Didn&apos;t receive the code?{' '}
               <button
                 type="button"
-                onClick={() => setTimer(299)}
-                className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer ml-1 inline-flex items-center gap-1"
+                disabled={isLoading}
+                onClick={handleResendOtp}
+                className="font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer ml-1 inline-flex items-center gap-1 disabled:opacity-50"
               >
                 <span>Resend</span>
-                <RefreshCw className="size-3" />
+                <RefreshCw className={`size-3 ${isLoading ? 'animate-spin' : ''}`} />
               </button>
             </p>
           </div>
