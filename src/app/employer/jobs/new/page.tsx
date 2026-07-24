@@ -5,7 +5,7 @@ import { PostJobForm } from '@/components/employer/PostJobForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Post a Job | Joblin',
+  title: 'Post a Job | Hire Flow',
   description: 'Post a new job opening to find the best talent.',
 };
 

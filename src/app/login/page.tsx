@@ -5,7 +5,7 @@ import { LoginForm } from '@/components/shared/LoginForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Log In | Joblin & Hire-Flow',
+  title: 'Log In | Hire Flow & Hire-Flow',
   description: 'Log in to your account to continue your hiring or job search journey.',
 };
 

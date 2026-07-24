@@ -260,7 +260,7 @@ export function Navbar() {
                   {isRecruiter ? (
                     <>
                       <Link
-                        href="/jobs"
+                        href="/employer/dashboard"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -269,7 +269,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/profile"
+                        href="/employer/dashboard/profile"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -278,7 +278,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/jobs/new"
+                        href="/employer/dashboard/post-job"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -287,7 +287,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/notifications"
+                        href="/employer/dashboard/notifications"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -296,7 +296,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/messages"
+                        href="/employer/dashboard/messages"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -305,7 +305,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/settings"
+                        href="/employer/dashboard/settings"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
@@ -314,7 +314,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/employer/hiring"
+                        href="/employer/dashboard/hiring"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >

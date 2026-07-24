@@ -5,7 +5,7 @@ import { EmployerSignUpWizard } from '@/components/shared/EmployerSignUpWizard';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Recruiter & Employer Sign Up | Joblin & Hire-Flow',
+  title: 'Recruiter & Employer Sign Up | Hire Flow & Hire-Flow',
   description: 'Create your employer account, upload company information, and verify your email to begin hiring elite candidates.',
 };
 

@@ -43,6 +43,14 @@ interface AuthState {
   logout: () => Promise<void>;
   checkAuth: () => Promise<User | null>;
   updateAvatar: (avatarUrl: string) => Promise<User>;
+  updateEmployerProfile: (data: {
+    firstName: string;
+    lastName: string;
+    companyName: string;
+    companyField?: string;
+    companyDescription?: string;
+    companyLogoUrl?: string;
+  }) => Promise<User>;
   clearError: () => void;
 }
 
@@ -277,6 +285,35 @@ export const useAuthStore = create<AuthState>()(
             return updatedUser;
           } catch (error: any) {
             const errorMessage = error instanceof Error ? error.message : 'Failed to update avatar';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
+          }
+        },
+
+        updateEmployerProfile: async (data: {
+          firstName: string;
+          lastName: string;
+          companyName: string;
+          companyField?: string;
+          companyDescription?: string;
+          companyLogoUrl?: string;
+        }) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.patch<{ user: User }>('/users/me/employer-profile', data);
+            const updatedUser = response.data?.user || (response.data as unknown as User);
+
+            set((state) => ({
+              user: state.user ? { ...state.user, ...updatedUser } : updatedUser,
+              isLoading: false,
+            }));
+
+            return updatedUser;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update employer profile';
             set({
               isLoading: false,
               error: errorMessage,

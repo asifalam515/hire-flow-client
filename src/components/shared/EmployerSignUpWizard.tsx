@@ -52,7 +52,7 @@ const TESTIMONIALS: Testimonial[] = [
     name: 'Wade Warren',
     role: 'Talent Acquisition Director at Google',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=256&auto=format&fit=crop',
-    quote: 'Our hiring velocity increased by 3x within two weeks of transitioning our employer account to Joblin. The automated candidate filtering is unmatched.',
+    quote: 'Our hiring velocity increased by 3x within two weeks of transitioning our employer account to Hire Flow. The automated candidate filtering is unmatched.',
     dotIndex: 0
   },
   {
@@ -298,7 +298,7 @@ export function EmployerSignUpWizard() {
             </button>
           )}
 
-          {/* Joblin Brand Header */}
+          {/* Hire Flow Brand Header */}
           <div className="text-center mb-6">
             <Link href="/" className="inline-block group focus:outline-none">
               <div className="flex items-center justify-center tracking-tighter text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white select-none">
@@ -575,7 +575,7 @@ export function EmployerSignUpWizard() {
                 <Input
                   required
                   type="text"
-                  placeholder="e.g. Apple Inc. or Joblin Technologies"
+                  placeholder="e.g. Apple Inc. or Hire Flow Technologies"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   className="h-11 sm:h-12 rounded-xl border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 px-4 font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20"
@@ -766,7 +766,7 @@ export function EmployerSignUpWizard() {
             </span>
 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white mb-2">
-              Welcome to Joblin!
+              Welcome to Hire Flow!
             </h2>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-8 leading-relaxed">
               Your recruiter profile for <strong className="text-foreground">{companyName || 'Your Company'}</strong> is now active. You can begin posting opportunities immediately.

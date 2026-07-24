@@ -4,36 +4,37 @@ import React from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
-  User,
-  PlusSquare,
+  FileText,
   Bell,
   MessageSquare,
   Settings,
-  Sliders,
+  Activity,
   LogOut, 
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
 
-export function EmployerSidebar() {
+export function CandidateSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
   const pathname = usePathname();
+  const { logout } = useAuthStore();
 
   const navItems = [
-    { name: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
-    { name: 'Employer profile', href: '/employer/dashboard/profile', icon: User },
-    { name: 'Post Job', href: '/employer/dashboard/post-job', icon: PlusSquare },
-    { name: 'Notification', href: '/employer/dashboard/notifications', icon: Bell, badge: 6 },
-    { name: 'Message', href: '/employer/dashboard/messages', icon: MessageSquare, badge: 24 },
-    { name: 'Account Setting', href: '/employer/dashboard/settings', icon: Settings },
-    { name: 'Manage hiring', href: '/employer/dashboard/hiring', icon: Sliders },
+    { name: 'Dashboard', href: '/candidates/dashboard', icon: LayoutDashboard },
+    { name: 'My Resume', href: '/candidates/dashboard/resume', icon: FileText },
+    { name: 'Notification', href: '/candidates/dashboard/notifications', icon: Bell, badge: 6 },
+    { name: 'Message', href: '/candidates/dashboard/messages', icon: MessageSquare, badge: 6 },
+    { name: 'Account Setting', href: '/candidates/dashboard/settings', icon: Settings },
+    { name: 'Activity', href: '/candidates/dashboard/activity', icon: Activity },
   ];
 
   return (
-    <aside className="w-[280px] bg-white dark:bg-zinc-950 border-r border-slate-100 dark:border-zinc-800 flex flex-col h-full sticky top-0 shrink-0">
-      {/* Logo */}
-      <div className="h-24 flex items-center px-8 border-b border-slate-100 dark:border-zinc-800">
-        <Link href="/employer/dashboard" className="flex items-center gap-3">
-          <div className="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center">
+    <aside className="w-[280px] bg-white dark:bg-zinc-950 border-r border-slate-100 dark:border-zinc-800 flex flex-col h-screen sticky top-0 shrink-0">
+      {/* Logo & Close Button */}
+      <div className="h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8 border-b border-slate-100 dark:border-zinc-800">
+        <Link href="/candidates/dashboard" className="flex items-center gap-3">
+          <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center">
             <span className="font-bold text-xl">J</span>
           </div>
           <div>
@@ -41,6 +42,12 @@ export function EmployerSidebar() {
             <span className="text-xs text-slate-500 font-medium">Dashboard</span>
           </div>
         </Link>
+        <button 
+          onClick={onMobileClose}
+          className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg dark:hover:bg-zinc-900"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -49,13 +56,14 @@ export function EmployerSidebar() {
           Main
         </div>
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.name === 'Dashboard' && pathname === '/employer/dashboard');
+          const isActive = pathname === item.href;
           const Icon = item.icon;
           
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={onMobileClose}
               className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-colors ${
                 isActive 
                   ? 'bg-slate-100 text-slate-900 dark:bg-zinc-900 dark:text-white' 
@@ -79,7 +87,10 @@ export function EmployerSidebar() {
 
       {/* Bottom Actions */}
       <div className="px-4 py-6 mt-auto">
-        <button className="flex w-full items-center gap-4 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+        <button 
+          onClick={() => logout()}
+          className="flex w-full items-center gap-4 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+        >
           <LogOut className="w-5 h-5" />
           Log out
         </button>

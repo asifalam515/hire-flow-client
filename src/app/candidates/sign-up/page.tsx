@@ -5,7 +5,7 @@ import { CandidateSignUpForm } from '@/components/shared/CandidateSignUpForm';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Candidate Sign Up | Joblin & Hire-Flow',
+  title: 'Candidate Sign Up | Hire Flow & Hire-Flow',
   description: 'Create your candidate account to find the perfect job and track your applications.',
 };
 

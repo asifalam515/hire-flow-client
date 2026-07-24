@@ -4,7 +4,7 @@ import { EmployerHeader } from '@/components/employer/EmployerHeader';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Employer Dashboard | Joblin & Hire-Flow',
+  title: 'Employer Dashboard | Hire Flow & Hire-Flow',
   description: 'Manage your job postings, applications, and messages.',
 };
 
