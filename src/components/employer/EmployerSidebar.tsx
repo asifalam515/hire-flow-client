@@ -4,13 +4,14 @@ import React from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
-  Briefcase, 
-  FileText, 
-  MessageSquare, 
-  Settings, 
+  User,
+  PlusSquare,
+  Bell,
+  MessageSquare,
+  Settings,
+  Sliders,
   LogOut, 
-  HelpCircle,
-  BriefcaseBusiness
+  HelpCircle
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
@@ -19,58 +20,71 @@ export function EmployerSidebar() {
 
   const navItems = [
     { name: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
-    { name: 'Jobs', href: '/employer/dashboard/jobs', icon: Briefcase },
-    { name: 'Applications', href: '/employer/dashboard/applications', icon: FileText },
-    { name: 'Messages', href: '/employer/dashboard/messages', icon: MessageSquare },
-    { name: 'Settings', href: '/employer/dashboard/settings', icon: Settings },
+    { name: 'Employer profile', href: '/employer/dashboard/profile', icon: User },
+    { name: 'Post Job', href: '/employer/dashboard/post-job', icon: PlusSquare },
+    { name: 'Notification', href: '/employer/dashboard/notifications', icon: Bell, badge: 6 },
+    { name: 'Message', href: '/employer/dashboard/messages', icon: MessageSquare, badge: 24 },
+    { name: 'Account Setting', href: '/employer/dashboard/settings', icon: Settings },
+    { name: 'Manage hiring', href: '/employer/dashboard/hiring', icon: Sliders },
   ];
 
   return (
-    <aside className="w-64 bg-white dark:bg-zinc-950 border-r border-slate-200 dark:border-zinc-800 flex flex-col h-full sticky top-0 shrink-0">
+    <aside className="w-[280px] bg-white dark:bg-zinc-950 border-r border-slate-100 dark:border-zinc-800 flex flex-col h-full sticky top-0 shrink-0">
       {/* Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-zinc-800">
-        <Link href="/employer/dashboard" className="flex items-center gap-2">
-          <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-            <BriefcaseBusiness className="w-5 h-5" />
+      <div className="h-24 flex items-center px-8 border-b border-slate-100 dark:border-zinc-800">
+        <Link href="/employer/dashboard" className="flex items-center gap-3">
+          <div className="bg-slate-900 text-white w-10 h-10 rounded-xl flex items-center justify-center">
+            <span className="font-bold text-xl">J</span>
           </div>
-          <span className="font-bold text-xl text-slate-900 dark:text-white">Joblin</span>
+          <div>
+            <span className="font-bold text-xl text-slate-900 dark:text-white leading-tight block">Joblin</span>
+            <span className="text-xs text-slate-500 font-medium">Dashboard</span>
+          </div>
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-        <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-2">
-          Menu
+      <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
+        <div className="text-xs font-semibold text-slate-400 mb-4 px-4">
+          Main
         </div>
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.name === 'Jobs' && pathname?.includes('/jobs')) || (item.name === 'Jobs' && pathname?.includes('/post-job'));
+          const isActive = pathname === item.href || (item.name === 'Dashboard' && pathname === '/employer/dashboard');
           const Icon = item.icon;
           
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${
+              className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-colors ${
                 isActive 
-                  ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' 
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-zinc-900 dark:hover:text-white'
+                  ? 'bg-slate-100 text-slate-900 dark:bg-zinc-900 dark:text-white' 
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-zinc-900/50 dark:hover:text-white'
               }`}
             >
-              <Icon className={`w-5 h-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400'}`} />
-              {item.name}
+              <div className="flex items-center gap-4">
+                <Icon className={`w-5 h-5 ${isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500'}`} />
+                {item.name}
+              </div>
+              
+              {item.badge && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Actions */}
-      <div className="p-4 border-t border-slate-200 dark:border-zinc-800 space-y-1">
-        <button className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+      <div className="px-4 py-6 mt-auto">
+        <button className="flex w-full items-center gap-4 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
           <LogOut className="w-5 h-5" />
-          Logout
+          Log out
         </button>
-        <button className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-zinc-900 dark:hover:text-white transition-colors">
-          <HelpCircle className="w-5 h-5 text-slate-400" />
+        <button className="flex w-full items-center gap-4 px-4 py-3 mt-1 rounded-xl font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-zinc-900/50 transition-colors">
+          <HelpCircle className="w-5 h-5 text-slate-500" />
           Help
         </button>
       </div>

@@ -39,8 +39,27 @@ export interface User {
 export interface Job {
   id: string;
   title: string;
-  description: string;
+  description?: string | null;
   status: JobStatus;
+  category: string;
+  nature: string;
+  vacancies?: number | null;
+  employmentTypes: string[];
+  locationCountry: string;
+  locationCity: string;
+  exactAddress?: string | null;
+  minSalary: number;
+  maxSalary: number;
+  isSalaryNegotiable: boolean;
+  benefits: string[];
+  educationLevel: string;
+  yearsOfExperience: string;
+  gender: string;
+  candidateExperience: string[];
+  languages: string[];
+  softwareSkills: string[];
+  responsibilities?: string | null;
+  requirements?: string | null;
   companyId: string;
   company?: CompanySummary;
   createdAt: string;
