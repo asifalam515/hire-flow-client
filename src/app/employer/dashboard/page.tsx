@@ -43,7 +43,7 @@ const pieData = [
 
 export default function EmployerDashboardPage() {
   return (
-    <div className="p-8 max-w-[1400px] mx-auto w-full space-y-6 bg-slate-50 dark:bg-zinc-950 font-sans min-h-screen">
+    <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full space-y-6 bg-slate-50 dark:bg-zinc-950 font-sans min-h-screen">
       
       <div className="flex flex-col lg:flex-row gap-6">
         
@@ -102,7 +102,7 @@ export default function EmployerDashboardPage() {
           </div>
 
           {/* Job Statistics Chart Section */}
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-slate-200 dark:border-zinc-800 shadow-sm">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-zinc-800 shadow-sm">
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
               <div>
@@ -290,7 +290,7 @@ export default function EmployerDashboardPage() {
       </div>
 
       {/* Bottom Section - Recently Posted Jobs */}
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-slate-200 dark:border-zinc-800 shadow-sm mt-6 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-zinc-800 shadow-sm mt-6 overflow-hidden">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recently Posted Jobs</h2>
           <button className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center hover:text-slate-900 transition-colors">
