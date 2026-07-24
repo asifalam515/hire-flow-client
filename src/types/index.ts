@@ -26,6 +26,7 @@ export interface User {
   email: string;
   firstName?: string | null;
   lastName?: string | null;
+  avatarUrl?: string | null;
   role: Role;
   isEmailVerified?: boolean;
   companyId?: string | null;

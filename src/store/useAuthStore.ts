@@ -32,10 +32,17 @@ interface AuthState {
     companyDescription: string;
     logoUrl?: string;
   }) => Promise<{ user: User; verification?: { otpCode: string; expiresIn: number } }>;
+  registerCandidate: (data: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+  }) => Promise<{ user: User; verification?: { otpCode: string; expiresIn: number } }>;
   verifyOtp: (data: { email: string; otpCode: string }) => Promise<{ verified: boolean; user: User }>;
   resendOtp: (email: string) => Promise<{ verification: { otpCode: string; expiresIn: number } }>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<User | null>;
+  updateAvatar: (avatarUrl: string) => Promise<User>;
   clearError: () => void;
 }
 
@@ -105,6 +112,39 @@ export const useAuthStore = create<AuthState>()(
               accessToken?: string;
               verification?: { otpCode: string; expiresIn: number };
             }>('/auth/employer/register', data);
+
+            const user = response.data?.user || (response.data as unknown as User);
+
+            if (typeof window !== 'undefined' && response.data?.accessToken) {
+              localStorage.setItem('accessToken', response.data.accessToken);
+            }
+
+            set({
+              user,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+
+            return response.data;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
+          }
+        },
+
+        registerCandidate: async (data) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.post<{
+              user: User;
+              accessToken?: string;
+              verification?: { otpCode: string; expiresIn: number };
+            }>('/auth/candidate/register', data);
 
             const user = response.data?.user || (response.data as unknown as User);
 
@@ -220,6 +260,28 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
             });
             return null;
+          }
+        },
+
+        updateAvatar: async (avatarUrl: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.patch<{ user: User }>('/users/me/avatar', { avatarUrl });
+            const updatedUser = response.data?.user || (response.data as unknown as User);
+
+            set((state) => ({
+              user: state.user ? { ...state.user, ...updatedUser } : updatedUser,
+              isLoading: false,
+            }));
+
+            return updatedUser;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update avatar';
+            set({
+              isLoading: false,
+              error: errorMessage,
+            });
+            throw error;
           }
         },
       }),

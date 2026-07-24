@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
+import { uploadFileToCloudinary } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
   Search,
@@ -10,6 +11,8 @@ import {
   LogIn,
   LogOut,
   ChevronDown,
+  Camera,
+  Loader2,
   LayoutDashboard,
   Building2,
   PlusCircle,
@@ -34,9 +37,32 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export function Navbar() {
-  const { user, isAuthenticated, logout, activeRole, setActiveRole } = useAuthStore();
+  const { user, isAuthenticated, logout, activeRole, setActiveRole, updateAvatar } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploadingAvatar(true);
+      const res = await uploadFileToCloudinary(file, 'hire-flow/avatars');
+      if (res?.url) {
+        await updateAvatar(res.url);
+      }
+    } catch (error) {
+      console.error('Failed to upload avatar:', error);
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -161,7 +187,15 @@ export function Navbar() {
               >
                 {/* Avatar Circle with Online Dot */}
                 <div className="relative size-9 sm:size-10 rounded-full bg-red-600 text-white font-extrabold flex items-center justify-center text-base sm:text-lg shadow-sm shrink-0 overflow-hidden border border-red-500/30">
-                  {user.company?.logoUrl ? (
+                  {isUploadingAvatar ? (
+                    <Loader2 className="size-5 animate-spin text-white" />
+                  ) : user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={getDisplayName()}
+                      className="size-full object-cover"
+                    />
+                  ) : user.company?.logoUrl ? (
                     <img
                       src={user.company.logoUrl}
                       alt={user.company.name || 'Logo'}
@@ -199,6 +233,29 @@ export function Navbar() {
                       {user.email}
                     </p>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingAvatar}
+                    className="w-full flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group text-left cursor-pointer disabled:opacity-50"
+                  >
+                    {isUploadingAvatar ? (
+                      <Loader2 className="size-4 mr-3 text-zinc-400 animate-spin" />
+                    ) : (
+                      <Camera className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                    )}
+                    <span>Update profile photo</span>
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
+
+                  <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
 
                   {isRecruiter ? (
                     <>
@@ -340,16 +397,23 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <Link
-              href={
-                activeRole === 'employer' ? '/employer/sign-up' : '/candidates/sign-up'
-              }
-            >
-              <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 h-9 shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 flex items-center gap-2 text-sm">
-                <LogIn className="size-4" />
-                <span>Sign Up</span>
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/login">
+                <Button variant="ghost" className="rounded-xl font-semibold px-4 py-2 h-9 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-zinc-800 transition-all duration-200">
+                  Log In
+                </Button>
+              </Link>
+              <Link
+                href={
+                  activeRole === 'employer' ? '/employer/sign-up' : '/candidates/sign-up'
+                }
+              >
+                <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 h-9 shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 flex items-center gap-2 text-sm">
+                  <LogIn className="size-4" />
+                  <span>Sign Up</span>
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

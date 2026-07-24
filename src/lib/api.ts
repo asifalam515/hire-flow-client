@@ -81,6 +81,18 @@ export async function apiClient<T>(
     ...(headers as Record<string, string>),
   };
 
+  // Remove Content-Type for FormData to allow the browser to set the boundary automatically
+  if (isFormData) {
+    delete mergedHeaders['Content-Type'];
+  }
+
+  // Remove any explicitly undefined headers
+  Object.keys(mergedHeaders).forEach((key) => {
+    if (mergedHeaders[key] === undefined) {
+      delete mergedHeaders[key];
+    }
+  });
+
   const config: RequestInit = {
     ...customConfig,
     // CRITICAL: Ensure credentials (`credentials: 'include'`) are passed for HttpOnly refresh/session cookies
@@ -134,16 +146,20 @@ export async function apiClient<T>(
 apiClient.get = <T>(endpoint: string, options?: FetchOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'GET' });
 
-apiClient.post = <T>(endpoint: string, body?: any, options?: FetchOptions) =>
-  apiClient<T>(endpoint, {
+apiClient.post = <T>(endpoint: string, body?: any, options?: FetchOptions) => {
+  const isForm = body instanceof FormData;
+  const headers = { ...options?.headers };
+  if (isForm) {
+    delete (headers as any)['Content-Type'];
+  }
+  
+  return apiClient<T>(endpoint, {
     ...options,
     method: 'POST',
-    body: body instanceof FormData ? body : JSON.stringify(body),
-    headers:
-      body instanceof FormData
-        ? { ...options?.headers, 'Content-Type': undefined as any }
-        : options?.headers,
+    body: isForm ? body : JSON.stringify(body),
+    headers: Object.keys(headers).length > 0 ? headers : undefined,
   });
+};
 
 apiClient.put = <T>(endpoint: string, body?: any, options?: FetchOptions) =>
   apiClient<T>(endpoint, {
