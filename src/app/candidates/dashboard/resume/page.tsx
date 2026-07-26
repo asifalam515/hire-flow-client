@@ -24,6 +24,7 @@ import * as candidateService from '../../../../services/candidate.service';
 
 interface Profile {
   id: string;
+  resumeUrl?: string;
   mobileNumber?: string;
   maritalStatus?: string;
   city?: string;
@@ -110,6 +111,30 @@ export default function CandidateResumePage() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Failed to download PDF', error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  const handleViewResume = async () => {
+    if (profile?.resumeUrl) {
+      window.open(profile.resumeUrl, '_blank');
+      return;
+    }
+    
+    try {
+      setIsDownloading(true);
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8050/api/v1'}/candidates/me/resume/download`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('Failed to fetch generated resume');
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Failed to view PDF', error);
+      alert('Failed to open resume. Please try again later.');
     } finally {
       setIsDownloading(false);
     }
@@ -288,7 +313,7 @@ export default function CandidateResumePage() {
               <p className="text-sm text-slate-500 mb-4">{profile.user.email}</p>
               
               <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-                <button className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors">
+                <button onClick={handleViewResume} className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors flex items-center gap-2">
                   View resume
                 </button>
                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="px-5 py-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-bold transition-colors flex items-center gap-2">

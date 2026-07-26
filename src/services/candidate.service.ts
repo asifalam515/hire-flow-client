@@ -6,7 +6,14 @@ export const getResume = async () => {
 };
 
 export const updateProfile = async (data: any) => {
-  const response = await apiClient.patch('/candidates/me/resume', data);
+  const payload = { ...data };
+  if (payload.user) {
+    if (payload.user.firstName !== undefined) payload.firstName = payload.user.firstName;
+    if (payload.user.lastName !== undefined) payload.lastName = payload.user.lastName;
+    if (payload.user.avatarUrl !== undefined) payload.avatarUrl = payload.user.avatarUrl;
+    delete payload.user;
+  }
+  const response = await apiClient.patch('/candidates/me/resume', payload);
   return response.data;
 };
 
