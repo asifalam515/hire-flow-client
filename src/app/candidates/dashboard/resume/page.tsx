@@ -21,6 +21,7 @@ import {
   X
 } from 'lucide-react';
 import * as candidateService from '../../../../services/candidate.service';
+import { useAuthStore } from '@/store/useAuthStore';
 
 interface Profile {
   id: string;
@@ -200,16 +201,22 @@ export default function CandidateResumePage() {
   const handleUpdateProfile = async (updates: Partial<Profile>, onComplete: () => void) => {
     try {
       const updated = await candidateService.updateProfile(updates);
-      setProfile(prev => prev ? { 
-        ...prev, 
-        ...updated, 
-        user: { 
-          ...prev.user, 
-          firstName: updates.user?.firstName || prev.user.firstName, 
-          lastName: updates.user?.lastName || prev.user.lastName,
-          avatarUrl: updates.user?.avatarUrl !== undefined ? updates.user.avatarUrl : prev.user.avatarUrl
-        } 
-      } : null);
+      setProfile(prev => {
+        if (!prev) return null;
+        const newProfile = { 
+          ...prev, 
+          ...updated, 
+          user: { 
+            ...prev.user, 
+            firstName: updates.user?.firstName || prev.user.firstName, 
+            lastName: updates.user?.lastName || prev.user.lastName,
+            avatarUrl: updates.user?.avatarUrl !== undefined ? updates.user.avatarUrl : prev.user.avatarUrl
+          } 
+        };
+        
+        useAuthStore.getState().setUser(newProfile.user as any);
+        return newProfile;
+      });
       onComplete();
     } catch (error) {
       console.error('Failed to update profile', error);
