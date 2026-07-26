@@ -203,7 +203,7 @@ export default function CandidateResumePage() {
       const updated = await candidateService.updateProfile(updates);
       setProfile(prev => {
         if (!prev) return null;
-        const newProfile = { 
+        return { 
           ...prev, 
           ...updated, 
           user: { 
@@ -213,10 +213,14 @@ export default function CandidateResumePage() {
             avatarUrl: updates.user?.avatarUrl !== undefined ? updates.user.avatarUrl : prev.user.avatarUrl
           } 
         };
-        
-        useAuthStore.getState().setUser(newProfile.user as any);
-        return newProfile;
       });
+
+      useAuthStore.getState().setUser({
+        ...useAuthStore.getState().user,
+        firstName: updates.user?.firstName || useAuthStore.getState().user?.firstName, 
+        lastName: updates.user?.lastName || useAuthStore.getState().user?.lastName,
+        avatarUrl: updates.user?.avatarUrl !== undefined ? updates.user.avatarUrl : useAuthStore.getState().user?.avatarUrl
+      } as any);
       onComplete();
     } catch (error) {
       console.error('Failed to update profile', error);
