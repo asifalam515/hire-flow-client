@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Search, Bell, Menu } from 'lucide-react';
+import { Search, Bell, Menu, User as UserIcon } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
+  const { user } = useAuthStore();
+
   return (
     <header className="h-20 lg:h-28 bg-white dark:bg-zinc-950 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10 shrink-0 border-b border-slate-100 dark:border-zinc-800">
       
@@ -51,11 +54,19 @@ export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
           
           <div className="flex items-center gap-3 cursor-pointer">
             <div className="flex items-center justify-center h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-600 overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-blue-500 transition-all">
-              <img src="https://i.pravatar.cc/150?img=47" alt="Kathryn Murphy" className="w-full h-full object-cover" />
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-5 h-5 lg:w-6 lg:h-6 text-slate-400" />
+              )}
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">Kathryn Murphy</p>
-              <p className="text-xs text-slate-500 leading-tight">Kathrynmurphy@gmail.com</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+                {user ? `${user.firstName} ${user.lastName}` : 'Candidate'}
+              </p>
+              <p className="text-xs text-slate-500 leading-tight">
+                {user?.email || 'Loading...'}
+              </p>
             </div>
           </div>
         </div>
