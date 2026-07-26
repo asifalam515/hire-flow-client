@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   User as UserIcon, 
   Edit3, 
@@ -129,7 +129,8 @@ export default function CandidateResumePage() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!response.ok) throw new Error('Failed to fetch generated resume');
-      const blob = await response.blob();
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
     } catch (error) {
@@ -269,6 +270,34 @@ export default function CandidateResumePage() {
       console.error('Failed to delete education', error);
     }
   };
+
+  const resumeQuality = useMemo(() => {
+    if (!profile) return { score: 0, actionableItems: [] };
+
+    const rules = [
+      { key: 'personal', label: 'Complete personal information', weight: 15, isComplete: !!profile.mobileNumber && !!profile.city },
+      { key: 'avatar', label: 'Upload a profile photo', weight: 10, isComplete: !!profile.user.avatarUrl },
+      { key: 'aboutMe', label: 'Add a summary about yourself', weight: 15, isComplete: !!profile.aboutMe && profile.aboutMe.length > 10 },
+      { key: 'experience', label: 'Add your work experience', weight: 25, isComplete: profile.workExperiences?.length > 0 },
+      { key: 'education', label: 'Add your education details', weight: 20, isComplete: profile.educations?.length > 0 },
+      { key: 'skills', label: 'Add at least 3 skills', weight: 15, isComplete: profile.skills?.length >= 3 },
+    ];
+
+    let score = 0;
+    const actionableItems: { label: string; weight: number }[] = [];
+
+    rules.forEach(rule => {
+      if (rule.isComplete) {
+        score += rule.weight;
+      } else {
+        actionableItems.push({ label: rule.label, weight: rule.weight });
+      }
+    });
+
+    actionableItems.sort((a, b) => b.weight - a.weight);
+
+    return { score, actionableItems: actionableItems.slice(0, 3) };
+  }, [profile]);
 
   if (loading) {
     return (
@@ -755,9 +784,9 @@ export default function CandidateResumePage() {
         {/* Right Sidebar Area */}
         <div className="w-full lg:w-[320px] shrink-0 space-y-6">
           
-          {/* Resume Quality Widget */}
+          {/* Profile Completion Widget */}
           <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm flex flex-col items-center text-center">
-            <h3 className="font-bold text-slate-900 dark:text-white mb-6">Your Resume Quality</h3>
+            <h3 className="font-bold text-slate-900 dark:text-white mb-6">Profile Completion</h3>
             
             <div className="relative w-32 h-32 mb-6">
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -765,32 +794,34 @@ export default function CandidateResumePage() {
                 <circle 
                   cx="50" cy="50" r="40" 
                   stroke="currentColor" strokeWidth="12" fill="transparent" 
-                  strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - 0.74)} 
-                  className="text-blue-600" 
+                  strokeDasharray="251.2" strokeDashoffset={251.2 * (1 - resumeQuality.score / 100)} 
+                  className="text-blue-600 transition-all duration-1000 ease-out" 
                 />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white">74%</span>
+                <span className="text-2xl font-bold text-slate-900 dark:text-white">{resumeQuality.score}%</span>
               </div>
             </div>
 
             <p className="text-[11px] text-slate-500 font-medium leading-relaxed mb-4">
-              Your resume is only 74% complete! Let's improve it.
+              {resumeQuality.score === 100 
+                ? "Your profile is 100% complete! Great job!" 
+                : `Your profile is only ${resumeQuality.score}% complete! Let's improve it.`}
             </p>
 
             <div className="w-full space-y-2 text-left">
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">+2%</span>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Complete your job title</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">+5%</span>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Complete personal information</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">+2%</span>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">Add your work experience</span>
-              </div>
+              {resumeQuality.actionableItems.map((item, index) => (
+                <div key={index} className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">+{item.weight}%</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{item.label}</span>
+                </div>
+              ))}
+              {resumeQuality.score === 100 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-1.5 py-0.5 rounded border border-green-200 dark:border-green-800">✓</span>
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">All set! You're ready to apply.</span>
+                </div>
+              )}
             </div>
           </div>
 
