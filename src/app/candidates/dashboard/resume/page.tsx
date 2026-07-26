@@ -64,8 +64,9 @@ export default function CandidateResumePage() {
   // Form States
   const [personalForm, setPersonalForm] = useState<any>({});
   const [aboutForm, setAboutForm] = useState('');
-  const [skillsForm, setSkillsForm] = useState('');
-  const [languagesForm, setLanguagesForm] = useState('');
+  const [skillsForm, setSkillsForm] = useState<string[]>([]);
+  const [newSkill, setNewSkill] = useState('');
+  const [languagesForm, setLanguagesForm] = useState<string[]>([]);
   const [benefitsForm, setBenefitsForm] = useState('');
   const [preferencesForm, setPreferencesForm] = useState('');
   
@@ -204,13 +205,11 @@ export default function CandidateResumePage() {
   };
 
   const handleUpdateSkills = () => {
-    const skillsArray = skillsForm.split(',').map(s => s.trim()).filter(Boolean);
-    handleUpdateProfile({ skills: skillsArray }, () => setEditSkills(false));
+    handleUpdateProfile({ skills: skillsForm }, () => setEditSkills(false));
   };
   
   const handleUpdateLanguages = () => {
-    const arr = languagesForm.split(',').map(s => s.trim()).filter(Boolean);
-    handleUpdateProfile({ languages: arr }, () => setEditLanguages(false));
+    handleUpdateProfile({ languages: languagesForm }, () => setEditLanguages(false));
   };
 
   const handleUpdateBenefits = () => {
@@ -381,10 +380,19 @@ export default function CandidateResumePage() {
                   <input type="text" placeholder="First Name" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.firstName} onChange={e => setPersonalForm({...personalForm, firstName: e.target.value})} />
                   <input type="text" placeholder="Last Name" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.lastName} onChange={e => setPersonalForm({...personalForm, lastName: e.target.value})} />
                   <input type="text" placeholder="Mobile Number" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.mobileNumber} onChange={e => setPersonalForm({...personalForm, mobileNumber: e.target.value})} />
-                  <input type="text" placeholder="Marital Status" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.maritalStatus} onChange={e => setPersonalForm({...personalForm, maritalStatus: e.target.value})} />
+                  <select className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.maritalStatus} onChange={e => setPersonalForm({...personalForm, maritalStatus: e.target.value})}>
+                    <option value="">Select Marital Status</option>
+                    <option value="Unmarried">Unmarried</option>
+                    <option value="Married">Married</option>
+                  </select>
                   <input type="text" placeholder="City" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.city} onChange={e => setPersonalForm({...personalForm, city: e.target.value})} />
                   <input type="number" placeholder="Year of Birth" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.yearOfBirth} onChange={e => setPersonalForm({...personalForm, yearOfBirth: e.target.value})} />
-                  <input type="text" placeholder="Gender" className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.gender} onChange={e => setPersonalForm({...personalForm, gender: e.target.value})} />
+                  <select className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm" value={personalForm.gender} onChange={e => setPersonalForm({...personalForm, gender: e.target.value})}>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
                 </div>
                 <div className="flex gap-2 justify-end">
                   <button onClick={() => setEditPersonal(false)} className="px-4 py-2 text-sm font-bold text-slate-500">Cancel</button>
@@ -465,7 +473,7 @@ export default function CandidateResumePage() {
           {/* Professional Skills */}
           <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm relative group">
             {!editSkills && (
-              <button onClick={() => { setSkillsForm(profile.skills?.join(', ') || ''); setEditSkills(true); }} className="absolute top-6 right-6 text-slate-400 hover:text-blue-600 transition-colors">
+              <button onClick={() => { setSkillsForm(profile.skills || []); setEditSkills(true); }} className="absolute top-6 right-6 text-slate-400 hover:text-blue-600 transition-colors">
                 <Edit3 className="w-5 h-5" />
               </button>
             )}
@@ -476,12 +484,30 @@ export default function CandidateResumePage() {
             
             {editSkills ? (
               <div className="space-y-4">
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {skillsForm.map(skill => (
+                    <span key={skill} className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full text-xs flex items-center gap-1 border border-blue-200 dark:border-blue-800">
+                      {skill}
+                      <button onClick={() => setSkillsForm(skillsForm.filter(s => s !== skill))} className="hover:text-red-500 ml-1">&times;</button>
+                    </span>
+                  ))}
+                </div>
                 <input 
                   type="text" 
                   className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={skillsForm}
-                  onChange={e => setSkillsForm(e.target.value)}
-                  placeholder="e.g. React, Node.js, UI/UX (comma separated)"
+                  value={newSkill}
+                  onChange={e => setNewSkill(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = newSkill.trim();
+                      if (val && !skillsForm.includes(val)) {
+                        setSkillsForm([...skillsForm, val]);
+                      }
+                      setNewSkill('');
+                    }
+                  }}
+                  placeholder="Type a skill and press Enter"
                 />
                 <div className="flex gap-2 justify-end">
                   <button onClick={() => setEditSkills(false)} className="px-4 py-2 text-sm font-bold text-slate-500">Cancel</button>
@@ -623,7 +649,7 @@ export default function CandidateResumePage() {
           {/* Languages */}
           <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-100 dark:border-zinc-800 shadow-sm relative group">
             {!editLanguages && (
-              <button onClick={() => { setLanguagesForm(profile.languages?.join(', ') || ''); setEditLanguages(true); }} className="absolute top-6 right-6 text-slate-400 hover:text-blue-600 transition-colors">
+              <button onClick={() => { setLanguagesForm(profile.languages || []); setEditLanguages(true); }} className="absolute top-6 right-6 text-slate-400 hover:text-blue-600 transition-colors">
                 <Edit3 className="w-5 h-5" />
               </button>
             )}
@@ -634,13 +660,40 @@ export default function CandidateResumePage() {
             
             {editLanguages ? (
               <div className="space-y-4">
-                <input 
-                  type="text" 
-                  className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm"
-                  value={languagesForm}
-                  onChange={e => setLanguagesForm(e.target.value)}
-                  placeholder="e.g. English, Spanish (comma separated)"
-                />
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {languagesForm.map(lang => (
+                    <span key={lang} className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-xs flex items-center gap-1 border border-green-200 dark:border-green-800">
+                      {lang}
+                      <button onClick={() => setLanguagesForm(languagesForm.filter(l => l !== lang))} className="hover:text-red-500 ml-1">&times;</button>
+                    </span>
+                  ))}
+                </div>
+                <select 
+                  className="w-full p-2 border rounded-lg dark:bg-zinc-800 dark:border-zinc-700 text-sm text-slate-500"
+                  value=""
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val && !languagesForm.includes(val)) {
+                      setLanguagesForm([...languagesForm, val]);
+                    }
+                  }}
+                >
+                  <option value="">Select a language to add...</option>
+                  <option value="English">English</option>
+                  <option value="Spanish">Spanish</option>
+                  <option value="French">French</option>
+                  <option value="German">German</option>
+                  <option value="Mandarin">Mandarin</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="Bengali">Bengali</option>
+                  <option value="Russian">Russian</option>
+                  <option value="Portuguese">Portuguese</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Korean">Korean</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Dutch">Dutch</option>
+                </select>
                 <div className="flex gap-2 justify-end">
                   <button onClick={() => setEditLanguages(false)} className="px-4 py-2 text-sm font-bold text-slate-500">Cancel</button>
                   <button onClick={handleUpdateLanguages} className="px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg">Save</button>
