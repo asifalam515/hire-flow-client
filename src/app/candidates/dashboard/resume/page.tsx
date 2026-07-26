@@ -76,6 +76,7 @@ export default function CandidateResumePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -139,6 +140,32 @@ export default function CandidateResumePage() {
       alert('Failed to open resume. Please try again later.');
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleGenerateAiResume = async () => {
+    try {
+      setIsGeneratingAi(true);
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8050/api/v1'}/candidates/me/resume/generate-ai`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!response.ok) throw new Error('AI Generation failed');
+      const arrayBuffer = await response.arrayBuffer();
+      const blob = new Blob([arrayBuffer], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ai_resume_${profile?.user.firstName || 'candidate'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to generate AI Resume', error);
+      alert('Failed to generate AI Resume. Please try again later.');
+    } finally {
+      setIsGeneratingAi(false);
     }
   };
 
@@ -347,6 +374,12 @@ export default function CandidateResumePage() {
                 <button onClick={handleDownloadPDF} disabled={isDownloading} className="px-5 py-2 rounded-xl border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-bold transition-colors flex items-center gap-2">
                   {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Download PDF Resume
                 </button>
+                {resumeQuality.score === 100 && (
+                  <button onClick={handleGenerateAiResume} disabled={isGeneratingAi} className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:via-purple-600 hover:to-pink-600 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5">
+                    {isGeneratingAi ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>✨</span>} 
+                    Generate AI Resume
+                  </button>
+                )}
               </div>
             </div>
           </div>
