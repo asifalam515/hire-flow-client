@@ -1,7 +1,9 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
+import Link from 'next/link';
 
 interface JobCardProps {
+  id: string;
   companyLogo: string;
   companyName: string;
   title: string;
@@ -12,6 +14,7 @@ interface JobCardProps {
 }
 
 export function JobCard({
+  id,
   companyLogo,
   companyName,
   title,
@@ -21,7 +24,7 @@ export function JobCard({
   timePosted
 }: JobCardProps) {
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-5 hover:shadow-md transition-shadow cursor-pointer">
+    <Link href={`/jobs/${id}`} className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-5 hover:shadow-md transition-shadow cursor-pointer block">
       <div className="flex items-start gap-4 mb-4">
         <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 overflow-hidden">
           {companyLogo ? (
@@ -57,6 +60,6 @@ export function JobCard({
         <span className="text-blue-600 dark:text-blue-400 font-bold text-sm">{salary}</span>
         <span className="text-[10px] text-slate-400 font-medium">{timePosted}</span>
       </div>
-    </div>
+    </Link>
   );
 }

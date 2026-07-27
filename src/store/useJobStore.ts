@@ -16,6 +16,7 @@ export interface JobFilters {
 interface JobState {
   jobs: Job[];
   selectedJob: Job | null;
+  similarJobs: Job[];
   isLoading: boolean;
   error: string | null;
   filters: JobFilters;
@@ -24,11 +25,14 @@ interface JobState {
   setSelectedJob: (job: Job | null) => void;
   setFilter: (key: keyof JobFilters, value: any) => void;
   fetchJobs: (overrideParams?: Record<string, any>) => Promise<void>;
+  fetchJobById: (id: string) => Promise<void>;
+  fetchSimilarJobs: (category: string, excludeId: string) => Promise<void>;
 }
 
 export const useJobStore = create<JobState>((set, get) => ({
   jobs: [],
   selectedJob: null,
+  similarJobs: [],
   isLoading: false,
   error: null,
   filters: {},
@@ -62,6 +66,31 @@ export const useJobStore = create<JobState>((set, get) => ({
         error: err instanceof Error ? err.message : 'Failed to fetch jobs',
         isLoading: false,
       });
+    }
+  },
+
+  fetchJobById: async (id: string) => {
+    set({ isLoading: true, error: null, selectedJob: null });
+    try {
+      const response = await apiClient.get<any>(`/jobs/${id}`);
+      set({ selectedJob: response.data?.job || null, isLoading: false });
+    } catch (err: any) {
+      set({
+        error: err instanceof Error ? err.message : 'Failed to fetch job details',
+        isLoading: false,
+      });
+    }
+  },
+
+  fetchSimilarJobs: async (category: string, excludeId: string) => {
+    try {
+      const response = await apiClient.get<any>('/jobs', {
+        params: { category, excludeId, limit: 4 },
+      });
+      set({ similarJobs: response.data?.jobs || [] });
+    } catch (err: any) {
+      console.error('Failed to fetch similar jobs:', err);
+      // We don't necessarily want to blow up the whole page UI for similar jobs failing
     }
   },
 }));

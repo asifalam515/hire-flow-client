@@ -61,6 +61,7 @@ export default function FindJobsPage() {
                   return (
                     <JobCard 
                       key={job.id}
+                      id={job.id}
                       companyLogo={job.company?.logoUrl || ''}
                       companyName={job.company?.name || 'Unknown Company'}
                       title={job.title}
