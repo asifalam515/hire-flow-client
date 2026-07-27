@@ -35,6 +35,11 @@ export interface User {
   notifyNewJob?: boolean;
   notifyAppResult?: boolean;
   notifyMessages?: boolean;
+  favoriteCities?: string[];
+  preferredJobTitle?: string | null;
+  preferredJobTypes?: string[];
+  tendToRemote?: string | null;
+  receiveEmail?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +85,20 @@ export interface Application {
   appliedAt: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SavedJob {
+  id: string;
+  jobId: string;
+  job: Job;
+  createdAt: string;
+}
+
+export interface FollowedCompany {
+  id: string;
+  companyId: string;
+  company: CompanySummary & { _count?: { jobs: number } };
+  createdAt: string;
 }
 
 export interface AuthResponseData {
