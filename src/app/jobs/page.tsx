@@ -16,7 +16,7 @@ export default function FindJobsPage() {
   }, [fetchJobs]);
 
   return (
-    <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans">
+    <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full">
       
       {/* Search Bar - Center Top */}
       <div className="flex justify-center mb-8">
