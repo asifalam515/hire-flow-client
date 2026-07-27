@@ -23,7 +23,7 @@ export function CandidateSidebar({ onMobileClose }: { onMobileClose?: () => void
 
   const navItems = [
     { name: 'Dashboard', href: '/candidates/dashboard', icon: LayoutDashboard },
-    { name: 'Find Jobs', href: '/candidates/dashboard/find-jobs', icon: Briefcase },
+    { name: 'Find Jobs', href: '/jobs', icon: Briefcase },
     { name: 'My Resume', href: '/candidates/dashboard/resume', icon: FileText },
     { name: 'Notification', href: '/candidates/dashboard/notifications', icon: Bell, badge: 6 },
     { name: 'Message', href: '/candidates/dashboard/messages', icon: MessageSquare, badge: 6 },
