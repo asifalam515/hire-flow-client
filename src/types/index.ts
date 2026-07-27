@@ -32,6 +32,9 @@ export interface User {
   companyId?: string | null;
   company?: CompanySummary | null;
   candidateProfile?: CandidateProfileSummary | null;
+  notifyNewJob?: boolean;
+  notifyAppResult?: boolean;
+  notifyMessages?: boolean;
   createdAt: string;
   updatedAt: string;
 }

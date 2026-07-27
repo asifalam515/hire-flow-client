@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
-  User, 
+  User as UserIcon, 
   Edit, 
   Lock, 
   Bell, 
@@ -11,35 +11,185 @@ import {
   X, 
   ShieldAlert, 
   EyeOff,
-  Hand
+  Eye,
+  Hand,
+  Loader2
 } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { apiClient } from '@/lib/api';
+import toast from 'react-hot-toast';
+
+interface Session {
+  id: string;
+  userAgent?: string;
+  ipAddress?: string;
+  createdAt: string;
+  isCurrent?: boolean;
+}
 
 export default function AccountSettingsPage() {
+  const { user, updateCandidateName, updateEmail, updatePassword, updateNotifications, deleteAccount } = useAuthStore();
   const [editingSection, setEditingSection] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Form states
+  const [firstName, setFirstName] = useState(user?.firstName || '');
+  const [lastName, setLastName] = useState(user?.lastName || '');
+  const [email, setEmail] = useState('');
+  
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  // Sessions state
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName || '');
+      setLastName(user.lastName || '');
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  const fetchSessions = async () => {
+    try {
+      setIsLoadingSessions(true);
+      const res = await apiClient.get('/auth/sessions');
+      setSessions(res.data.data || []);
+    } catch (error) {
+      console.error('Failed to fetch sessions', error);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  };
+
+  const handleSaveName = async () => {
+    if (!firstName.trim() || !lastName.trim()) {
+      toast.error('First and last name are required');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await updateCandidateName(firstName, lastName);
+      toast.success('Name updated successfully');
+      setEditingSection(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update name');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    if (!email.trim()) {
+      toast.error('New email is required');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await updateEmail(email);
+      toast.success('Email updated successfully');
+      setEditingSection(null);
+      setEmail('');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update email');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSavePassword = async () => {
+    if (!oldPassword || !newPassword) {
+      toast.error('Both old and new passwords are required');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await updatePassword(oldPassword, newPassword);
+      toast.success('Password updated successfully');
+      setEditingSection(null);
+      setOldPassword('');
+      setNewPassword('');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to update password');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleToggleNotification = async (key: 'notifyNewJob' | 'notifyAppResult' | 'notifyMessages') => {
+    if (!user) return;
+    const currentValue = user[key as keyof typeof user] as boolean;
+    try {
+      await updateNotifications({ [key]: !currentValue });
+      toast.success('Notification preference updated');
+    } catch (error: any) {
+      toast.error('Failed to update preference');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      try {
+        await deleteAccount();
+        // The store handles redirect
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to delete account');
+      }
+    }
+  };
+
+  const handleTerminateSession = async (id: string) => {
+    try {
+      await apiClient.delete(`/auth/sessions/${id}`);
+      setSessions(s => s.filter(session => session.id !== id));
+      toast.success('Session terminated');
+    } catch (error) {
+      toast.error('Failed to terminate session');
+    }
+  };
+
+  const handleTerminateOtherSessions = async () => {
+    if (confirm("Are you sure you want to log out from all other devices?")) {
+      try {
+        await apiClient.delete('/auth/sessions');
+        await fetchSessions();
+        toast.success('Other sessions terminated');
+      } catch (error) {
+        toast.error('Failed to terminate other sessions');
+      }
+    }
+  };
 
   const renderNameCard = () => {
     if (editingSection === 'name') {
       return (
         <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-6">
-            <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Full name</h3>
           </div>
           <div className="flex gap-4 mb-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
-              <input type="text" defaultValue="Ana" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
+              <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
             </div>
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-              <input type="text" defaultValue="Amiri" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
+              <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-              Save
+            <button onClick={handleSaveName} disabled={isLoading} className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center min-w-[100px]">
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save'}
             </button>
-            <button onClick={() => setEditingSection(null)} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+            <button onClick={() => { setEditingSection(null); setFirstName(user?.firstName || ''); setLastName(user?.lastName || ''); }} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
               Cancel
             </button>
           </div>
@@ -51,7 +201,7 @@ export default function AccountSettingsPage() {
       <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Full name</h3>
           </div>
           <button onClick={() => setEditingSection('name')} className="text-blue-600 hover:text-blue-700">
@@ -61,11 +211,11 @@ export default function AccountSettingsPage() {
         <div className="flex gap-20">
           <div>
             <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">First name</div>
-            <div className="text-sm text-slate-500">Ana</div>
+            <div className="text-sm text-slate-500">{user?.firstName || '-'}</div>
           </div>
           <div>
             <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Last name</div>
-            <div className="text-sm text-slate-500">Amiri</div>
+            <div className="text-sm text-slate-500">{user?.lastName || '-'}</div>
           </div>
         </div>
       </div>
@@ -77,26 +227,26 @@ export default function AccountSettingsPage() {
       return (
         <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-6">
-            <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+            <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Account</h3>
           </div>
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-              <input type="email" defaultValue="anaamiri@gmail.com" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Current Email</label>
+              <input type="email" value={user?.email || ''} disabled className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-950/50 text-slate-500" />
             </div>
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 New Email Address<span className="text-red-500">*</span>
               </label>
-              <input type="email" placeholder="+98 991 679 2356" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. ana@gmail.com" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-              Save
+            <button onClick={handleSaveEmail} disabled={isLoading} className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center min-w-[100px]">
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save'}
             </button>
-            <button onClick={() => setEditingSection(null)} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+            <button onClick={() => { setEditingSection(null); setEmail(''); }} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
               Cancel
             </button>
           </div>
@@ -107,13 +257,13 @@ export default function AccountSettingsPage() {
     return (
       <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
         <div className="flex items-center gap-3 mb-6">
-          <User className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Account</h3>
         </div>
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Email Address</div>
-            <div className="text-sm text-slate-500">anaamiri@gmail.com</div>
+            <div className="text-sm text-slate-500">{user?.email || '-'}</div>
           </div>
           <button onClick={() => setEditingSection('account')} className="px-6 py-2 border border-blue-600 text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
             Reset Email
@@ -131,14 +281,16 @@ export default function AccountSettingsPage() {
             <Lock className="w-5 h-5 text-slate-700 dark:text-slate-300" />
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Security</h3>
           </div>
-          <div className="flex gap-4 mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Old Password<span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <input type="password" defaultValue="••••••••••" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent pr-10" />
-                <EyeOff className="w-5 h-5 text-slate-400 absolute right-3 top-2.5" />
+                <input type={showOldPassword ? "text" : "password"} value={oldPassword} onChange={e => setOldPassword(e.target.value)} placeholder="••••••••••" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent pr-10" />
+                <button type="button" onClick={() => setShowOldPassword(!showOldPassword)} className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                  {showOldPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                </button>
               </div>
             </div>
             <div className="flex-1">
@@ -146,16 +298,18 @@ export default function AccountSettingsPage() {
                 New Password<span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <input type="password" placeholder="Enter your new password" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent pr-10" />
-                <EyeOff className="w-5 h-5 text-slate-400 absolute right-3 top-2.5" />
+                <input type={showNewPassword ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter your new password" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent pr-10" />
+                <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600">
+                  {showNewPassword ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+                </button>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <button className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
-              Save
+            <button onClick={handleSavePassword} disabled={isLoading} className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center min-w-[100px]">
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save'}
             </button>
-            <button onClick={() => setEditingSection(null)} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+            <button onClick={() => { setEditingSection(null); setOldPassword(''); setNewPassword(''); }} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
               Cancel
             </button>
           </div>
@@ -182,6 +336,15 @@ export default function AccountSettingsPage() {
     );
   };
 
+  const ToggleSwitch = ({ checked, onChange }: { checked: boolean, onChange: () => void }) => (
+    <button 
+      onClick={onChange}
+      className={`w-12 h-6 rounded-full relative transition-colors flex-shrink-0 ${checked ? 'bg-blue-600' : 'bg-slate-200 dark:bg-zinc-700'}`}
+    >
+      <div className={`w-5 h-5 bg-white rounded-full absolute top-0.5 shadow-sm transition-transform duration-200 ease-in-out ${checked ? 'translate-x-6' : 'translate-x-0.5'}`}></div>
+    </button>
+  );
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-6">
@@ -202,29 +365,32 @@ export default function AccountSettingsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">New job</div>
-                  <div className="text-sm text-slate-500">Notify me when an employer rejected me.</div>
+                  <div className="text-sm text-slate-500">Notify me when a new relevant job is posted.</div>
                 </div>
-                <button className="w-12 h-6 bg-blue-600 rounded-full relative transition-colors flex-shrink-0">
-                  <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
-                </button>
+                <ToggleSwitch 
+                  checked={user?.notifyNewJob ?? true} 
+                  onChange={() => handleToggleNotification('notifyNewJob')} 
+                />
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Application result</div>
-                  <div className="text-sm text-slate-500">Notify me when an employer rejected me.</div>
+                  <div className="text-sm text-slate-500">Notify me about updates on my applications.</div>
                 </div>
-                <button className="w-12 h-6 bg-blue-600 rounded-full relative transition-colors flex-shrink-0">
-                  <div className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
-                </button>
+                <ToggleSwitch 
+                  checked={user?.notifyAppResult ?? true} 
+                  onChange={() => handleToggleNotification('notifyAppResult')} 
+                />
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Messeges</div>
-                  <div className="text-sm text-slate-500">Notify me when an employer rejected me.</div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Messages</div>
+                  <div className="text-sm text-slate-500">Notify me when I receive a new message.</div>
                 </div>
-                <button className="w-12 h-6 bg-slate-200 dark:bg-zinc-700 rounded-full relative transition-colors flex-shrink-0">
-                  <div className="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5 shadow-sm"></div>
-                </button>
+                <ToggleSwitch 
+                  checked={user?.notifyMessages ?? true} 
+                  onChange={() => handleToggleNotification('notifyMessages')} 
+                />
               </div>
             </div>
 
@@ -232,11 +398,11 @@ export default function AccountSettingsPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-2">Delete Account</h3>
-                  <p className="text-sm text-slate-500 max-w-xl">
-                    We'd hate to see you go, but you're welcome to delete your account anytime. Just remember, once you delete it, it's gone forever delete it, it's gone forever delete it, i
+                  <p className="text-sm text-slate-500 max-w-xl pr-4">
+                    We'd hate to see you go, but you're welcome to delete your account anytime. Just remember, once you delete it, it's gone forever.
                   </p>
                 </div>
-                <button className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex-shrink-0">
+                <button onClick={handleDeleteAccount} className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors flex-shrink-0">
                   Delete Account
                 </button>
               </div>
@@ -257,31 +423,55 @@ export default function AccountSettingsPage() {
               <div className="text-sm font-semibold text-slate-900 dark:text-white mb-3">This device</div>
               <div className="flex items-center gap-3">
                 <Laptop className="w-5 h-5 text-slate-500" />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Macbook</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {sessions.find(s => s.isCurrent)?.userAgent?.split(' ')[0] || 'Current Device'}
+                </span>
               </div>
             </div>
 
-            <button className="flex items-center justify-center gap-2 w-full py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors font-medium text-sm mb-6">
-              <Hand className="w-4 h-4 text-red-600" />
-              Terminate All Other Sessions
-            </button>
+            {sessions.length > 1 && (
+              <button onClick={handleTerminateOtherSessions} className="flex items-center justify-center gap-2 w-full py-2.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors font-medium text-sm mb-6">
+                <Hand className="w-4 h-4 text-red-600" />
+                Terminate All Other Sessions
+              </button>
+            )}
 
             <div className="text-left">
-              <div className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Active Devices</div>
-              <div className="flex items-start justify-between">
-                <div className="flex gap-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 mt-1">
-                    <MonitorSmartphone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+              <div className="text-sm font-semibold text-slate-900 dark:text-white mb-3 flex items-center justify-between">
+                Active Devices
+                {isLoadingSessions && <Loader2 className="w-3 h-3 animate-spin text-slate-400" />}
+              </div>
+              <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {sessions.length === 0 && !isLoadingSessions && (
+                  <p className="text-sm text-slate-500">No active sessions found.</p>
+                )}
+                {sessions.map((session) => (
+                  <div key={session.id} className="flex items-start justify-between">
+                    <div className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center shrink-0 mt-1">
+                        {session.userAgent?.toLowerCase().includes('mobile') ? (
+                          <MonitorSmartphone className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        ) : (
+                          <Laptop className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                          {session.userAgent?.split(' ')[0] || 'Unknown Device'}
+                        </div>
+                        <div className="text-xs text-slate-500 truncate">IP: {session.ipAddress || 'Unknown'}</div>
+                        <div className="text-xs text-slate-400 truncate">
+                          {new Date(session.createdAt).toLocaleDateString()} {session.isCurrent && '(Current)'}
+                        </div>
+                      </div>
+                    </div>
+                    {!session.isCurrent && (
+                      <button onClick={() => handleTerminateSession(session.id)} className="text-slate-400 hover:text-red-500 p-1 flex-shrink-0 transition-colors" title="Terminate Session">
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
-                  <div>
-                    <div className="text-sm font-medium text-slate-900 dark:text-white">Chrome 134</div>
-                    <div className="text-sm text-slate-900 dark:text-white font-medium">Web 10.9.44A</div>
-                    <div className="text-xs text-slate-500">Hillsboro, United States.Tue</div>
-                  </div>
-                </div>
-                <button className="text-slate-400 hover:text-slate-600 p-1">
-                  <X className="w-4 h-4" />
-                </button>
+                ))}
               </div>
             </div>
           </div>
@@ -293,7 +483,7 @@ export default function AccountSettingsPage() {
             </div>
             <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Why isn't my info shown here?</h4>
             <p className="text-xs text-slate-500 leading-relaxed">
-              We're hiding some account details to protect your identiWe're hiding some account details to protect your identity.We're hiding some account details to protect your identity.We're hiding some account details to protect your identity.We're hiding some
+              We're hiding some account details to protect your identity.
             </p>
           </div>
 
@@ -304,7 +494,7 @@ export default function AccountSettingsPage() {
             </div>
             <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Which details can be edited?</h4>
             <p className="text-xs text-slate-500 leading-relaxed">
-              Details Airbnb uses to verify your identity can't be changed. Contact info and some personal details can be edited, but we may ask you verify your identity the next time you book or create a listing.
+              Details Hire Flow uses to verify your identity can't be changed. Contact info and some personal details can be edited, but we may ask you verify your identity again if you change your email address.
             </p>
           </div>
         </div>

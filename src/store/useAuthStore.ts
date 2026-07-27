@@ -51,13 +51,18 @@ interface AuthState {
     companyDescription?: string;
     companyLogoUrl?: string;
   }) => Promise<User>;
+  updateCandidateName: (firstName: string, lastName: string) => Promise<User>;
+  updateEmail: (newEmail: string) => Promise<User>;
+  updatePassword: (oldPassword: string, newPassword: string) => Promise<User>;
+  updateNotifications: (preferences: { notifyNewJob?: boolean; notifyAppResult?: boolean; notifyMessages?: boolean }) => Promise<User>;
+  deleteAccount: () => Promise<void>;
   clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         // Initial State
         user: null,
         isAuthenticated: false,
@@ -319,6 +324,96 @@ export const useAuthStore = create<AuthState>()(
               error: errorMessage,
             });
             throw error;
+          }
+        },
+
+        updateCandidateName: async (firstName: string, lastName: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            // Using the resume profile endpoint which updates User's firstName/lastName as well
+            const response = await apiClient.patch<{ data: any }>('/candidates/me/resume', { firstName, lastName });
+            
+            set((state) => ({
+              user: state.user ? { ...state.user, firstName, lastName } : null,
+              isLoading: false,
+            }));
+
+            return get().user as User;
+          } catch (error: any) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to update name';
+            set({ isLoading: false, error: errorMessage });
+            throw error;
+          }
+        },
+
+        updateEmail: async (newEmail: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.patch<{ user: User }>('/users/me/email', { newEmail });
+            const updatedUser = response.data?.user || (response.data as unknown as User);
+            set((state) => ({
+              user: state.user ? { ...state.user, ...updatedUser } : updatedUser,
+              isLoading: false,
+            }));
+            return updatedUser;
+          } catch (error: any) {
+            const errorMessage = error.response?.data?.message || (error instanceof Error ? error.message : 'Failed to update email');
+            set({ isLoading: false, error: errorMessage });
+            throw new Error(errorMessage);
+          }
+        },
+
+        updatePassword: async (oldPassword: string, newPassword: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.patch<{ user: User }>('/users/me/password', { oldPassword, newPassword });
+            const updatedUser = response.data?.user || (response.data as unknown as User);
+            set({ isLoading: false });
+            return updatedUser;
+          } catch (error: any) {
+            const errorMessage = error.response?.data?.message || (error instanceof Error ? error.message : 'Failed to update password');
+            set({ isLoading: false, error: errorMessage });
+            throw new Error(errorMessage);
+          }
+        },
+
+        updateNotifications: async (preferences: { notifyNewJob?: boolean; notifyAppResult?: boolean; notifyMessages?: boolean }) => {
+          set({ isLoading: true, error: null });
+          try {
+            const response = await apiClient.patch<{ user: User }>('/users/me/notifications', preferences);
+            const updatedUser = response.data?.user || (response.data as unknown as User);
+            set((state) => ({
+              user: state.user ? { ...state.user, ...updatedUser } : updatedUser,
+              isLoading: false,
+            }));
+            return updatedUser;
+          } catch (error: any) {
+            const errorMessage = error.response?.data?.message || (error instanceof Error ? error.message : 'Failed to update notifications');
+            set({ isLoading: false, error: errorMessage });
+            throw new Error(errorMessage);
+          }
+        },
+
+        deleteAccount: async () => {
+          set({ isLoading: true, error: null });
+          try {
+            await apiClient.delete('/users/me');
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('accessToken');
+            }
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null,
+            });
+            if (typeof window !== 'undefined') {
+              window.location.href = '/';
+            }
+          } catch (error: any) {
+            const errorMessage = error.response?.data?.message || (error instanceof Error ? error.message : 'Failed to delete account');
+            set({ isLoading: false, error: errorMessage });
+            throw new Error(errorMessage);
           }
         },
       }),
