@@ -17,6 +17,8 @@ interface JobState {
   jobs: Job[];
   selectedJob: Job | null;
   similarJobs: Job[];
+  matchScore: number | null;
+  matchMissingProfile: boolean;
   isLoading: boolean;
   error: string | null;
   filters: JobFilters;
@@ -27,12 +29,15 @@ interface JobState {
   fetchJobs: (overrideParams?: Record<string, any>) => Promise<void>;
   fetchJobById: (id: string) => Promise<void>;
   fetchSimilarJobs: (category: string, excludeId: string) => Promise<void>;
+  fetchJobMatch: (jobId: string) => Promise<void>;
 }
 
 export const useJobStore = create<JobState>((set, get) => ({
   jobs: [],
   selectedJob: null,
   similarJobs: [],
+  matchScore: null,
+  matchMissingProfile: false,
   isLoading: false,
   error: null,
   filters: {},
@@ -91,6 +96,18 @@ export const useJobStore = create<JobState>((set, get) => ({
     } catch (err: any) {
       console.error('Failed to fetch similar jobs:', err);
       // We don't necessarily want to blow up the whole page UI for similar jobs failing
+    }
+  },
+
+  fetchJobMatch: async (jobId: string) => {
+    set({ matchScore: null, matchMissingProfile: false });
+    try {
+      const response = await apiClient.get<any>(`/jobs/${jobId}/match`);
+      const { matchScore, profileMissing } = response.data;
+      set({ matchScore, matchMissingProfile: profileMissing });
+    } catch (err: any) {
+      // 401 means not logged in, we ignore and leave matchScore null
+      console.error('Failed to fetch job match:', err);
     }
   },
 }));

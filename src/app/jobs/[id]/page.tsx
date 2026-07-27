@@ -4,19 +4,24 @@ import React, { useEffect } from 'react';
 import { Bookmark, Clock, Calendar, MapPin, DollarSign, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useJobStore } from '@/store/useJobStore';
+import { useAuthStore } from '@/store/useAuthStore';
 import { JobCard } from '@/components/candidate/jobs/JobCard';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = React.use(params);
   const id = unwrappedParams.id;
-  const { selectedJob: job, similarJobs, isLoading, error, fetchJobById, fetchSimilarJobs } = useJobStore();
+  const { selectedJob: job, similarJobs, isLoading, error, fetchJobById, fetchSimilarJobs, matchScore, matchMissingProfile, fetchJobMatch } = useJobStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     if (id) {
       fetchJobById(id);
+      if (user) {
+        fetchJobMatch(id);
+      }
     }
-  }, [id, fetchJobById]);
+  }, [id, fetchJobById, fetchJobMatch, user]);
 
   useEffect(() => {
     if (job?.category && job.id) {
@@ -106,17 +111,56 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
           {/* Profile Completion Card */}
           <div className="bg-slate-50 dark:bg-zinc-800/50 p-6 rounded-xl border border-slate-200 dark:border-zinc-700 w-full lg:w-[300px] shrink-0 flex flex-col items-center text-center">
             <div className="w-12 h-12 bg-slate-200 rounded-full overflow-hidden mb-3">
-              <img src="https://i.pravatar.cc/150?img=47" alt="User Avatar" className="w-full h-full object-cover" />
+              <img src={user?.avatarUrl || "https://i.pravatar.cc/150?img=47"} alt="User Avatar" className="w-full h-full object-cover" />
             </div>
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
-              <span className="text-blue-600">5%</span> of Your Resume is Complete
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-              About 3 out of 5 resumes that are incomplete...
-            </p>
-            <Link href="/profile" className="text-sm text-blue-600 font-medium hover:underline">
-              Complete your resume
-            </Link>
+            
+            {!user ? (
+              <>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Log in to see your match
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Find out how well your profile matches this role.
+                </p>
+                <Link href="/auth/login" className="text-sm text-blue-600 font-medium hover:underline">
+                  Log In
+                </Link>
+              </>
+            ) : matchMissingProfile ? (
+              <>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Profile Incomplete
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Complete your profile to see your match score for this job.
+                </p>
+                <Link href="/profile" className="text-sm text-blue-600 font-medium hover:underline">
+                  Complete your profile
+                </Link>
+              </>
+            ) : matchScore !== null ? (
+              <>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  <span className={matchScore >= 75 ? "text-emerald-600" : matchScore >= 50 ? "text-blue-600" : "text-amber-600"}>
+                    {matchScore}%
+                  </span> Match with your profile
+                </p>
+                <div className="w-full h-1.5 bg-slate-200 dark:bg-zinc-700 rounded-full mb-3 overflow-hidden">
+                  <div 
+                    className={`h-full rounded-full transition-all duration-1000 ${matchScore >= 75 ? "bg-emerald-500" : matchScore >= 50 ? "bg-blue-500" : "bg-amber-500"}`} 
+                    style={{ width: `${matchScore}%` }}
+                  />
+                </div>
+                <Link href="/profile" className="text-xs text-slate-500 font-medium hover:underline">
+                  Update your profile
+                </Link>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin mb-2" />
+                <p className="text-xs text-slate-500 dark:text-slate-400">Calculating match...</p>
+              </div>
+            )}
           </div>
 
         </div>
