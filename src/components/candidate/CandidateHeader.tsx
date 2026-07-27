@@ -3,9 +3,22 @@
 import React from 'react';
 import { Search, Bell, Menu, User as UserIcon } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
+import { usePathname } from 'next/navigation';
 
 export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore();
+  const pathname = usePathname();
+
+  const getPageTitle = () => {
+    if (pathname.includes('/settings')) return { title: 'Account Setting', subtitle: 'Updating your information will offer you the most relevant content' };
+    if (pathname.includes('/resume')) return { title: 'My Resume', subtitle: 'Manage your resume and profile details' };
+    if (pathname.includes('/notifications')) return { title: 'Notifications', subtitle: 'View your latest updates and alerts' };
+    if (pathname.includes('/messages')) return { title: 'Messages', subtitle: 'Communicate with employers' };
+    if (pathname.includes('/activity')) return { title: 'Activity', subtitle: 'Track your application status and history' };
+    return { title: 'Dashboard', subtitle: 'Here is your daily activity and career updates' };
+  };
+
+  const { title, subtitle } = getPageTitle();
 
   return (
     <header className="h-20 lg:h-28 bg-white dark:bg-zinc-950 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10 shrink-0 border-b border-slate-100 dark:border-zinc-800">
@@ -19,8 +32,8 @@ export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
           <Menu className="w-6 h-6" />
         </button>
         <div>
-          <h1 className="text-xl lg:text-3xl font-bold text-slate-900 dark:text-white">Dashboard</h1>
-          <p className="hidden md:block text-sm text-slate-500 mt-1">Updating your information will offer you the most relevant content</p>
+          <h1 className="text-xl lg:text-3xl font-bold text-slate-900 dark:text-white">{title}</h1>
+          <p className="hidden md:block text-sm text-slate-500 mt-1">{subtitle}</p>
         </div>
       </div>
 
