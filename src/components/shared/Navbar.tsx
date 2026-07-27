@@ -111,19 +111,26 @@ export function Navbar() {
 
         {/* Center Desktop Navigation */}
         <nav className="hidden lg:flex items-center space-x-8">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`text-sm font-semibold transition-colors duration-200 ${
-                item.active
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            let href = item.href;
+            if (item.label === 'Find job' && isAuthenticated && !isRecruiter) {
+              href = '/candidates/dashboard/find-jobs';
+            }
+
+            return (
+              <Link
+                key={item.label}
+                href={href}
+                className={`text-sm font-semibold transition-colors duration-200 ${
+                  item.active
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right Actions & Auth */}

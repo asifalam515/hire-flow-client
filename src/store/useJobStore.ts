@@ -25,8 +25,8 @@ export const useJobStore = create<JobState>((set) => ({
   fetchJobs: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await apiClient.get<Job[]>('/jobs', { params });
-      set({ jobs: response.data || [], isLoading: false });
+      const response = await apiClient.get<any>('/jobs', { params });
+      set({ jobs: response.data?.jobs || [], isLoading: false });
     } catch (err: any) {
       set({
         error: err instanceof Error ? err.message : 'Failed to fetch jobs',
