@@ -41,6 +41,14 @@ export default function CompaniesPage() {
     companySize: true
   });
 
+  // Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [location, setLocation] = useState('');
+  const [sortMode, setSortMode] = useState('popular');
+  const [selectedWorkplaces, setSelectedWorkplaces] = useState<string[]>([]);
+  const [selectedGender, setSelectedGender] = useState<string>('');
+  const [selectedCompanySize, setSelectedCompanySize] = useState<string>('');
+
   useEffect(() => {
     const fetchCompanies = async () => {
       try {
@@ -63,12 +71,69 @@ export default function CompaniesPage() {
   const getMockStats = (str: string) => {
     let hash = 0;
     for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    const absHash = Math.abs(hash);
     
-    const rating = (3.5 + (Math.abs(hash) % 15) / 10).toFixed(1);
-    const reviews = (Math.abs(hash) % 200) + 15;
-    const salaries = (Math.abs(hash) % 150) + 10;
+    const rating = (3.5 + (absHash % 15) / 10).toFixed(1);
+    const reviews = (absHash % 200) + 15;
+    const salaries = (absHash % 150) + 10;
     
-    return { rating, reviews: `${reviews}K`, salaries: `${salaries}K` };
+    // Assign mock filter properties
+    const workplacesList = ['Work/life balance', 'Career opportunities', 'Culture & values', 'Senior Management'];
+    const assignedWorkplaces = workplacesList.filter((_, idx) => (absHash + idx) % 2 === 0);
+    
+    const genders = ['Male', 'Female', 'Other'];
+    const gender = genders[absHash % genders.length];
+    
+    const sizes = ['1 - 50', '51 - 200', '201-500', '501 - 1000', '1000+'];
+    const size = sizes[absHash % sizes.length];
+
+    const locations = ['New York, NY', 'San Francisco, CA', 'Remote', 'London, UK', 'Toronto, CA'];
+    const loc = locations[absHash % locations.length];
+    
+    return { rating, reviews: `${reviews}K`, salaries: `${salaries}K`, workplaces: assignedWorkplaces, gender, size, location: loc };
+  };
+
+  const filteredCompanies = companies.filter(company => {
+    const stats = getMockStats(company.id);
+    
+    if (searchQuery && !company.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    
+    if (location && stats.location !== location) {
+      return false;
+    }
+
+    if (selectedWorkplaces.length > 0) {
+      if (!selectedWorkplaces.some(wp => stats.workplaces.includes(wp))) {
+        return false;
+      }
+    }
+
+    if (selectedGender && stats.gender !== selectedGender) {
+      return false;
+    }
+
+    if (selectedCompanySize && stats.size !== selectedCompanySize) {
+      return false;
+    }
+
+    return true;
+  }).sort((a, b) => {
+    const statsA = getMockStats(a.id);
+    const statsB = getMockStats(b.id);
+    if (sortMode === 'rated') return parseFloat(statsB.rating) - parseFloat(statsA.rating);
+    if (sortMode === 'viewed') return parseInt(statsB.reviews) - parseInt(statsA.reviews);
+    if (sortMode === 'successful') return parseInt(statsB.salaries) - parseInt(statsA.salaries);
+    const jobsA = a._count.jobs || 1;
+    const jobsB = b._count.jobs || 1;
+    return jobsB - jobsA;
+  });
+
+  const clearFilter = (type: string, val?: string) => {
+    if (type === 'workplace' && val) setSelectedWorkplaces(prev => prev.filter(w => w !== val));
+    if (type === 'gender') setSelectedGender('');
+    if (type === 'companySize') setSelectedCompanySize('');
   };
 
   return (
@@ -89,17 +154,25 @@ export default function CompaniesPage() {
                 <Search className="w-5 h-5 text-slate-400 shrink-0" />
                 <input 
                   type="text" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Job title or keywords" 
                   className="w-full pl-3 pr-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
               </div>
               <div className="flex-1 flex items-center px-4 py-3 border-t sm:border-t-0 border-slate-200">
                 <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
-                <select className="w-full pl-2 pr-2 text-sm text-slate-900 bg-transparent focus:outline-none appearance-none cursor-pointer">
+                <select 
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="w-full pl-2 pr-2 text-sm text-slate-900 bg-transparent focus:outline-none appearance-none cursor-pointer"
+                >
                   <option value="">location</option>
-                  <option value="ny">New York, NY</option>
-                  <option value="sf">San Francisco, CA</option>
-                  <option value="remote">Remote</option>
+                  <option value="New York, NY">New York, NY</option>
+                  <option value="San Francisco, CA">San Francisco, CA</option>
+                  <option value="Remote">Remote</option>
+                  <option value="London, UK">London, UK</option>
+                  <option value="Toronto, CA">Toronto, CA</option>
                 </select>
                 <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
               </div>
@@ -109,16 +182,28 @@ export default function CompaniesPage() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <button className="px-4 py-1.5 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors">
+              <button 
+                onClick={() => setSortMode('popular')}
+                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'popular' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              >
                 Most popular
               </button>
-              <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-sm font-medium rounded hover:bg-slate-50 transition-colors">
+              <button 
+                onClick={() => setSortMode('viewed')}
+                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'viewed' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              >
                 Most viewed
               </button>
-              <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-sm font-medium rounded hover:bg-slate-50 transition-colors">
+              <button 
+                onClick={() => setSortMode('rated')}
+                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'rated' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              >
                 Top-rated
               </button>
-              <button className="px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-sm font-medium rounded hover:bg-slate-50 transition-colors">
+              <button 
+                onClick={() => setSortMode('successful')}
+                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'successful' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              >
                 Most successful
               </button>
             </div>
@@ -132,19 +217,31 @@ export default function CompaniesPage() {
           <div className="w-full lg:w-[280px] shrink-0">
             <h2 className="text-lg font-bold text-slate-900 mb-6">All Filters</h2>
             
-            <div className="mb-8">
-              <h3 className="text-sm font-bold text-slate-900 mb-3">Active Filters</h3>
-              <div className="flex flex-wrap gap-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
-                  Culture & values
-                  <X className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
-                  Company size 100+
-                  <X className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+            {(selectedWorkplaces.length > 0 || selectedGender || selectedCompanySize) && (
+              <div className="mb-8">
+                <h3 className="text-sm font-bold text-slate-900 mb-3">Active Filters</h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedWorkplaces.map(wp => (
+                    <div key={wp} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                      {wp}
+                      <X onClick={() => clearFilter('workplace', wp)} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                    </div>
+                  ))}
+                  {selectedGender && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                      {selectedGender}
+                      <X onClick={() => clearFilter('gender')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                    </div>
+                  )}
+                  {selectedCompanySize && (
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                      {selectedCompanySize}
+                      <X onClick={() => clearFilter('companySize')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Workplace Accordion */}
             <div className="border-t border-slate-200 py-4">
@@ -159,8 +256,17 @@ export default function CompaniesPage() {
                 <div className="mt-4 space-y-3">
                   {['Work/life balance', 'Career opportunities', 'Culture & values', 'Senior Management'].map((item) => (
                     <label key={item} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="w-4 h-4 border border-slate-300 rounded-[2px] flex items-center justify-center group-hover:border-blue-500">
-                        {/* Check icon would go here for active state */}
+                      <div 
+                        onClick={() => {
+                          setSelectedWorkplaces(prev => 
+                            prev.includes(item) ? prev.filter(w => w !== item) : [...prev, item]
+                          )
+                        }}
+                        className={`w-4 h-4 border rounded-[2px] flex items-center justify-center transition-colors ${
+                          selectedWorkplaces.includes(item) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                        }`}
+                      >
+                        {selectedWorkplaces.includes(item) && <div className="w-2 h-2 bg-white rounded-sm" />}
                       </div>
                       <span className="text-sm text-slate-600">{item}</span>
                     </label>
@@ -182,7 +288,13 @@ export default function CompaniesPage() {
                 <div className="mt-4 space-y-3">
                   {['Male', 'Female', 'Other'].map((item) => (
                     <label key={item} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center group-hover:border-blue-500">
+                      <div 
+                        onClick={() => setSelectedGender(selectedGender === item ? '' : item)}
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                          selectedGender === item ? 'border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                        }`}
+                      >
+                        {selectedGender === item && <div className="w-2 h-2 rounded-full bg-blue-600" />}
                       </div>
                       <span className="text-sm text-slate-600">{item}</span>
                     </label>
@@ -204,7 +316,13 @@ export default function CompaniesPage() {
                 <div className="mt-4 space-y-3">
                   {['1 - 50', '51 - 200', '201-500', '501 - 1000', '1000+'].map((item) => (
                     <label key={item} className="flex items-center gap-3 cursor-pointer group">
-                      <div className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center group-hover:border-blue-500">
+                      <div 
+                        onClick={() => setSelectedCompanySize(selectedCompanySize === item ? '' : item)}
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                          selectedCompanySize === item ? 'border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                        }`}
+                      >
+                        {selectedCompanySize === item && <div className="w-2 h-2 rounded-full bg-blue-600" />}
                       </div>
                       <span className="text-sm text-slate-600">{item}</span>
                     </label>
@@ -220,14 +338,14 @@ export default function CompaniesPage() {
               <div className="flex justify-center items-center py-20">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
-            ) : companies.length === 0 ? (
+            ) : filteredCompanies.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-xl border border-slate-200">
                 <Building2 className="w-12 h-12 text-slate-400 mb-4" />
                 <h3 className="text-lg font-bold text-slate-900">No companies found</h3>
                 <p className="text-slate-500">Try adjusting your filters or search terms.</p>
               </div>
             ) : (
-              companies.map((company) => {
+              filteredCompanies.map((company) => {
                 const stats = getMockStats(company.id);
                 return (
                   <Link 
@@ -252,8 +370,7 @@ export default function CompaniesPage() {
                             {company.name}
                           </h3>
                           <p className="text-xs text-slate-500 mt-0.5 mb-2">
-                            {/* Assuming headquarters or primary location would be here. Mocking a location if none available */}
-                            {company.field ? company.field : 'Technology'} · Global
+                            {company.field ? company.field : 'Technology'} · {stats.location}
                           </p>
                         </div>
                         {/* Rating */}
