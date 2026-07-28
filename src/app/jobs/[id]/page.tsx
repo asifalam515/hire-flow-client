@@ -3,16 +3,28 @@
 import React, { useEffect } from 'react';
 import { Bookmark, Clock, Calendar, MapPin, DollarSign, ChevronRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useJobStore } from '@/store/useJobStore';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useApplicationStore } from '@/store/useApplicationStore';
 import { JobCard } from '@/components/candidate/jobs/JobCard';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = React.use(params);
   const id = unwrappedParams.id;
+  const router = useRouter();
   const { selectedJob: job, similarJobs, isLoading, error, fetchJobById, fetchSimilarJobs, matchScore, matchMissingProfile, fetchJobMatch } = useJobStore();
   const { user } = useAuthStore();
+  const { applyForJob, isApplying } = useApplicationStore();
+
+  const handleApply = async () => {
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+    await applyForJob(id);
+  };
 
   useEffect(() => {
     if (id) {
@@ -98,8 +110,19 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
               </p>
               
               <div className="flex gap-4 mt-6">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-medium transition-colors">
-                  Apply Now
+                <button 
+                  onClick={handleApply}
+                  disabled={isApplying}
+                  className="flex items-center justify-center min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isApplying ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Applying...
+                    </>
+                  ) : (
+                    'Apply Now'
+                  )}
                 </button>
                 <button className="border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 py-2.5 rounded-lg font-medium transition-colors">
                   Message
