@@ -16,6 +16,8 @@ import {
 import { Navbar } from '@/components/shared/Navbar';
 import { Footer } from '@/components/shared/Footer';
 import { apiClient } from '@/lib/api';
+import { useAuthStore } from '@/store/useAuthStore';
+import toast from 'react-hot-toast';
 
 interface Job {
   id: string;
@@ -48,9 +50,12 @@ export default function CompanyDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
+  const { isAuthenticated } = useAuthStore();
 
   const [company, setCompany] = useState<CompanyDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowLoading, setIsFollowLoading] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -73,6 +78,57 @@ export default function CompanyDetailsPage() {
 
     fetchCompanyDetails();
   }, [slug, router]);
+
+  useEffect(() => {
+    if (isAuthenticated && company) {
+      const checkFollowStatus = async () => {
+        try {
+          const res = await apiClient.get<{ companyId: string }[]>('/candidates/me/followed-companies');
+          // Depending on how followed-companies returns data, it might return the whole FollowedCompany object
+          const followed = (res.data as any[]).some(f => f.companyId === company.id);
+          setIsFollowing(followed);
+        } catch (error) {
+          console.error('Failed to check follow status', error);
+        }
+      };
+      checkFollowStatus();
+    }
+  }, [isAuthenticated, company]);
+
+  const handleToggleFollow = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to follow companies');
+      router.push('/login');
+      return;
+    }
+    if (!company) return;
+
+    setIsFollowLoading(true);
+    try {
+      if (isFollowing) {
+        await apiClient.delete(`/candidates/me/followed-companies/${company.id}`);
+        setIsFollowing(false);
+        setCompany(prev => prev ? {
+          ...prev,
+          _count: { ...prev._count, followers: Math.max(0, prev._count.followers - 1) }
+        } : prev);
+        toast.success(`Unfollowed ${company.name}`);
+      } else {
+        await apiClient.post('/candidates/me/followed-companies', { companyId: company.id });
+        setIsFollowing(true);
+        setCompany(prev => prev ? {
+          ...prev,
+          _count: { ...prev._count, followers: prev._count.followers + 1 }
+        } : prev);
+        toast.success(`Following ${company.name}`);
+      }
+    } catch (error) {
+      console.error('Failed to toggle follow', error);
+      toast.error('An error occurred. Please try again.');
+    } finally {
+      setIsFollowLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -148,8 +204,17 @@ export default function CompanyDetailsPage() {
                     </span>
                   </p>
                 </div>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors shadow-sm">
-                  Follow Company
+                <button 
+                  onClick={handleToggleFollow}
+                  disabled={isFollowLoading}
+                  className={`font-semibold px-6 py-2.5 rounded-lg transition-all shadow-sm flex items-center gap-2 ${
+                    isFollowing 
+                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  {isFollowLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {isFollowing ? 'Following' : 'Follow Company'}
                 </button>
               </div>
 
