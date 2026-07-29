@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { MapPin, Share2, Bookmark, Check } from 'lucide-react';
 
@@ -23,12 +24,14 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const router = useRouter();
   const [isClicked, setIsClicked] = useState(job.defaultActionsVisible || false);
   const [isSaved, setIsSaved] = useState(false);
   const [isShared, setIsShared] = useState(false);
 
   const handleCardClick = () => {
     setIsClicked(true);
+    router.push(`/jobs/${job.id}`);
   };
 
   const handleSave = (e: React.MouseEvent) => {
