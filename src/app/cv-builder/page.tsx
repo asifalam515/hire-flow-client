@@ -106,11 +106,15 @@ export default function CvBuilderPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="relative flex items-center justify-center">
-          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-          <Sparkles className="absolute text-blue-600 size-6 animate-pulse" />
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[70vh] mt-8 lg:mt-12">
+          <div className="relative flex items-center justify-center">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <Sparkles className="absolute text-blue-600 size-6 animate-pulse" />
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
