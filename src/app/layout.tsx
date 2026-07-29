@@ -31,7 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <Toaster 
-          position="bottom-right" 
+          position="top-center" 
           toastOptions={{
             style: {
               borderRadius: '8px',
