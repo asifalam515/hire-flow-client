@@ -144,7 +144,7 @@ export default function NotificationsDashboard() {
               <MessageSquare className="w-5 h-5 text-slate-400" />
               Message
             </Link>
-            <Link href="/candidates/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
+            <Link href="/candidates/dashboard/settings" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
               <Settings className="w-5 h-5 text-slate-400" />
               Account setting
             </Link>

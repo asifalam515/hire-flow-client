@@ -370,7 +370,7 @@ export function Navbar() {
                       </Link>
 
                       <Link
-                        href="/candidates/settings"
+                        href="/candidates/dashboard/settings"
                         onClick={() => setIsDropdownOpen(false)}
                         className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
                       >
