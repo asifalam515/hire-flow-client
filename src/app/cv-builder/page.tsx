@@ -120,7 +120,7 @@ export default function CvBuilderPage() {
     return (
       <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950">
         <Navbar />
-        <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-hidden relative">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-hidden relative mt-8 lg:mt-12">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white dark:from-blue-950/20 dark:via-zinc-950 dark:to-zinc-950"></div>
           <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-blob"></div>
           <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
@@ -159,7 +159,7 @@ export default function CvBuilderPage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950">
       <Navbar />
-      <div className="flex-1 pb-20">
+      <div className="flex-1 pb-20 mt-8 lg:mt-12">
         {/* Premium Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-40 shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
