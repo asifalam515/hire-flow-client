@@ -23,6 +23,8 @@ import * as candidateService from '@/services/candidate.service';
 import { useAuthStore } from '@/store/useAuthStore';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Navbar } from '@/components/shared/Navbar';
+import { Footer } from '@/components/shared/Footer';
 
 export default function CvBuilderPage() {
   const router = useRouter();
@@ -116,43 +118,49 @@ export default function CvBuilderPage() {
   // Not logged in view
   if (!isAuthenticated || !user) {
     return (
-      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 overflow-hidden relative">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white dark:from-blue-950/20 dark:via-zinc-950 dark:to-zinc-950"></div>
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-blob"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
-        
-        <div className="text-center max-w-3xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 duration-700">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-sm border border-blue-100 dark:border-blue-800">
-            <Sparkles className="size-4" />
-            <span>AI-Powered Resume Builder</span>
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-            Create a winning CV in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">seconds</span>
-          </h1>
-          <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
-            Let our advanced AI analyze your profile and generate a professional, ATS-friendly resume tailored to land you your dream job.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/auth/login">
-              <Button size="lg" className="h-14 px-8 text-lg rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25 transition-all hover:scale-105">
-                Login to Start
-              </Button>
-            </Link>
-            <Link href="/candidates/sign-up">
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-2xl border-2 hover:bg-slate-50 transition-all">
-                Create Account
-              </Button>
-            </Link>
+      <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950">
+        <Navbar />
+        <div className="flex-1 flex flex-col items-center justify-center px-4 overflow-hidden relative">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50 via-white to-white dark:from-blue-950/20 dark:via-zinc-950 dark:to-zinc-950"></div>
+          <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-400/20 rounded-full blur-3xl animate-blob"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-purple-400/20 rounded-full blur-3xl animate-blob animation-delay-2000"></div>
+          
+          <div className="text-center max-w-3xl mx-auto space-y-8 animate-in slide-in-from-bottom-8 duration-700 py-20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-semibold text-sm border border-blue-100 dark:border-blue-800">
+              <Sparkles className="size-4" />
+              <span>AI-Powered Resume Builder</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+              Create a winning CV in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">seconds</span>
+            </h1>
+            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Let our advanced AI analyze your profile and generate a professional, ATS-friendly resume tailored to land you your dream job.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Link href="/login">
+                <Button size="lg" className="h-14 px-8 text-lg rounded-2xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/25 transition-all hover:scale-105">
+                  Login to Start
+                </Button>
+              </Link>
+              <Link href="/candidates/sign-up">
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-2xl border-2 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all">
+                  Create Account
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   // Logged in builder view
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 pb-20">
-      {/* Premium Header */}
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950">
+      <Navbar />
+      <div className="flex-1 pb-20">
+        {/* Premium Header */}
       <div className="bg-white dark:bg-zinc-900 border-b border-slate-200 dark:border-zinc-800 sticky top-0 z-40 shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -354,6 +362,8 @@ export default function CvBuilderPage() {
 
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }
