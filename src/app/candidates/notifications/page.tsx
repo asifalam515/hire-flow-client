@@ -17,79 +17,83 @@ import {
   Mail,
   ChevronLeft
 } from 'lucide-react';
+import { apiClient } from '@/lib/api';
 
 interface NotificationData {
   id: string;
-  text: string;
-  tag: string;
-  tagType: 'message' | 'apply' | 'newjob';
-  time: string;
-  isStarred?: boolean;
+  type: string;
+  title: string;
+  content: string;
+  isRead: boolean;
+  actionUrl: string | null;
+  createdAt: string;
 }
 
-const mockNotifications: NotificationData[] = [
-  {
-    id: '1',
-    text: 'Prime Works Ltd has started following your profile. Visit their page to see their latest job postings and company updates just now.',
-    tag: 'Message',
-    tagType: 'message',
-    time: '22:14 AM'
-  },
-  {
-    id: '2',
-    text: 'Your resume has been successfully submitted for Tech Nova Inc.check out your dashboard for real time status updates...',
-    tag: 'Apply Result',
-    tagType: 'apply',
-    time: '22:14 AM'
-  },
-  {
-    id: '3',
-    text: 'Your profile is almost complete! Add a few more details to increase your visibility to employers and get personalized job suggestions.',
-    tag: 'Message',
-    tagType: 'message',
-    time: '22:14 AM'
-  },
-  {
-    id: '4',
-    text: 'Your resume has been successfully submitted for the \'Product Design\' position at Global Crop Solution. We\'ll keep you updated on the next steps.',
-    tag: 'Apply Result',
-    tagType: 'apply',
-    time: '22:14 AM',
-    isStarred: true
-  },
-  {
-    id: '5',
-    text: 'Google\'s service, offered free of charge, instantly translates words, phrases, and web pages between English and over 100 other languages.',
-    tag: 'Messeges',
-    tagType: 'message',
-    time: '22:14 AM'
-  },
-  {
-    id: '6',
-    text: 'Exciting opportunity! A \'Digital Marketing Specialist\' role has just been posted at Bright Solutions Group. Check your dashboard for more information and apply now.',
-    tag: 'New job',
-    tagType: 'newjob',
-    time: '22:14 AM'
+const getTagConfig = (type: string) => {
+  switch (type) {
+    case 'NEW_JOB': return { text: 'New job', colorClass: 'text-blue-500 border-blue-500' };
+    case 'APPLICATION_UPDATE': return { text: 'Apply Result', colorClass: 'text-emerald-500 border-emerald-500' };
+    case 'MESSAGE': return { text: 'Message', colorClass: 'text-red-500 border-red-500' };
+    default: return { text: 'System', colorClass: 'text-slate-500 border-slate-500' };
   }
-];
+};
 
 export default function NotificationsDashboard() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const renderTag = (tagText: string, type: string) => {
-    let colorClasses = '';
-    if (type === 'message') {
-      colorClasses = 'text-red-500 border-red-500';
-    } else if (type === 'apply') {
-      colorClasses = 'text-emerald-500 border-emerald-500';
-    } else if (type === 'newjob') {
-      colorClasses = 'text-blue-500 border-blue-500';
+  // Fetch notifications
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        let url = '/notifications';
+        if (activeFilter !== 'All') {
+          let filterType = '';
+          if (activeFilter === 'New job') filterType = 'NEW_JOB';
+          if (activeFilter === 'Messages') filterType = 'MESSAGE';
+          if (activeFilter === 'Apply Result') filterType = 'APPLICATION_UPDATE';
+          url += `?filterType=${filterType}`;
+        }
+        
+        const [notifRes, countRes] = await Promise.all([
+          apiClient.get<NotificationData[]>(url),
+          apiClient.get<{count: number}>('/notifications/unread-count')
+        ]);
+        
+        setNotifications(notifRes.data || []);
+        setUnreadCount(countRes.data?.count || 0);
+      } catch (err) {
+        console.error('Failed to fetch notifications', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchNotifications();
+  }, [activeFilter]);
+
+  const markAsRead = async (id: string, actionUrl: string | null) => {
+    try {
+      await apiClient.patch(`/notifications/${id}/read`, {});
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      if (actionUrl) {
+        window.location.href = actionUrl;
+      }
+    } catch (err) {
+      console.error('Failed to mark read', err);
     }
+  };
 
+  const renderTag = (type: string) => {
+    const { text, colorClass } = getTagConfig(type);
     return (
-      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${colorClasses}`}>
-        {tagText}
+      <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${colorClass}`}>
+        {text}
       </span>
     );
   };
@@ -125,10 +129,12 @@ export default function NotificationsDashboard() {
               <FileText className="w-5 h-5 text-slate-400" />
               My Resume
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-900 bg-slate-100 rounded-xl transition-colors">
+            <Link href="/candidates/notifications" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-900 bg-slate-100 rounded-xl transition-colors">
               <Bell className="w-5 h-5 text-slate-600" />
               Notification
-              <span className="ml-auto w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">6</span>
+              {unreadCount > 0 && (
+                <span className="ml-auto w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{unreadCount}</span>
+              )}
             </Link>
             <Link href="#" className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 transition-colors">
               <MessageSquare className="w-5 h-5 text-slate-400" />
@@ -187,7 +193,7 @@ export default function NotificationsDashboard() {
               >
                 <Bell className="w-6 h-6" />
                 <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center border-2 border-[#F9FAFB]">
-                  30
+                  {unreadCount}
                 </span>
               </button>
 
@@ -206,15 +212,24 @@ export default function NotificationsDashboard() {
                     </div>
                     
                     <div className="max-h-[300px] overflow-y-auto">
-                      {mockNotifications.slice(0, 4).map(notif => (
-                        <div key={notif.id} className="p-4 border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer relative">
-                          <p className="text-sm text-slate-800 line-clamp-2 pr-16 mb-2">
-                            {notif.text}
+                      {notifications.slice(0, 4).map(notif => (
+                        <div 
+                          key={notif.id} 
+                          onClick={() => markAsRead(notif.id, notif.actionUrl)}
+                          className={`p-4 border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer relative ${!notif.isRead ? 'bg-blue-50/30' : ''}`}
+                        >
+                          <p className={`text-sm text-slate-800 line-clamp-2 pr-16 mb-2 ${!notif.isRead ? 'font-semibold' : ''}`}>
+                            {notif.content}
                           </p>
-                          {renderTag(notif.tag, notif.tagType)}
-                          <span className="absolute bottom-4 right-4 text-xs text-slate-400">{notif.time}</span>
+                          {renderTag(notif.type)}
+                          <span className="absolute bottom-4 right-4 text-xs text-slate-400">
+                            {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
                       ))}
+                      {notifications.length === 0 && (
+                        <p className="text-sm text-slate-500 text-center py-4">No recent notifications</p>
+                      )}
                     </div>
                     
                     <button className="w-full p-3 text-sm font-semibold text-blue-600 hover:bg-slate-50 flex items-center justify-center gap-1 transition-colors">
@@ -248,7 +263,7 @@ export default function NotificationsDashboard() {
             <div className="p-6 flex items-center justify-between border-b border-slate-100">
               <div className="flex items-center gap-3 text-slate-800 font-medium">
                 <Bell className="w-5 h-5 text-slate-600" />
-                <p>You have <span className="text-blue-600 font-semibold">3 notifications</span> today.</p>
+                <p>You have <span className="text-blue-600 font-semibold">{unreadCount} unread notifications</span> today.</p>
               </div>
               <button className="text-slate-400 hover:text-slate-600 p-1">
                 <MoreHorizontal className="w-5 h-5" />
@@ -278,32 +293,53 @@ export default function NotificationsDashboard() {
 
             {/* Notifications List */}
             <div className="flex flex-col">
-              {mockNotifications.map(notif => (
-                <div key={notif.id} className="flex items-start gap-6 p-6 border-b border-slate-100 hover:bg-slate-50/50 transition-colors group">
-                  <div className="pt-1">
-                    <input type="checkbox" className="w-[18px] h-[18px] rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0 pr-8">
-                    <p className="text-[15px] text-slate-800 leading-relaxed mb-3 pr-12">
-                      {notif.text}
-                    </p>
-                    {renderTag(notif.tag, notif.tagType)}
-                  </div>
-
-                  <div className="flex flex-col items-end justify-between h-full gap-4 shrink-0">
-                    <div className="flex items-center gap-3">
-                      <button className="text-slate-400 hover:text-yellow-400 transition-colors">
-                        <Star className={`w-5 h-5 ${notif.isStarred ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-                      </button>
-                      <button className="text-slate-400 hover:text-slate-600 transition-colors">
-                        <Mail className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <span className="text-[13px] font-medium text-slate-400">{notif.time}</span>
-                  </div>
+              {isLoading ? (
+                <div className="flex justify-center py-10">
+                  <span className="text-sm text-slate-500">Loading notifications...</span>
                 </div>
-              ))}
+              ) : notifications.length === 0 ? (
+                <div className="flex justify-center py-10">
+                  <span className="text-sm text-slate-500">You're all caught up!</span>
+                </div>
+              ) : (
+                notifications.map(notif => (
+                  <div 
+                    key={notif.id} 
+                    onClick={() => markAsRead(notif.id, notif.actionUrl)}
+                    className={`flex items-start gap-6 p-6 border-b border-slate-100 hover:bg-slate-50/50 transition-colors group cursor-pointer ${!notif.isRead ? 'bg-blue-50/20' : ''}`}
+                  >
+                    <div className="pt-1">
+                      <input 
+                        type="checkbox" 
+                        checked={!notif.isRead}
+                        readOnly
+                        className="w-[18px] h-[18px] rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                      />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0 pr-8">
+                      <p className={`text-[15px] leading-relaxed mb-3 pr-12 ${!notif.isRead ? 'text-slate-900 font-semibold' : 'text-slate-700'}`}>
+                        {notif.content}
+                      </p>
+                      {renderTag(notif.type)}
+                    </div>
+
+                    <div className="flex flex-col items-end justify-between h-full gap-4 shrink-0">
+                      <div className="flex items-center gap-3">
+                        <button className="text-slate-400 hover:text-yellow-400 transition-colors">
+                          <Star className="w-5 h-5" />
+                        </button>
+                        <button className="text-slate-400 hover:text-slate-600 transition-colors">
+                          <Mail className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <span className="text-[13px] font-medium text-slate-400">
+                        {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
 
           </div>
