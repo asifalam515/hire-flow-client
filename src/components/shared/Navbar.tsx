@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { uploadFileToCloudinary } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -30,13 +31,14 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', href: '/', active: true },
+  { label: 'Home', href: '/' },
   { label: 'Find job', href: '/jobs' },
   { label: 'Company', href: '/companies' },
   { label: 'Create CV', href: '/cv-builder' },
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const { user, isAuthenticated, logout, activeRole, setActiveRole, updateAvatar } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -111,19 +113,22 @@ export function Navbar() {
 
         {/* Center Desktop Navigation */}
         <nav className="hidden lg:flex items-center space-x-8">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`text-sm font-semibold transition-colors duration-200 ${
-                item.active
-                  ? 'text-blue-600 dark:text-blue-400'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`text-sm font-bold transition-colors duration-200 ${
+                  isActive
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-muted-foreground hover:text-foreground font-semibold'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right Actions & Auth */}
