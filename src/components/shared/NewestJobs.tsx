@@ -1,85 +1,58 @@
-import React from 'react';
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import { JobCard, JobItem } from '@/components/shared/JobCard';
+'use client';
 
-const NEWEST_JOBS: JobItem[] = [
-  {
-    id: 'mim-president',
-    company: 'MIM',
-    role: 'President of Sales',
-    tags: ['Full-Time', 'Remote'],
-    location: 'Korstø',
-    salary: '25 25$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-gradient-to-tr from-cyan-500 to-rose-500 text-white',
-    logoColor: 'text-white',
-    logoText: 'M',
-  },
-  {
-    id: 'mcdonalds-web',
-    company: "McDonald's",
-    role: 'Web Designer',
-    tags: ['Full-Time', 'Senior'],
-    location: 'Bergen',
-    salary: '25 35$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-red-600',
-    logoColor: 'text-amber-400 font-extrabold',
-    logoText: 'M',
-  },
-  {
-    id: 'loveclip-nursing',
-    company: 'LOVECLIP',
-    role: 'Nursing Assistant',
-    tags: ['Full-Time', 'Part-Time'],
-    location: 'Trondheim',
-    salary: '25 55$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-rose-500',
-    logoColor: 'text-white font-extrabold',
-    logoText: '♥',
-    defaultActionsVisible: true,
-  },
-  {
-    id: 'tyme-marketing',
-    company: 'TYME',
-    role: 'Marketing Coordinator',
-    tags: ['Hybrid', 'Part-Time'],
-    location: 'Stavanger',
-    salary: '25 15$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-zinc-100 dark:bg-zinc-800',
-    logoColor: 'text-foreground font-black tracking-widest text-base',
-    logoText: 'TYME',
-  },
-  {
-    id: 'ob-dog-trainer',
-    company: 'OB',
-    role: 'Dog Trainer',
-    tags: ['Junior', 'Part-Time'],
-    location: 'Mongstad',
-    salary: '25 45$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-gradient-to-tr from-blue-500 to-rose-500 text-white',
-    logoColor: 'text-white font-black',
-    logoText: 'OB',
-  },
-  {
-    id: 'taint-medical',
-    company: 'TAINT',
-    role: 'Medical Assistant',
-    tags: ['Mid-Level', 'Part-Time'],
-    location: 'Bergen',
-    salary: '25 95$ / Month',
-    postedAt: '1 hour ago',
-    logoBg: 'bg-amber-100 dark:bg-amber-950/60',
-    logoColor: 'text-amber-700 dark:text-amber-300 font-black',
-    logoText: 'T',
-  },
-];
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { ChevronRight, Loader2 } from 'lucide-react';
+import { JobCard, JobItem } from '@/components/shared/JobCard';
+import { apiClient } from '@/lib/api';
+import { formatDistanceToNow } from 'date-fns';
+function formatJobToJobItem(job: any): JobItem {
+  const colors = [
+    { bg: 'bg-gradient-to-tr from-cyan-500 to-rose-500 text-white', color: 'text-white' },
+    { bg: 'bg-red-600', color: 'text-amber-400 font-extrabold' },
+    { bg: 'bg-rose-500', color: 'text-white font-extrabold' },
+    { bg: 'bg-zinc-100 dark:bg-zinc-800', color: 'text-foreground font-black tracking-widest text-base' },
+    { bg: 'bg-gradient-to-tr from-blue-500 to-rose-500 text-white', color: 'text-white font-black' },
+    { bg: 'bg-amber-100 dark:bg-amber-950/60', color: 'text-amber-700 dark:text-amber-300 font-black' }
+  ];
+  let hash = 0;
+  const str = job.company?.name || 'Company';
+  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  const colorStyle = colors[Math.abs(hash) % colors.length];
+
+  return {
+    id: job.id,
+    company: job.company?.name || 'Unknown',
+    role: job.title,
+    tags: [job.nature, ...(job.employmentTypes || []), job.category].filter(Boolean).slice(0, 3),
+    location: job.locationCity || 'Remote',
+    salary: `$${(job.minSalary / 1000).toFixed(0)}k - $${(job.maxSalary / 1000).toFixed(0)}k / Year`,
+    postedAt: formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }),
+    logoBg: colorStyle.bg,
+    logoColor: colorStyle.color,
+    logoText: str.substring(0, 2).toUpperCase()
+  };
+}
 
 export function NewestJobs() {
+  const [jobs, setJobs] = useState<JobItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await apiClient.get<{ jobs: any[] }>('/jobs?limit=6');
+        const jobsData = res.data?.jobs || (res.data as any).data?.jobs || (Array.isArray(res.data) ? res.data : []);
+        setJobs(jobsData.slice(0, 6).map(formatJobToJobItem));
+      } catch (error) {
+        console.error('Failed to fetch newest jobs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchJobs();
+  }, []);
+
   return (
     <section className="w-full py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#EFF5FF] dark:bg-slate-950 transition-colors duration-300">
       <div className="mx-auto max-w-7xl">
@@ -107,9 +80,15 @@ export function NewestJobs() {
 
         {/* 3-Column Responsive Job Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {NEWEST_JOBS.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
+          {isLoading ? (
+            <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center items-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+          ) : (
+            jobs.map((job) => (
+              <JobCard key={job.id} job={job} />
+            ))
+          )}
         </div>
 
       </div>
