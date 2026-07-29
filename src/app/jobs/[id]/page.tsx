@@ -8,6 +8,7 @@ import { useJobStore } from '@/store/useJobStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useApplicationStore } from '@/store/useApplicationStore';
 import { JobCard } from '@/components/candidate/jobs/JobCard';
+import { apiClient } from '@/lib/api';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -17,13 +18,18 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
   const { selectedJob: job, similarJobs, isLoading, error, fetchJobById, fetchSimilarJobs, matchScore, matchMissingProfile, fetchJobMatch } = useJobStore();
   const { user } = useAuthStore();
   const { applyForJob, isApplying } = useApplicationStore();
+  const [hasApplied, setHasApplied] = React.useState(false);
+  const [isCheckingApplication, setIsCheckingApplication] = React.useState(true);
 
   const handleApply = async () => {
     if (!user) {
       router.push('/auth/login');
       return;
     }
-    await applyForJob(id);
+    const success = await applyForJob(id);
+    if (success) {
+      setHasApplied(true);
+    }
   };
 
   useEffect(() => {
@@ -31,6 +37,23 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
       fetchJobById(id);
       if (user) {
         fetchJobMatch(id);
+        
+        // Check if user has already applied
+        const checkApplicationStatus = async () => {
+          try {
+            const res = await apiClient.get<any[]>('/candidates/me/applications');
+            const applications = res.data || [];
+            const applied = applications.some((app: any) => app.job?.id === id);
+            setHasApplied(applied);
+          } catch (err) {
+            console.error('Failed to check application status:', err);
+          } finally {
+            setIsCheckingApplication(false);
+          }
+        };
+        checkApplicationStatus();
+      } else {
+        setIsCheckingApplication(false);
       }
     }
   }, [id, fetchJobById, fetchJobMatch, user]);
@@ -112,10 +135,18 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
               <div className="flex gap-4 mt-6">
                 <button 
                   onClick={handleApply}
-                  disabled={isApplying}
-                  className="flex items-center justify-center min-w-[140px] bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                  disabled={isApplying || hasApplied || isCheckingApplication}
+                  className={`flex items-center justify-center min-w-[140px] px-8 py-2.5 rounded-lg font-medium transition-colors ${
+                    hasApplied 
+                      ? 'bg-emerald-100 text-emerald-700 border border-emerald-200 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-70 disabled:cursor-not-allowed'
+                  }`}
                 >
-                  {isApplying ? (
+                  {isCheckingApplication ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : hasApplied ? (
+                    'Applied'
+                  ) : isApplying ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin mr-2" />
                       Applying...
