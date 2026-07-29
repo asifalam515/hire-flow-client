@@ -30,7 +30,8 @@ function formatJobToJobItem(job: any): JobItem {
     postedAt: formatDistanceToNow(new Date(job.createdAt), { addSuffix: true }),
     logoBg: colorStyle.bg,
     logoColor: colorStyle.color,
-    logoText: str.substring(0, 2).toUpperCase()
+    logoText: str.substring(0, 2).toUpperCase(),
+    logoUrl: job.company?.logoUrl
   };
 }
 

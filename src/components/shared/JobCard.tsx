@@ -16,6 +16,7 @@ export interface JobItem {
   logoBg: string;
   logoColor: string;
   logoText: string;
+  logoUrl?: string;
   defaultActionsVisible?: boolean;
 }
 
@@ -59,9 +60,13 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex items-start gap-4 min-w-0">
           {/* Company Logo Badge */}
           <div
-            className={`size-14 rounded-2xl flex items-center justify-center font-black text-lg sm:text-xl shrink-0 shadow-sm border border-border/30 transition-transform duration-300 group-hover:scale-105 ${job.logoBg} ${job.logoColor}`}
+            className={`size-14 rounded-2xl flex items-center justify-center font-black text-lg sm:text-xl shrink-0 shadow-sm border border-border/30 transition-transform duration-300 group-hover:scale-105 overflow-hidden ${!job.logoUrl ? `${job.logoBg} ${job.logoColor}` : 'bg-white dark:bg-zinc-950'}`}
           >
-            {job.logoText}
+            {job.logoUrl ? (
+              <img src={job.logoUrl} alt={`${job.company} logo`} className="w-full h-full object-contain p-1" />
+            ) : (
+              job.logoText
+            )}
           </div>
 
           {/* Company Name & Role Title */}
