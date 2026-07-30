@@ -13,7 +13,7 @@ export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
     if (pathname.includes('/settings')) return { title: 'Account Setting', subtitle: 'Updating your information will offer you the most relevant content' };
     if (pathname.includes('/resume')) return { title: 'My Resume', subtitle: 'Manage your resume and profile details' };
     if (pathname.includes('/notifications')) return { title: 'Notifications', subtitle: 'View your latest updates and alerts' };
-    if (pathname.includes('/messages')) return { title: 'Messages', subtitle: 'Communicate with employers' };
+    if (pathname.includes('/messages')) return { title: 'Message', subtitle: 'Updating your information will offer you the most relevent content' };
     if (pathname.includes('/activity')) return { title: 'Activity', subtitle: 'Updating your information will offer you the most relevant content' };
     return { title: 'Dashboard', subtitle: 'Here is your daily activity and career updates' };
   };
