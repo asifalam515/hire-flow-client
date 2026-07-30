@@ -20,11 +20,13 @@ export function useSocket(namespace?: string) {
     }
 
     const url = namespace ? `${SOCKET_URL}/${namespace.replace(/^\//, '')}` : SOCKET_URL;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
 
     const socketInstance = io(url, {
       withCredentials: true,
       transports: ['websocket', 'polling'],
       autoConnect: true,
+      auth: { token }
     });
 
     socketRef.current = socketInstance;

@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Star, MoreVertical, Paperclip, Smile, Mic, Play, FileIcon as File, ImageIcon } from 'lucide-react';
 import { ChatData, MessageData } from './types';
 
 interface ChatAreaProps {
   chat: ChatData | null;
   messages: MessageData[];
+  onSendMessage: (content: string) => void;
 }
 
-export function ChatArea({ chat, messages }: ChatAreaProps) {
+export function ChatArea({ chat, messages, onSendMessage }: ChatAreaProps) {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleSend = () => {
+    if (inputValue.trim()) {
+      onSendMessage(inputValue.trim());
+      setInputValue('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSend();
+    }
+  };
   if (!chat) {
     return (
       <div className="flex-1 h-full flex items-center justify-center bg-white dark:bg-zinc-950">
@@ -64,14 +79,20 @@ export function ChatArea({ chat, messages }: ChatAreaProps) {
           </button>
           <input
             type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Write a message..."
             className="flex-1 bg-transparent border-none focus:outline-none text-slate-900 dark:text-white placeholder-slate-400 text-sm min-w-0"
           />
           <button className="text-slate-400 hover:text-slate-600 transition-colors shrink-0">
             <Smile className="w-5 h-5" />
           </button>
-          <button className="text-slate-400 hover:text-slate-600 transition-colors shrink-0">
-            <Mic className="w-5 h-5" />
+          <button 
+            className={`${inputValue.trim() ? 'text-blue-600 hover:text-blue-700' : 'text-slate-400 hover:text-slate-600'} transition-colors shrink-0`}
+            onClick={handleSend}
+          >
+            {inputValue.trim() ? <Play className="w-5 h-5" fill="currentColor" /> : <Mic className="w-5 h-5" />}
           </button>
         </div>
       </div>
