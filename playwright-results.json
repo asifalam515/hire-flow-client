@@ -4,7 +4,7 @@
       "/usr/bin/node",
       "/media/asif/Programming/projects/hire-flow/hire-flow-client/node_modules/.bin/playwright",
       "test",
-      "tests/e2e/auth/register.spec.ts"
+      "tests/e2e/features/messages.spec.ts"
     ],
     "configFile": "/media/asif/Programming/projects/hire-flow/hire-flow-client/playwright.config.ts",
     "rootDir": "/media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e",
@@ -68,21 +68,21 @@
   },
   "suites": [
     {
-      "title": "auth/register.spec.ts",
-      "file": "auth/register.spec.ts",
+      "title": "features/messages.spec.ts",
+      "file": "features/messages.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [],
       "suites": [
         {
-          "title": "Employer Sign Up Wizard",
-          "file": "auth/register.spec.ts",
+          "title": "Messaging Feature",
+          "file": "features/messages.spec.ts",
           "line": 3,
           "column": 6,
           "specs": [
             {
-              "title": "should successfully register a new employer",
-              "ok": true,
+              "title": "should load conversation list and messages, and send a new message",
+              "ok": false,
               "tags": [],
               "tests": [
                 {
@@ -95,23 +95,66 @@
                     {
                       "workerIndex": 0,
                       "parallelIndex": 0,
-                      "status": "passed",
-                      "duration": 3100,
-                      "errors": [],
+                      "status": "timedOut",
+                      "duration": 42560,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n    at /media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts:34:8",
+                        "location": {
+                          "file": "/media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts",
+                          "column": 8,
+                          "line": 34
+                        },
+                        "snippet": "  32 |   ];\n  33 |\n> 34 |   test.beforeEach(async ({ page, context }) => {\n     |        ^\n  35 |     // Set localStorage to simulate logged-in user\n  36 |     await context.addInitScript(() => {\n  37 |       window.localStorage.setItem('AuthStore', JSON.stringify({"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts",
+                            "column": 8,
+                            "line": 34
+                          },
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded while running \"beforeEach\" hook.\u001b[39m\n\n  32 |   ];\n  33 |\n> 34 |   test.beforeEach(async ({ page, context }) => {\n     |        ^\n  35 |     // Set localStorage to simulate logged-in user\n  36 |     await context.addInitScript(() => {\n  37 |       window.localStorage.setItem('AuthStore', JSON.stringify({\n    at /media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts:34:8"
+                        },
+                        {
+                          "location": {
+                            "file": "/media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts",
+                            "column": 16,
+                            "line": 103
+                          },
+                          "message": "Error: page.goto: net::ERR_ABORTED; maybe frame was detached?\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/candidates/dashboard/messages\", waiting until \"domcontentloaded\"\u001b[22m\n\n\n  101 |     });\n  102 |\n> 103 |     await page.goto('/candidates/dashboard/messages', { waitUntil: 'domcontentloaded', timeout: 60000 });\n      |                ^\n  104 |   });\n  105 |\n  106 |   test('should load conversation list and messages, and send a new message', async ({ page }) => {\n    at /media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts:103:16"
+                        }
+                      ],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-07-27T16:54:20.097Z",
+                      "startTime": "2026-08-02T16:23:58.749Z",
                       "annotations": [],
-                      "attachments": []
+                      "attachments": [
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/media/asif/Programming/projects/hire-flow/hire-flow-client/test-results/features-messages-Messagin-4b344-ages-and-send-a-new-message-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/media/asif/Programming/projects/hire-flow/hire-flow-client/test-results/features-messages-Messagin-4b344-ages-and-send-a-new-message-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/media/asif/Programming/projects/hire-flow/hire-flow-client/tests/e2e/features/messages.spec.ts",
+                        "column": 8,
+                        "line": 34
+                      }
                     }
                   ],
-                  "status": "expected"
+                  "status": "unexpected"
                 }
               ],
-              "id": "7a2e1e1ccab58a85dc6a-d3203d3d92ca49017465",
-              "file": "auth/register.spec.ts",
-              "line": 33,
+              "id": "7991ed324b7edfb6ba93-3bd1cd6084f9fb603c51",
+              "file": "features/messages.spec.ts",
+              "line": 106,
               "column": 7
             }
           ]
@@ -121,11 +164,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-07-27T16:54:19.544Z",
-    "duration": 3863.092,
-    "expected": 1,
+    "startTime": "2026-08-02T16:23:58.121Z",
+    "duration": 43435.661,
+    "expected": 0,
     "skipped": 0,
-    "unexpected": 0,
+    "unexpected": 1,
     "flaky": 0
   }
 }
