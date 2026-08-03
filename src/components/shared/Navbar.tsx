@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useJobStore } from '@/store/useJobStore';
 import { uploadFileToCloudinary } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
 export function Navbar() {
   const pathname = usePathname();
   const { user, isAuthenticated, logout, activeRole, setActiveRole, updateAvatar } = useAuthStore();
+  const { fetchSavedJobs } = useJobStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,12 @@ export function Navbar() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated && (!user?.role || user.role === 'CANDIDATE')) {
+      fetchSavedJobs();
+    }
+  }, [isAuthenticated, user?.role, fetchSavedJobs]);
 
   const isRecruiter = user?.role === 'RECRUITER' || (isAuthenticated && activeRole === 'employer');
 

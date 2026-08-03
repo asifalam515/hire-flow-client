@@ -30,6 +30,8 @@ interface JobState {
   fetchJobById: (id: string) => Promise<void>;
   fetchSimilarJobs: (category: string, excludeId: string) => Promise<void>;
   fetchJobMatch: (jobId: string) => Promise<void>;
+  fetchSavedJobs: () => Promise<void>;
+  toggleSaveJob: (jobId: string) => Promise<void>;
 }
 
 export const useJobStore = create<JobState>((set, get) => ({
@@ -38,6 +40,7 @@ export const useJobStore = create<JobState>((set, get) => ({
   similarJobs: [],
   matchScore: null,
   matchMissingProfile: false,
+  savedJobIds: [],
   isLoading: false,
   error: null,
   filters: {},
@@ -108,6 +111,37 @@ export const useJobStore = create<JobState>((set, get) => ({
     } catch (err: any) {
       // 401 means not logged in, we ignore and leave matchScore null
       console.error('Failed to fetch job match:', err);
+    }
+  },
+
+  fetchSavedJobs: async () => {
+    try {
+      const response = await apiClient.get<any>('/jobs/saved/me');
+      const savedJobs = response.data?.savedJobs || [];
+      const savedJobIds = savedJobs.map((item: any) => item.jobId);
+      set({ savedJobIds });
+    } catch (err: any) {
+      console.error('Failed to fetch saved jobs:', err);
+    }
+  },
+
+  toggleSaveJob: async (jobId: string) => {
+    const { savedJobIds } = get();
+    const isSaved = savedJobIds.includes(jobId);
+    
+    // Optimistic update
+    const newSavedJobIds = isSaved
+      ? savedJobIds.filter((id) => id !== jobId)
+      : [...savedJobIds, jobId];
+      
+    set({ savedJobIds: newSavedJobIds });
+
+    try {
+      await apiClient.post(`/jobs/${jobId}/save`);
+    } catch (err) {
+      // Revert on failure
+      set({ savedJobIds });
+      console.error('Failed to toggle save job:', err);
     }
   },
 }));

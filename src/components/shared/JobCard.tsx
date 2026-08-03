@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useJobStore } from '@/store/useJobStore';
 import { Card } from '@/components/ui/card';
 import { MapPin, Share2, Bookmark, Check } from 'lucide-react';
 
@@ -26,9 +28,13 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
+  const { savedJobIds, toggleSaveJob } = useJobStore();
+  
   const [isClicked, setIsClicked] = useState(job.defaultActionsVisible || false);
-  const [isSaved, setIsSaved] = useState(false);
   const [isShared, setIsShared] = useState(false);
+  
+  const isSaved = savedJobIds.includes(job.id);
 
   const handleCardClick = () => {
     setIsClicked(true);
@@ -37,7 +43,11 @@ export function JobCard({ job }: JobCardProps) {
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsSaved(!isSaved);
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+    toggleSaveJob(job.id);
   };
 
   const handleShare = (e: React.MouseEvent) => {
