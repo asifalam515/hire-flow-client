@@ -19,6 +19,7 @@ interface JobState {
   similarJobs: Job[];
   matchScore: number | null;
   matchMissingProfile: boolean;
+  savedJobIds: string[];
   isLoading: boolean;
   error: string | null;
   filters: JobFilters;
