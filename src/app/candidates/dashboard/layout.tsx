@@ -24,7 +24,7 @@ export default function CandidateDashboardLayout({
       try {
         const res = await apiClient.get('/messages/conversations');
         // @ts-ignore
-        const data = res.data?.data || res.data;
+        const data = res.data?.data || res.data || [];
         const formatted = data.map((conv: any) => {
           const partnerName = conv.company ? conv.company.name : (conv.recruiter ? `${conv.recruiter.firstName} ${conv.recruiter.lastName}` : 'Unknown');
           const partnerAvatar = conv.company?.logoUrl || conv.recruiter?.avatarUrl || '';

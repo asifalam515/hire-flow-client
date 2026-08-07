@@ -26,7 +26,7 @@ export default function EmployerDashboardLayout({
       try {
         const res = await apiClient.get('/messages/conversations');
         // @ts-ignore
-        const data = res.data?.data || res.data;
+        const data = res.data?.data || res.data || [];
         const formatted = data.map((conv: any) => {
           const partnerName = conv.candidate ? `${conv.candidate.firstName || ''} ${conv.candidate.lastName || ''}`.trim() : 'Unknown Candidate';
           return {

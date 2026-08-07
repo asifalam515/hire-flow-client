@@ -28,7 +28,8 @@ export default function MessagesPage() {
     const fetchConversations = async () => {
       try {
         const res = await apiClient.get('/messages/conversations');
-        const data = (res as any).data.data;
+        // @ts-ignore
+        const data = res.data?.data || res.data || [];
         // Map backend conversations to ChatData format
         const formattedConversations = data.map((conv: any) => {
           // If we are candidate, we chat with company/recruiter

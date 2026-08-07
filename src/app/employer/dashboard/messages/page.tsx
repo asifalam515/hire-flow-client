@@ -29,7 +29,7 @@ export default function EmployerMessagesPage() {
       try {
         const res = await apiClient.get('/messages/conversations');
         // @ts-ignore
-        const data = res.data?.data || res.data;
+        const data = res.data?.data || res.data || [];
         
         // Map backend conversations to ChatData format
         const formattedConversations = data.map((conv: any) => {

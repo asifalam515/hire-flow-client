@@ -12,7 +12,8 @@ import {
   Calendar, 
   User, 
   Briefcase,
-  GraduationCap
+  GraduationCap,
+  MessageSquare
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -59,6 +60,7 @@ export default function JobApplicationsPage() {
   const [jobTitle, setJobTitle] = useState('Job Applications');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [isMessaging, setIsMessaging] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -92,6 +94,22 @@ export default function JobApplicationsPage() {
     } catch (error) {
       console.error('Failed to update status', error);
       alert('Failed to update status');
+    }
+  };
+
+  const handleMessageCandidate = async (candidateUserId: string) => {
+    setIsMessaging(candidateUserId);
+    try {
+      const res = await apiClient.post('/messages/conversations', {
+        targetUserId: candidateUserId
+      });
+      // Navigate to messages dashboard
+      router.push('/employer/dashboard/messages');
+    } catch (error) {
+      console.error('Failed to start conversation', error);
+      alert('Failed to start conversation');
+    } finally {
+      setIsMessaging(null);
     }
   };
 
@@ -282,22 +300,33 @@ export default function JobApplicationsPage() {
                   </div>
                 </div>
                 
-                {app.candidate.resumeUrl ? (
-                  <a 
-                    href={app.candidate.resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleMessageCandidate(app.candidate.user.id)}
+                    disabled={isMessaging === app.candidate.user.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
                   >
-                    <FileText className="w-3.5 h-3.5" />
-                    Resume
-                  </a>
-                ) : (
-                  <button disabled className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-400 rounded-lg text-xs font-bold opacity-50 cursor-not-allowed">
-                    <FileText className="w-3.5 h-3.5" />
-                    No Resume
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    {isMessaging === app.candidate.user.id ? 'Starting...' : 'Message'}
                   </button>
-                )}
+
+                  {app.candidate.resumeUrl ? (
+                    <a 
+                      href={app.candidate.resumeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Resume
+                    </a>
+                  ) : (
+                    <button disabled className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-400 rounded-lg text-xs font-bold opacity-50 cursor-not-allowed">
+                      <FileText className="w-3.5 h-3.5" />
+                      No Resume
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))}
