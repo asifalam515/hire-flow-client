@@ -90,8 +90,15 @@ export const useAuthStore = create<AuthState>()(
         login: async (credentials: LoginCredentials) => {
           set({ isLoading: true, error: null });
           try {
-            const response = await apiClient.post<{ user: User; accessToken?: string }>('/auth/login', credentials);
+            const response = await apiClient.post<{ user: User; company?: any; candidateProfile?: any; accessToken?: string }>('/auth/login', credentials);
             const user = response.data?.user || (response.data as unknown as User);
+
+            if (response.data?.company && user) {
+              user.company = response.data.company;
+            }
+            if (response.data?.candidateProfile && user) {
+              user.candidateProfile = response.data.candidateProfile;
+            }
 
             if (typeof window !== 'undefined' && response.data?.accessToken) {
               localStorage.setItem('accessToken', response.data.accessToken);
@@ -122,11 +129,16 @@ export const useAuthStore = create<AuthState>()(
           try {
             const response = await apiClient.post<{
               user: User;
+              company?: any;
               accessToken?: string;
               verification?: { otpCode: string; expiresIn: number };
             }>('/auth/employer/register', data);
 
             const user = response.data?.user || (response.data as unknown as User);
+            
+            if (response.data?.company && user) {
+              user.company = response.data.company;
+            }
 
             if (typeof window !== 'undefined' && response.data?.accessToken) {
               localStorage.setItem('accessToken', response.data.accessToken);
@@ -155,11 +167,16 @@ export const useAuthStore = create<AuthState>()(
           try {
             const response = await apiClient.post<{
               user: User;
+              candidateProfile?: any;
               accessToken?: string;
               verification?: { otpCode: string; expiresIn: number };
             }>('/auth/candidate/register', data);
 
             const user = response.data?.user || (response.data as unknown as User);
+
+            if (response.data?.candidateProfile && user) {
+              user.candidateProfile = response.data.candidateProfile;
+            }
 
             if (typeof window !== 'undefined' && response.data?.accessToken) {
               localStorage.setItem('accessToken', response.data.accessToken);
@@ -255,8 +272,15 @@ export const useAuthStore = create<AuthState>()(
         checkAuth: async () => {
           set({ isLoading: true });
           try {
-            const response = await apiClient.get<{ user: User }>('/auth/me');
+            const response = await apiClient.get<{ user: User; company?: any; candidateProfile?: any }>('/auth/me');
             const user = response.data?.user || (response.data as unknown as User);
+
+            if (response.data?.company && user) {
+              user.company = response.data.company;
+            }
+            if (response.data?.candidateProfile && user) {
+              user.candidateProfile = response.data.candidateProfile;
+            }
 
             set({
               user,
