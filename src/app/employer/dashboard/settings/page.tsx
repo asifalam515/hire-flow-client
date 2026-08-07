@@ -27,14 +27,12 @@ interface Session {
   isCurrent?: boolean;
 }
 
-export default function AccountSettingsPage() {
-  const { user, updateCandidateName, updateEmail, updatePassword, updateNotifications, deleteAccount } = useAuthStore();
+export default function EmployerAccountSettingsPage() {
+  const { user, updateEmail, updatePassword, updateNotifications, deleteAccount } = useAuthStore();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Form states
-  const [firstName, setFirstName] = useState(user?.firstName || '');
-  const [lastName, setLastName] = useState(user?.lastName || '');
   const [email, setEmail] = useState('');
   
   const [oldPassword, setOldPassword] = useState('');
@@ -45,13 +43,6 @@ export default function AccountSettingsPage() {
   // Sessions state
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
-
-  useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName || '');
-      setLastName(user.lastName || '');
-    }
-  }, [user]);
 
   useEffect(() => {
     fetchSessions();
@@ -66,23 +57,6 @@ export default function AccountSettingsPage() {
       console.error('Failed to fetch sessions', error);
     } finally {
       setIsLoadingSessions(false);
-    }
-  };
-
-  const handleSaveName = async () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      toast.error('First and last name are required');
-      return;
-    }
-    setIsLoading(true);
-    try {
-      await updateCandidateName(firstName, lastName);
-      toast.success('Name updated successfully');
-      setEditingSection(null);
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to update name');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -135,7 +109,7 @@ export default function AccountSettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
-    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+    if (confirm("Are you sure you want to delete your employer account? This action cannot be undone.")) {
       try {
         await deleteAccount();
         // The store handles redirect
@@ -167,61 +141,6 @@ export default function AccountSettingsPage() {
     }
   };
 
-  const renderNameCard = () => {
-    if (editingSection === 'name') {
-      return (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Full name</h3>
-          </div>
-          <div className="flex gap-4 mb-6">
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
-              <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)} className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-              <input type="text" value={lastName} onChange={e => setLastName(e.target.value)} className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={handleSaveName} disabled={isLoading} className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center min-w-[100px]">
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save'}
-            </button>
-            <button onClick={() => { setEditingSection(null); setFirstName(user?.firstName || ''); setLastName(user?.lastName || ''); }} className="px-6 py-2 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
-              Cancel
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <UserIcon className="w-5 h-5 text-slate-700 dark:text-slate-300" />
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Full name</h3>
-          </div>
-          <button onClick={() => setEditingSection('name')} className="text-blue-600 hover:text-blue-700">
-            <Edit className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="flex gap-20">
-          <div>
-            <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">First name</div>
-            <div className="text-sm text-slate-500">{user?.firstName || '-'}</div>
-          </div>
-          <div>
-            <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Last name</div>
-            <div className="text-sm text-slate-500">{user?.lastName || '-'}</div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   const renderAccountCard = () => {
     if (editingSection === 'account') {
       return (
@@ -239,7 +158,7 @@ export default function AccountSettingsPage() {
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 New Email Address<span className="text-red-500">*</span>
               </label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. ana@gmail.com" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. contact@company.com" className="w-full px-4 py-2 border border-slate-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -346,11 +265,15 @@ export default function AccountSettingsPage() {
   );
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Account Settings</h1>
+        <p className="text-sm text-slate-500 mt-1">Manage your employer account security, email, and preferences.</p>
+      </div>
+
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Main Content Column */}
         <div className="flex-1 space-y-6">
-          {renderNameCard()}
           {renderAccountCard()}
           {renderSecurityCard()}
 
@@ -364,18 +287,8 @@ export default function AccountSettingsPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">New job</div>
-                  <div className="text-sm text-slate-500">Notify me when a new relevant job is posted.</div>
-                </div>
-                <ToggleSwitch 
-                  checked={user?.notifyNewJob ?? true} 
-                  onChange={() => handleToggleNotification('notifyNewJob')} 
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Application result</div>
-                  <div className="text-sm text-slate-500">Notify me about updates on my applications.</div>
+                  <div className="text-sm font-medium text-slate-900 dark:text-white mb-1">Application updates</div>
+                  <div className="text-sm text-slate-500">Notify me when a candidate applies for my jobs.</div>
                 </div>
                 <ToggleSwitch 
                   checked={user?.notifyAppResult ?? true} 
@@ -474,28 +387,6 @@ export default function AccountSettingsPage() {
                 ))}
               </div>
             </div>
-          </div>
-
-          {/* Info Card 1 */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
-            <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-5 h-5 text-blue-600" />
-            </div>
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Why isn't my info shown here?</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              We're hiding some account details to protect your identity.
-            </p>
-          </div>
-
-          {/* Info Card 2 */}
-          <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-6">
-            <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
-              <Lock className="w-5 h-5 text-blue-600" />
-            </div>
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">Which details can be edited?</h4>
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Details Hire Flow uses to verify your identity can't be changed. Contact info and some personal details can be edited, but we may ask you verify your identity again if you change your email address.
-            </p>
           </div>
         </div>
       </div>
