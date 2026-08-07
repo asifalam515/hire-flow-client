@@ -410,36 +410,47 @@ export function PostJobForm() {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
+          <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Languages <span className="text-red-500">*</span>
             </label>
-            <select 
-              multiple
-              {...register('languages')}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            >
-              <option value="en">English</option>
-              <option value="es">Spanish</option>
-              <option value="fr">French</option>
-            </select>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {['English', 'Spanish', 'French', 'German', 'Mandarin', 'Japanese', 'Arabic', 'Hindi', 'Portuguese', 'Russian'].map((lang) => (
+                <label key={lang} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+                  <input 
+                    {...register('languages')}
+                    value={lang}
+                    type="checkbox" 
+                    className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800" 
+                  />
+                  <span className="text-sm text-slate-700 dark:text-slate-300">{lang}</span>
+                </label>
+              ))}
+            </div>
             {errors.languages && <p className="text-xs text-red-500">{errors.languages.message}</p>}
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Software Skills <span className="text-red-500">*</span>
             </label>
-            <select 
-              multiple
-              {...register('softwareSkills')}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            >
-              <option value="react">React</option>
-              <option value="node">Node.js</option>
-              <option value="python">Python</option>
-              <option value="sql">SQL</option>
-            </select>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {[
+                'React', 'Node.js', 'Python', 'SQL', 'TypeScript', 'Java', 'C++', 
+                'AWS', 'Docker', 'Kubernetes', 'GraphQL', 'Ruby on Rails', 
+                'Go', 'Rust', 'Swift', 'Kotlin', 'MongoDB', 'PostgreSQL', 'Redis'
+              ].map((skill) => (
+                <label key={skill} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 dark:border-zinc-700 bg-slate-50 dark:bg-zinc-800/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors">
+                  <input 
+                    {...register('softwareSkills')}
+                    value={skill}
+                    type="checkbox" 
+                    className="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-blue-500 dark:border-zinc-600 dark:bg-zinc-800" 
+                  />
+                  <span className="text-sm text-slate-700 dark:text-slate-300">{skill}</span>
+                </label>
+              ))}
+            </div>
             {errors.softwareSkills && <p className="text-xs text-red-500">{errors.softwareSkills.message}</p>}
           </div>
         </div>
