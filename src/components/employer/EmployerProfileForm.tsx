@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,6 +31,7 @@ export function EmployerProfileForm() {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isSubmitting, isDirty },
   } = useForm<EmployerProfileFormData>({
     resolver: zodResolver(employerProfileSchema),
@@ -43,6 +44,19 @@ export function EmployerProfileForm() {
       companyLogoUrl: user?.company?.logoUrl || '',
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        companyName: user.company?.name || '',
+        companyField: user.company?.field || '',
+        companyDescription: user.company?.description || '',
+        companyLogoUrl: user.company?.logoUrl || '',
+      });
+    }
+  }, [user, reset]);
 
   const logoUrl = watch('companyLogoUrl');
 
