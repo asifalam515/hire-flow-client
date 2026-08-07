@@ -10,7 +10,21 @@ interface ChatAreaProps {
 
 export function ChatArea({ chat, messages, onSendMessage }: ChatAreaProps) {
   const [inputValue, setInputValue] = useState('');
+  const [isStarred, setIsStarred] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -57,13 +71,45 @@ export function ChatArea({ chat, messages, onSendMessage }: ChatAreaProps) {
             <p className="text-xs text-slate-500">Last seen 15 minutes ago</p>
           </div>
         </div>
-        <div className="flex items-center gap-4 text-slate-500">
-          <button className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-            <Star className="w-5 h-5" />
+        <div className="flex items-center gap-4 text-slate-500 relative">
+          <button 
+            onClick={() => setIsStarred(!isStarred)}
+            className={`transition-colors focus:outline-none ${isStarred ? 'text-yellow-400 hover:text-yellow-500' : 'hover:text-slate-700 dark:hover:text-slate-300'}`}
+          >
+            <Star className="w-5 h-5" fill={isStarred ? 'currentColor' : 'none'} />
           </button>
-          <button className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors">
-            <MoreVertical className="w-5 h-5" />
-          </button>
+          
+          <div ref={dropdownRef} className="relative">
+            <button 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="hover:text-slate-700 dark:hover:text-slate-300 transition-colors focus:outline-none"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-xl shadow-lg py-2 z-50">
+                <button 
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800"
+                >
+                  View Profile
+                </button>
+                <button 
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800"
+                >
+                  Mute Notifications
+                </button>
+                <button 
+                  onClick={() => setIsDropdownOpen(false)}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  Delete Chat
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
