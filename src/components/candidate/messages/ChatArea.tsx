@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Star, MoreVertical, Paperclip, Smile, Mic, Play, FileIcon as File, ImageIcon } from 'lucide-react';
 import { ChatData, MessageData } from './types';
 
@@ -10,6 +10,15 @@ interface ChatAreaProps {
 
 export function ChatArea({ chat, messages, onSendMessage }: ChatAreaProps) {
   const [inputValue, setInputValue] = useState('');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSend = () => {
     if (inputValue.trim()) {
@@ -69,6 +78,7 @@ export function ChatArea({ chat, messages, onSendMessage }: ChatAreaProps) {
             <MessageBubble key={msg.id} msg={msg} />
           ))
         )}
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Footer Input */}
