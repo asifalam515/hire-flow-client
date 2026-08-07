@@ -60,13 +60,13 @@ export default function EmployerDashboardPage() {
         ]);
 
         let fetchedJobs: Job[] = [];
-        if (jobsRes?.data?.data?.jobs) {
-          fetchedJobs = jobsRes.data.data.jobs;
+        if (jobsRes?.data?.jobs) {
+          fetchedJobs = jobsRes.data.jobs;
           setJobs(fetchedJobs);
         }
 
-        if (convRes?.data?.data) {
-          setConversations(convRes.data.data);
+        if (convRes?.data && Array.isArray(convRes.data)) {
+          setConversations(convRes.data);
         }
 
         // Fetch application counts for top jobs
@@ -77,8 +77,8 @@ export default function EmployerDashboardPage() {
           await Promise.all(topJobs.map(async (job) => {
             try {
               const appRes = await apiClient.get(`/applications/job/${job.id}`);
-              if (appRes.data?.data?.total !== undefined) {
-                counts[job.id] = appRes.data.data.total;
+              if (appRes.data?.total !== undefined) {
+                counts[job.id] = appRes.data.total;
               }
             } catch (err) {
               counts[job.id] = 0;
