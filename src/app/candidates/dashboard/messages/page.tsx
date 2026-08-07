@@ -63,7 +63,8 @@ export default function MessagesPage() {
     const fetchMessages = async () => {
       try {
         const res = await apiClient.get(`/messages/conversations/${activeConversationId}/messages`);
-        const data = (res as any).data.data;
+        // @ts-ignore
+        const data = res.data?.data || res.data || [];
         
         const formattedMessages = data.map((msg: any) => ({
           id: msg.id,

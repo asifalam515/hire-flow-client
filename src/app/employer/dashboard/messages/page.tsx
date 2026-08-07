@@ -65,7 +65,7 @@ export default function EmployerMessagesPage() {
       try {
         const res = await apiClient.get(`/messages/conversations/${activeConversationId}/messages`);
         // @ts-ignore
-        const data = res.data?.data || res.data;
+        const data = res.data?.data || res.data || [];
         
         const formattedMessages = data.map((msg: any) => ({
           id: msg.id,
