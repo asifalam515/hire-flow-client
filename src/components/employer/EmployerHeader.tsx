@@ -56,12 +56,28 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         <div className="flex items-center gap-4 border-l border-slate-200 dark:border-zinc-800 pl-4 lg:pl-6 ml-2 lg:ml-0">
           <NotificationDropdown />
           
-          <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden ring-2 ring-transparent hover:ring-blue-500 cursor-pointer transition-all shrink-0">
-            <img 
-              src={user?.avatarUrl || "https://i.pravatar.cc/150?img=11"} 
-              alt={user?.firstName || "Profile"} 
-              className="w-full h-full object-cover" 
-            />
+          <div className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-600 overflow-hidden ring-2 ring-transparent hover:ring-blue-500 transition-all shrink-0">
+              {user?.company?.logoUrl || user?.avatarUrl ? (
+                <img 
+                  src={user?.company?.logoUrl || user?.avatarUrl || ''} 
+                  alt={user?.company?.name || user?.firstName || "Profile"} 
+                  className="w-full h-full object-cover" 
+                />
+              ) : (
+                <span className="font-bold text-sm">
+                  {(user?.company?.name || user?.firstName || 'E').charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="hidden sm:block">
+              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight max-w-[120px] truncate">
+                {user?.company?.name || (user ? `${user.firstName} ${user.lastName}` : 'Employer')}
+              </p>
+              <p className="text-xs text-slate-500 leading-tight max-w-[120px] truncate">
+                {user?.email || 'Loading...'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
