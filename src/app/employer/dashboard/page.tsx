@@ -49,6 +49,7 @@ export default function EmployerDashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [conversations, setConversations] = useState<any[]>([]);
   const [applicationsCount, setApplicationsCount] = useState<Record<string, number>>({});
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -89,6 +90,8 @@ export default function EmployerDashboardPage() {
 
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     
@@ -109,7 +112,7 @@ export default function EmployerDashboardPage() {
     return { name: dayName, views: opened * 15 + Math.floor(Math.random() * 10), applied: opened * 3 + Math.floor(Math.random() * 5), opened };
   }) : data;
 
-  const displayJobs = totalJobsOpened > 0 ? jobs.slice(0, 3) : null;
+  const displayJobs = jobs.slice(0, 3);
 
   return (
     <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full space-y-6 bg-slate-50 dark:bg-zinc-950 font-sans min-h-screen">
@@ -379,75 +382,63 @@ export default function EmployerDashboardPage() {
               </tr>
             </thead>
             <tbody className="before:content-[''] before:block before:h-2">
-              {displayJobs ? displayJobs.map((job) => (
-                <tr key={job.id} className="border-b border-slate-100 dark:border-zinc-800 last:border-0 hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4 px-6">
-                    <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">{job.title}</p>
-                    <p className="text-[11px] text-slate-500 font-medium">{job.employmentTypes?.[0] || 'Full Time'} • {Math.max(0, Math.floor((new Date().getTime() - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24)))} days ago</p>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-[10px] font-bold border bg-white ${job.status === 'PUBLISHED' ? 'border-green-200 text-green-600' : 'border-slate-200 text-slate-600'}`}>
-                      {job.status === 'PUBLISHED' ? 'Active' : job.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <Users className="w-4 h-4 text-slate-400" />
-                      {applicationsCount[job.id] || 0} Applications
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px] font-bold">$</span>
-                      {job.minSalary}$ - {job.maxSalary}$
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button className="px-4 py-2 text-xs font-bold border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
-                        View Applications
-                      </button>
-                      <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
-                        <MoreVertical className="w-5 h-5" />
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-slate-500 text-sm">Loading jobs...</td>
+                </tr>
+              ) : displayJobs.length > 0 ? (
+                displayJobs.map((job) => (
+                  <tr key={job.id} className="border-b border-slate-100 dark:border-zinc-800 last:border-0 hover:bg-slate-50/50 transition-colors">
+                    <td className="py-4 px-6">
+                      <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">{job.title}</p>
+                      <p className="text-[11px] text-slate-500 font-medium">{job.employmentTypes?.[0] || 'Full Time'} • {Math.max(0, Math.floor((new Date().getTime() - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24)))} days ago</p>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-md text-[10px] font-bold border bg-white ${job.status === 'PUBLISHED' ? 'border-green-200 text-green-600' : 'border-slate-200 text-slate-600'}`}>
+                        {job.status === 'PUBLISHED' ? 'Active' : job.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                        <Users className="w-4 h-4 text-slate-400" />
+                        {applicationsCount[job.id] || 0} Applications
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                        <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px] font-bold">$</span>
+                        {job.minSalary}$ - {job.maxSalary}$
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="flex items-center justify-end gap-3">
+                        <button className="px-4 py-2 text-xs font-bold border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
+                          View Applications
+                        </button>
+                        <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <Briefcase className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-3" />
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">No jobs posted yet</h3>
+                      <p className="text-xs text-slate-500 mt-1 max-w-xs text-center">You haven't posted any jobs. Create your first job posting to start finding candidates.</p>
+                      <button 
+                        onClick={() => window.location.href = '/employer/dashboard/post-job'}
+                        className="mt-4 px-4 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                      >
+                        Post a Job
                       </button>
                     </div>
                   </td>
                 </tr>
-              )) : [1, 2, 3].map((row, idx) => (
-                <tr key={idx} className="border-b border-slate-100 dark:border-zinc-800 last:border-0 hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4 px-6">
-                    <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">UI/UX Designer</p>
-                    <p className="text-[11px] text-slate-500 font-medium">Full Time • 27 days remaing</p>
-                  </td>
-                  <td className="py-4 px-6">
-                    <span className="inline-flex items-center px-3 py-1 rounded-md text-[10px] font-bold border border-green-200 text-green-600 bg-white">
-                      Active
-                    </span>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <Users className="w-4 h-4 text-slate-400" />
-                      798 Aplications
-                    </div>
-                  </td>
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px] font-bold">$</span>
-                      11$ - 22$
-                    </div>
-                  </td>
-                  <td className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-3">
-                      <button className="px-4 py-2 text-xs font-bold border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
-                        View Applications
-                      </button>
-                      <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
