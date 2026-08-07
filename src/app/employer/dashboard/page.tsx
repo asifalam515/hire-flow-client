@@ -412,9 +412,11 @@ export default function EmployerDashboardPage() {
                     </td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-3">
+                      <Link href={`/employer/dashboard/jobs/${job.id}/applications`}>
                         <button className="px-4 py-2 text-xs font-bold border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
                           View Applications
                         </button>
+                      </Link>
                         <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
                           <MoreVertical className="w-5 h-5" />
                         </button>
