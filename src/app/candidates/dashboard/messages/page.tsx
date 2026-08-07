@@ -141,7 +141,8 @@ export default function MessagesPage() {
       // the socket 'receive_message' event will catch our own message too,
       // since we emit it to the room from the backend. 
       // But adding it optimistically is better for UX.
-      const msg = (res as any).data.data;
+      // @ts-ignore
+      const msg = res.data?.data || res.data;
       const formattedMessage = {
         id: msg.id,
         sender: 'me' as 'me',
