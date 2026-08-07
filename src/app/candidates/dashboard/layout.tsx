@@ -1,8 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CandidateSidebar } from '@/components/candidate/CandidateSidebar';
 import { CandidateHeader } from '@/components/candidate/CandidateHeader';
+import { useSocket } from '@/hooks/useSocket';
+import { useMessageStore } from '@/store/useMessageStore';
+import { apiClient } from '@/lib/api';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function CandidateDashboardLayout({
   children,
@@ -10,6 +14,62 @@ export default function CandidateDashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { user } = useAuthStore();
+  const { socket, isConnected } = useSocket();
+  const { conversations, setConversations, incrementUnreadCount } = useMessageStore();
+
+  // Global socket setup and fetch conversations
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        const res = await apiClient.get('/messages/conversations');
+        // @ts-ignore
+        const data = res.data?.data || res.data;
+        const formatted = data.map((conv: any) => {
+          const partnerName = conv.company ? conv.company.name : (conv.recruiter ? `${conv.recruiter.firstName} ${conv.recruiter.lastName}` : 'Unknown');
+          const partnerAvatar = conv.company?.logoUrl || conv.recruiter?.avatarUrl || '';
+          
+          return {
+            id: conv.id,
+            name: partnerName,
+            avatarUrl: partnerAvatar,
+            color: 'bg-blue-600',
+            lastMessage: conv.messages?.[0]?.content || (conv.messages?.[0]?.type === 'FILE' ? 'Sent a file' : ''),
+            time: conv.messages?.[0]?.createdAt ? new Date(conv.messages[0].createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+            unreadCount: conv._count?.messages || 0,
+            isOnline: false
+          };
+        });
+        setConversations(formatted);
+      } catch (error) {
+        console.error('Failed to fetch conversations globally:', error);
+      }
+    };
+    fetchConversations();
+  }, [setConversations]);
+
+  useEffect(() => {
+    if (!socket || !isConnected || conversations.length === 0) return;
+
+    // Join all conversation rooms to receive background messages
+    conversations.forEach(conv => {
+      socket.emit('join_room', conv.id);
+    });
+
+    const handleReceiveMessage = (msg: any) => {
+      if (msg.senderId === user?.id) return;
+      
+      const activeConversationId = useMessageStore.getState().activeConversationId;
+      if (msg.conversationId !== activeConversationId) {
+        incrementUnreadCount(msg.conversationId);
+      }
+    };
+
+    socket.on('receive_message', handleReceiveMessage);
+    return () => {
+      socket.off('receive_message', handleReceiveMessage);
+    };
+  }, [socket, isConnected, conversations, incrementUnreadCount, user?.id]);
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-zinc-950 overflow-hidden font-sans">

@@ -110,12 +110,10 @@ export default function MessagesPage() {
 
       addMessage(msg.conversationId, formattedMessage);
 
-      // If we are not actively in this chat, increment unread count
-      if (!isMe && msg.conversationId !== activeConversationId) {
-        const conv = conversations.find(c => c.id === msg.conversationId);
-        if (conv) {
-          updateUnreadCount(msg.conversationId, (conv.unreadCount || 0) + 1);
-        }
+      // Mark as read is handled in the global layout for background messages, 
+      // but we should mark it as read immediately if it's the active chat
+      if (!isMe && msg.conversationId === activeConversationId) {
+        apiClient.put(`/messages/conversations/${activeConversationId}/read`).catch(console.error);
       }
     };
 
