@@ -2,12 +2,12 @@ import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDsNa_UKQB-WQHhUXdZVKLwMIAcbVUFGo4",
-  authDomain: "hire-flow-ab051.firebaseapp.com",
-  projectId: "hire-flow-ab051",
-  storageBucket: "hire-flow-ab051.firebasestorage.app",
-  messagingSenderId: "33126233328",
-  appId: "1:33126233328:web:b0b7b8800e89d0c74f7e35"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
