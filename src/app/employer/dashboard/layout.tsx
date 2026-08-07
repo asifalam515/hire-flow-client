@@ -7,8 +7,8 @@ import { useSocket } from '@/hooks/useSocket';
 import { useMessageStore } from '@/store/useMessageStore';
 import { apiClient } from '@/lib/api';
 import { useFCM } from '@/hooks/useFCM';
-
 import { useAuthStore } from '@/store/useAuthStore';
+import { useNotificationStore } from '@/store/useNotificationStore';
 
 export default function EmployerDashboardLayout({
   children,
@@ -20,7 +20,13 @@ export default function EmployerDashboardLayout({
   useFCM(); // Initialize Firebase Cloud Messaging for Push Notifications
   const { socket, isConnected } = useSocket();
   const { conversations, setConversations, addMessage, incrementUnreadCount } = useMessageStore();
+  const { fetchNotifications } = useNotificationStore();
 
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
 
   // Global socket setup and fetch conversations
   useEffect(() => {

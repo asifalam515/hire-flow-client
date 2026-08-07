@@ -17,11 +17,13 @@ import {
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMessageStore } from '@/store/useMessageStore';
+import { useNotificationStore } from '@/store/useNotificationStore';
 
 export function EmployerSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAuthStore();
   const { conversations } = useMessageStore();
+  const { unreadCount: notificationCount } = useNotificationStore();
 
   const unreadMessagesCount = conversations.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
 
@@ -29,7 +31,7 @@ export function EmployerSidebar({ onMobileClose }: { onMobileClose?: () => void 
     { name: 'Dashboard', href: '/employer/dashboard', icon: LayoutDashboard },
     { name: 'Employer profile', href: '/employer/dashboard/profile', icon: User },
     { name: 'Post Job', href: '/employer/dashboard/post-job', icon: PlusSquare },
-    { name: 'Notification', href: '/employer/dashboard/notifications', icon: Bell, badge: 6 },
+    { name: 'Notification', href: '/employer/dashboard/notifications', icon: Bell, badge: notificationCount > 0 ? notificationCount : undefined },
     { name: 'Message', href: '/employer/dashboard/messages', icon: MessageSquare, badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined },
     { name: 'Account Setting', href: '/employer/dashboard/settings', icon: Settings },
     { name: 'Manage hiring', href: '/employer/dashboard/hiring', icon: Sliders },

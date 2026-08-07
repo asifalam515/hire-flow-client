@@ -17,11 +17,13 @@ import {
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMessageStore } from '@/store/useMessageStore';
+import { useNotificationStore } from '@/store/useNotificationStore';
 
 export function CandidateSidebar({ onMobileClose }: { onMobileClose?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAuthStore();
   const { conversations } = useMessageStore();
+  const { unreadCount: notificationCount } = useNotificationStore();
 
   const unreadMessagesCount = conversations.reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
 
@@ -29,7 +31,7 @@ export function CandidateSidebar({ onMobileClose }: { onMobileClose?: () => void
     { name: 'Dashboard', href: '/candidates/dashboard', icon: LayoutDashboard },
     { name: 'Find Jobs', href: '/jobs', icon: Briefcase },
     { name: 'My Resume', href: '/candidates/dashboard/resume', icon: FileText },
-    { name: 'Notification', href: '/candidates/dashboard/notifications', icon: Bell, badge: 6 },
+    { name: 'Notification', href: '/candidates/dashboard/notifications', icon: Bell, badge: notificationCount > 0 ? notificationCount : undefined },
     { name: 'Message', href: '/candidates/dashboard/messages', icon: MessageSquare, badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined },
     { name: 'Account Setting', href: '/candidates/dashboard/settings', icon: Settings },
     { name: 'Activity', href: '/candidates/dashboard/activity', icon: Activity },

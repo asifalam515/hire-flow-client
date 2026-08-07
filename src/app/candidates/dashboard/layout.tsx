@@ -8,6 +8,7 @@ import { useMessageStore } from '@/store/useMessageStore';
 import { apiClient } from '@/lib/api';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useFCM } from '@/hooks/useFCM';
+import { useNotificationStore } from '@/store/useNotificationStore';
 
 export default function CandidateDashboardLayout({
   children,
@@ -19,6 +20,13 @@ export default function CandidateDashboardLayout({
   useFCM(); // Initialize Firebase Cloud Messaging for Push Notifications
   const { socket, isConnected } = useSocket();
   const { conversations, setConversations, incrementUnreadCount } = useMessageStore();
+  const { fetchNotifications } = useNotificationStore();
+
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+    }
+  }, [user, fetchNotifications]);
 
   // Global socket setup and fetch conversations
   useEffect(() => {
