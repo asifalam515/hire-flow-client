@@ -21,7 +21,7 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         </button>
         <div>
           <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">Activity</h2>
-          <p className="hidden md:block text-sm text-slate-500">Here is your daily activities and job updates</p>
+          <p className="hidden md:block text-sm text-slate-500">Updating your information will offer you the most relevant content</p>
         </div>
       </div>
 
@@ -32,10 +32,10 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         <div className="relative hidden md:block w-64 lg:w-80">
           <input
             type="text"
-            placeholder="Search jobs, candidates..."
-            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-sm rounded-xl pl-11 pr-4 py-2.5 focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400"
+            placeholder="Search"
+            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-sm rounded-xl pl-4 pr-11 py-2.5 focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400"
           />
-          <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" />
         </div>
         
         {/* Mobile Search Icon */}
@@ -45,9 +45,9 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
 
         {/* Post Job Button */}
         <Link href="/employer/dashboard/post-job">
-          <button className="hidden sm:flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md shadow-blue-600/20">
+          <button className="hidden sm:flex items-center gap-2 bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-900 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm">
             <Plus className="w-4 h-4" />
-            New Job
+            Post a Job
           </button>
         </Link>
 
@@ -55,7 +55,7 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         <div className="flex items-center gap-4 border-l border-slate-200 dark:border-zinc-800 pl-4 lg:pl-6 ml-2 lg:ml-0">
           <button className="relative p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
             <Bell className="w-5 h-5 lg:w-6 lg:h-6" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-zinc-900"></span>
+            <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-600 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-900">30</span>
           </button>
           
           <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden ring-2 ring-transparent hover:ring-blue-500 cursor-pointer transition-all shrink-0">
