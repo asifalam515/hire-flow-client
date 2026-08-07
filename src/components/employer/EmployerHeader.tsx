@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Search, Bell, Plus, Menu } from 'lucide-react';
+import { Search, Plus, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
+import { NotificationDropdown } from '../shared/NotificationDropdown';
 
 export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore();
@@ -53,10 +54,7 @@ export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
 
         {/* Notifications & Profile */}
         <div className="flex items-center gap-4 border-l border-slate-200 dark:border-zinc-800 pl-4 lg:pl-6 ml-2 lg:ml-0">
-          <button className="relative p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-            <Bell className="w-5 h-5 lg:w-6 lg:h-6" />
-            <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-red-600 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-900">30</span>
-          </button>
+          <NotificationDropdown />
           
           <div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden ring-2 ring-transparent hover:ring-blue-500 cursor-pointer transition-all shrink-0">
             <img 

@@ -24,6 +24,7 @@ import {
   Briefcase,
   User as UserIcon,
 } from 'lucide-react';
+import { NotificationDropdown } from './NotificationDropdown';
 
 interface NavItem {
   label: string;
@@ -148,14 +149,12 @@ export function Navbar() {
           >
             <Search className="size-4" />
           </button>
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="hidden sm:flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-muted dark:hover:text-foreground transition-all relative"
-          >
-            <Bell className="size-4" />
-            <span className="absolute top-2 right-2 size-2 rounded-full bg-blue-600 ring-2 ring-white dark:ring-zinc-900" />
-          </button>
+          
+          {isAuthenticated && (
+            <div className="hidden sm:block">
+              <NotificationDropdown />
+            </div>
+          )}
 
           {/* Role Switcher Pill - shown when not logged in */}
           {!isAuthenticated && (

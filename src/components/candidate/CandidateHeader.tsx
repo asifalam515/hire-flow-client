@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Search, Bell, Menu, User as UserIcon } from 'lucide-react';
+import { Search, Menu, User as UserIcon } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { usePathname } from 'next/navigation';
+import { NotificationDropdown } from '../shared/NotificationDropdown';
 
 export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore();
@@ -58,12 +59,7 @@ export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
         
         {/* Notification & Profile */}
         <div className="flex items-center gap-4 lg:gap-6">
-          <button className="text-slate-600 dark:text-slate-400 relative hover:text-slate-900 transition-colors">
-            <Bell className="h-5 w-5 lg:h-6 lg:w-6" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white border-2 border-white dark:border-zinc-950">
-              30
-            </span>
-          </button>
+          <NotificationDropdown />
           
           <div className="flex items-center gap-3 cursor-pointer">
             <div className="flex items-center justify-center h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-600 overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-blue-500 transition-all">

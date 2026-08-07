@@ -6,6 +6,7 @@ import { EmployerHeader } from '@/components/employer/EmployerHeader';
 import { useSocket } from '@/hooks/useSocket';
 import { useMessageStore } from '@/store/useMessageStore';
 import { apiClient } from '@/lib/api';
+import { useFCM } from '@/hooks/useFCM';
 
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -16,6 +17,7 @@ export default function EmployerDashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuthStore();
+  useFCM(); // Initialize Firebase Cloud Messaging for Push Notifications
   const { socket, isConnected } = useSocket();
   const { conversations, setConversations, addMessage, incrementUnreadCount } = useMessageStore();
 

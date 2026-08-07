@@ -7,6 +7,7 @@ import { useSocket } from '@/hooks/useSocket';
 import { useMessageStore } from '@/store/useMessageStore';
 import { apiClient } from '@/lib/api';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useFCM } from '@/hooks/useFCM';
 
 export default function CandidateDashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function CandidateDashboardLayout({
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuthStore();
+  useFCM(); // Initialize Firebase Cloud Messaging for Push Notifications
   const { socket, isConnected } = useSocket();
   const { conversations, setConversations, incrementUnreadCount } = useMessageStore();
 
