@@ -12,6 +12,7 @@ interface MessageState {
   addMessage: (conversationId: string, message: MessageData) => void;
   setActiveConversationId: (id: string | null) => void;
   updateUnreadCount: (conversationId: string, count: number) => void;
+  incrementUnreadCount: (conversationId: string) => void;
   setIsLoading: (loading: boolean) => void;
 }
 
@@ -50,6 +51,12 @@ export const useMessageStore = create<MessageState>((set) => ({
   updateUnreadCount: (conversationId, count) => set((state) => ({
     conversations: state.conversations.map(conv => 
       conv.id === conversationId ? { ...conv, unreadCount: count } : conv
+    )
+  })),
+
+  incrementUnreadCount: (conversationId) => set((state) => ({
+    conversations: state.conversations.map(conv => 
+      conv.id === conversationId ? { ...conv, unreadCount: (conv.unreadCount || 0) + 1 } : conv
     )
   })),
 
