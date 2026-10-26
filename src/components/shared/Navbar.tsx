@@ -23,6 +23,8 @@ import {
   Users,
   Briefcase,
   User as UserIcon,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
 
@@ -33,10 +35,10 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Find job', href: '/jobs' },
-  { label: 'Company', href: '/companies' },
-  { label: 'Create CV', href: '/cv-builder' },
+  { label: 'Platform', href: '/' },
+  { label: 'Find Jobs', href: '/jobs' },
+  { label: 'Companies', href: '/companies' },
+  { label: 'CV Builder', href: '/cv-builder' },
 ];
 
 export function Navbar() {
@@ -62,14 +64,12 @@ export function Navbar() {
       console.error('Failed to upload avatar:', error);
     } finally {
       setIsUploadingAvatar(false);
-      // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -107,31 +107,34 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 transition-all duration-300">
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-blue-200/50 dark:border-border/60 bg-white/90 dark:bg-zinc-900/90 p-3 px-6 shadow-md shadow-blue-900/5 backdrop-blur-md">
-        {/* Brand Logo - Hire Flow */}
-        <Link href="/" className="flex items-center gap-1.5 group focus:outline-none">
-          <div className="flex items-center tracking-tight text-2xl sm:text-3xl font-extrabold text-foreground">
-            <span className="text-foreground font-black">Hire</span>
-            <span className="text-blue-600 dark:text-blue-500 font-black relative ml-1">
-              Flow
-              <span className="absolute -top-1 -right-2 size-2 rounded-full bg-blue-600 shadow-[0_0_8px_rgba(0,102,255,0.6)]" />
-            </span>
+    <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 transition-all duration-200">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/[0.08] bg-[#08090a]/85 p-2.5 sm:p-3 px-4 sm:px-6 shadow-[0_16px_36px_-8px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+        {/* Brand Logo - Linear Style */}
+        <Link href="/" className="flex items-center gap-2.5 group focus:outline-none">
+          <div className="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 border border-white/20 shadow-[0_0_16px_rgba(59,130,246,0.45)] group-hover:scale-105 transition-transform duration-160">
+            <Sparkles className="size-4 text-white" />
           </div>
+          <div className="flex items-center tracking-tight text-xl font-bold text-[#f7f8f8]">
+            <span>Hire</span>
+            <span className="text-blue-500 ml-0.5">Flow</span>
+          </div>
+          <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-white/[0.05] text-[#8a8f98] border border-white/[0.08] ml-0.5">
+            ATS
+          </span>
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav className="hidden lg:flex items-center space-x-8">
+        <nav className="hidden lg:flex items-center space-x-7">
           {NAV_ITEMS.map((item) => {
             const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`text-sm font-bold transition-colors duration-200 ${
+                className={`text-sm font-medium transition-colors duration-160 ${
                   isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-muted-foreground hover:text-foreground font-semibold'
+                    ? 'text-[#f7f8f8]'
+                    : 'text-[#8a8f98] hover:text-[#f7f8f8]'
                 }`}
               >
                 {item.label}
@@ -141,14 +144,14 @@ export function Navbar() {
         </nav>
 
         {/* Right Actions & Auth */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          <button
-            type="button"
+        <div className="flex items-center space-x-2.5 sm:space-x-3.5">
+          <Link
+            href="/jobs"
             aria-label="Search jobs"
-            className="hidden sm:flex size-9 items-center justify-center rounded-full text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-muted dark:hover:text-foreground transition-all"
+            className="hidden sm:flex size-8 items-center justify-center rounded-lg text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.05] border border-transparent hover:border-white/[0.08] transition-all duration-160"
           >
-            <Search className="size-4" />
-          </button>
+            <Search className="size-3.5" />
+          </Link>
           
           {isAuthenticated && (
             <div className="hidden sm:block">
@@ -159,15 +162,15 @@ export function Navbar() {
           {/* Role Switcher Pill - shown when not logged in */}
           {!isAuthenticated && (
             <>
-              <div className="hidden sm:block h-5 w-px bg-border/80" />
-              <div className="hidden md:flex items-center rounded-xl bg-slate-100 dark:bg-zinc-800 p-1 border border-slate-200/80 dark:border-zinc-700/80 text-xs font-bold">
+              <div className="hidden sm:block h-4 w-px bg-white/[0.08]" />
+              <div className="hidden md:flex items-center rounded-lg bg-white/[0.03] p-0.5 border border-white/[0.08] text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setActiveRole('candidate')}
-                  className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                  className={`px-2.5 py-1 rounded-md transition-all duration-160 ${
                     activeRole === 'candidate'
-                      ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-white/[0.1] text-[#f7f8f8] shadow-xs'
+                      : 'text-[#8a8f98] hover:text-[#f7f8f8]'
                   }`}
                 >
                   Candidate
@@ -175,13 +178,13 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => setActiveRole('employer')}
-                  className={`px-3 py-1.5 rounded-lg transition-all duration-200 ${
+                  className={`px-2.5 py-1 rounded-md transition-all duration-160 ${
                     activeRole === 'employer'
-                      ? 'bg-white dark:bg-zinc-900 text-blue-600 dark:text-blue-400 shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'bg-white/[0.1] text-[#f7f8f8] shadow-xs'
+                      : 'text-[#8a8f98] hover:text-[#f7f8f8]'
                   }`}
                 >
-                  Employer
+                  Recruiter
                 </button>
               </div>
             </>
@@ -189,18 +192,17 @@ export function Navbar() {
 
           {isAuthenticated && user ? (
             <div className="relative flex items-center" ref={dropdownRef}>
-              <div className="h-6 w-px bg-border/80 mr-3.5 hidden sm:block" />
+              <div className="h-5 w-px bg-white/[0.08] mr-3 hidden sm:block" />
 
               {/* Profile Trigger Button */}
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2.5 p-1 sm:pl-1 sm:pr-2.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all focus:outline-none group cursor-pointer"
+                className="flex items-center gap-2 p-1 sm:pr-2.5 rounded-full hover:bg-white/[0.05] border border-transparent hover:border-white/[0.08] transition-all duration-160 focus:outline-none group cursor-pointer"
               >
-                {/* Avatar Circle with Online Dot */}
-                <div className="relative size-9 sm:size-10 rounded-full bg-red-600 text-white font-extrabold flex items-center justify-center text-base sm:text-lg shadow-sm shrink-0 overflow-hidden border border-red-500/30">
+                <div className="relative size-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-xs shadow-xs shrink-0 overflow-hidden border border-blue-400/30">
                   {isUploadingAvatar ? (
-                    <Loader2 className="size-5 animate-spin text-white" />
+                    <Loader2 className="size-4 animate-spin text-white" />
                   ) : user.avatarUrl ? (
                     <img
                       src={user.avatarUrl}
@@ -216,18 +218,16 @@ export function Navbar() {
                   ) : (
                     <span>{getAvatarLetter()}</span>
                   )}
-                  {/* Green Online Indicator Dot */}
-                  <span className="absolute bottom-0 right-0 size-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-900 shadow-sm" />
+                  <span className="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 border border-[#08090a]" />
                 </div>
 
-                {/* Name and Chevron */}
                 <div className="hidden sm:flex items-center gap-1.5">
-                  <span className="text-xs sm:text-sm font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate max-w-[150px]">
+                  <span className="text-xs font-semibold text-[#f7f8f8] group-hover:text-blue-400 transition-colors truncate max-w-[140px]">
                     {getDisplayName()}
                   </span>
                   <ChevronDown
-                    className={`size-4 text-zinc-500 transition-transform duration-200 ${
-                      isDropdownOpen ? 'rotate-180 text-blue-600' : ''
+                    className={`size-3.5 text-[#8a8f98] transition-transform duration-160 ${
+                      isDropdownOpen ? 'rotate-180 text-blue-400' : ''
                     }`}
                   />
                 </div>
@@ -235,13 +235,12 @@ export function Navbar() {
 
               {/* Dropdown Menu Box */}
               {isDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2.5 w-56 sm:w-60 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  {/* Header info on mobile or quick badge */}
-                  <div className="px-4 py-2.5 border-b border-zinc-100 dark:border-zinc-800 mb-1 sm:hidden">
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                <div className="absolute right-0 top-full mt-2.5 w-60 rounded-xl bg-[#0f1011] border border-white/[0.08] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2.5 border-b border-white/[0.06] mb-1 sm:hidden">
+                    <p className="text-xs font-semibold text-[#f7f8f8] truncate">
                       {getDisplayName()}
                     </p>
-                    <p className="text-[11px] font-medium text-zinc-500 truncate mt-0.5">
+                    <p className="text-[11px] font-medium text-[#8a8f98] truncate mt-0.5">
                       {user.email}
                     </p>
                   </div>
@@ -250,12 +249,12 @@ export function Navbar() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingAvatar}
-                    className="w-full flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group text-left cursor-pointer disabled:opacity-50"
+                    className="w-full flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group text-left cursor-pointer disabled:opacity-50"
                   >
                     {isUploadingAvatar ? (
-                      <Loader2 className="size-4 mr-3 text-zinc-400 animate-spin" />
+                      <Loader2 className="size-3.5 mr-2.5 text-[#8a8f98] animate-spin" />
                     ) : (
-                      <Camera className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
+                      <Camera className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
                     )}
                     <span>Update profile photo</span>
                   </button>
@@ -267,71 +266,44 @@ export function Navbar() {
                     onChange={handleAvatarUpload}
                   />
 
-                  <div className="my-1 border-t border-zinc-100 dark:border-zinc-800" />
+                  <div className="my-1 border-t border-white/[0.06]" />
 
                   {isRecruiter ? (
                     <>
                       <Link
                         href="/employer/dashboard"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <LayoutDashboard className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Dashboard</span>
+                        <LayoutDashboard className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Employer Dashboard</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/profile"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <Building2 className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Employer profile</span>
+                        <Building2 className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Company Profile</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/post-job"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <PlusCircle className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Post job</span>
-                      </Link>
-
-                      <Link
-                        href="/employer/dashboard/notifications"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <Bell className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Notification</span>
+                        <PlusCircle className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Post New Job</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/messages"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <MessageSquare className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Message</span>
-                      </Link>
-
-                      <Link
-                        href="/employer/dashboard/settings"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <Settings className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Account setting</span>
-                      </Link>
-
-                      <Link
-                        href="/employer/dashboard/hiring"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <Users className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Manage hiring</span>
+                        <MessageSquare className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Candidate Chat</span>
                       </Link>
                     </>
                   ) : (
@@ -339,60 +311,33 @@ export function Navbar() {
                       <Link
                         href="/candidates/dashboard"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <LayoutDashboard className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Dashboard</span>
-                      </Link>
-
-                      <Link
-                        href="/cv-builder"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <UserIcon className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Candidate profile</span>
+                        <LayoutDashboard className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Candidate Dashboard</span>
                       </Link>
 
                       <Link
                         href="/candidates/applications"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <Briefcase className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>My applications</span>
+                        <Briefcase className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>My Applications</span>
                       </Link>
 
                       <Link
-                        href="/candidates/notifications"
+                        href="/candidates/dashboard/messages"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <Bell className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Notification</span>
-                      </Link>
-
-                      <Link
-                        href="/candidates/messages"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <MessageSquare className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Message</span>
-                      </Link>
-
-                      <Link
-                        href="/candidates/dashboard/settings"
-                        onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-4 py-2.5 text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-                      >
-                        <Settings className="size-4 mr-3 text-zinc-400 group-hover:text-blue-600 transition-colors" />
-                        <span>Account setting</span>
+                        <MessageSquare className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <span>Recruiter Messages</span>
                       </Link>
                     </>
                   )}
 
-                  <div className="my-1.5 border-t border-zinc-100 dark:border-zinc-800" />
+                  <div className="my-1 border-t border-white/[0.06]" />
 
                   <button
                     type="button"
@@ -400,10 +345,10 @@ export function Navbar() {
                       setIsDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full flex items-center px-4 py-2.5 text-xs sm:text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer text-left"
+                    className="w-full flex items-center px-3.5 py-2 text-xs font-semibold text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer text-left"
                   >
-                    <LogOut className="size-4 mr-3" />
-                    <span>Log out</span>
+                    <LogOut className="size-3.5 mr-2.5" />
+                    <span>Sign out</span>
                   </button>
                 </div>
               )}
@@ -411,19 +356,19 @@ export function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <Button variant="ghost" className="rounded-xl font-semibold px-4 py-2 h-9 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-zinc-800 transition-all duration-200">
-                  Log In
-                </Button>
+                <button className="text-xs sm:text-sm font-medium text-[#8a8f98] hover:text-[#f7f8f8] px-3 py-1.5 rounded-lg hover:bg-white/[0.05] transition-all duration-160">
+                  Log in
+                </button>
               </Link>
               <Link
                 href={
                   activeRole === 'employer' ? '/employer/sign-up' : '/candidates/sign-up'
                 }
               >
-                <Button className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 h-9 shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 flex items-center gap-2 text-sm">
-                  <LogIn className="size-4" />
-                  <span>Sign Up</span>
-                </Button>
+                <button className="h-8 sm:h-9 px-3.5 sm:px-4 rounded-lg bg-[#f7f8f8] text-[#08090a] hover:bg-white font-semibold text-xs sm:text-sm shadow-[0_0_16px_rgba(255,255,255,0.2),inset_0_1px_0_0_rgba(255,255,255,0.8)] hover:shadow-[0_0_24px_rgba(255,255,255,0.35)] transition-all duration-160 flex items-center gap-1.5 cursor-pointer">
+                  <span>Sign up</span>
+                  <ArrowRight className="size-3.5" />
+                </button>
               </Link>
             </div>
           )}

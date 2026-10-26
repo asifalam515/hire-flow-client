@@ -18,7 +18,7 @@ interface ActivityState {
   updatePreferences: (data: any) => Promise<void>;
 }
 
-export const useActivityStore = create<ActivityState>((set, get) => ({
+export const useActivityStore = create<ActivityState>((set) => ({
   applications: [],
   offeredJobs: [],
   savedJobs: [],

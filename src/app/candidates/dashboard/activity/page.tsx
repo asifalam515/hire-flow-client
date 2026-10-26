@@ -291,7 +291,7 @@ export default function ActivityPage() {
 
             <div className="hidden md:flex items-center gap-4 text-slate-400 shrink-0 absolute right-5 top-1/2 -translate-y-1/2">
               <div className="flex items-center gap-3 mr-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={(e) => handleUnfollow(fc.companyId, e)} className="hover:text-red-500 text-slate-400"><BookmarkMinus className="w-5 h-5" title="Unfollow" /></button>
+                <button onClick={(e) => handleUnfollow(fc.companyId, e)} title="Unfollow" className="hover:text-red-500 text-slate-400"><BookmarkMinus className="w-5 h-5" /></button>
               </div>
               <ChevronRight className="w-5 h-5" />
             </div>

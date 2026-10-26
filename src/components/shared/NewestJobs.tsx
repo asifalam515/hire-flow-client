@@ -55,35 +55,38 @@ export function NewestJobs() {
   }, []);
 
   return (
-    <section className="w-full py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#EFF5FF] dark:bg-slate-950 transition-colors duration-300">
+    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-white/[0.06] transition-colors">
       <div className="mx-auto max-w-7xl">
         
-        {/* Section Header with Title and 'More >' Action */}
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row sm:items-end mb-12">
-          
-          <div className="text-center sm:text-left space-y-2 flex-1">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
-              Newest Jobs For You
+        {/* Section Header */}
+        <div className="flex flex-col items-start sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-[#8a8f98]">
+              <span className="size-1.5 rounded-full bg-blue-500 animate-pulse" />
+              <span>Real-Time Job Pipeline</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#f7f8f8]">
+              Featured Positions
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground font-medium">
-              Get the fastest application so that your name is above other
+            <p className="text-sm sm:text-base text-[#8a8f98] font-normal">
+              High-growth engineering, product, and AI roles with verified salary bands.
             </p>
           </div>
 
           <Link
             href="/jobs"
-            className="group flex items-center gap-1 font-bold text-sm sm:text-base text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors py-2 px-3 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/40"
+            className="group inline-flex items-center gap-1.5 font-semibold text-xs sm:text-sm text-[#8a8f98] hover:text-[#f7f8f8] px-3.5 py-2 rounded-lg linear-card linear-card-hover transition-colors"
           >
-            <span>More</span>
-            <ChevronRight className="size-4.5 transition-transform duration-200 group-hover:translate-x-1" />
+            <span>View all 15+ jobs</span>
+            <ChevronRight className="size-4 transition-transform duration-160 group-hover:translate-x-0.5" />
           </Link>
         </div>
 
         {/* 3-Column Responsive Job Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {isLoading ? (
             <div className="col-span-1 md:col-span-2 lg:col-span-3 flex justify-center items-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
             </div>
           ) : (
             jobs.map((job) => (

@@ -1,21 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from '@/store/useAuthStore';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:8050';
 
 export function useSocket(namespace?: string) {
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const user = useAuthStore((state) => state.user);
 
   useEffect(() => {
     if (!user) {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-        setIsConnected(false);
-      }
+      setSocket((prev) => {
+        if (prev) prev.disconnect();
+        return null;
+      });
+      setIsConnected(false);
       return;
     }
 
@@ -26,10 +26,10 @@ export function useSocket(namespace?: string) {
       withCredentials: true,
       transports: ['websocket', 'polling'],
       autoConnect: true,
-      auth: { token }
+      auth: { token },
     });
 
-    socketRef.current = socketInstance;
+    setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
       setIsConnected(true);
@@ -41,13 +41,14 @@ export function useSocket(namespace?: string) {
 
     return () => {
       socketInstance.disconnect();
-      socketRef.current = null;
+      setSocket(null);
       setIsConnected(false);
     };
   }, [user, namespace]);
 
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
   };
 }
+

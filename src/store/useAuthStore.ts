@@ -290,7 +290,7 @@ export const useAuthStore = create<AuthState>()(
             });
 
             return user;
-          } catch (error) {
+          } catch {
             set({
               user: null,
               isAuthenticated: false,
@@ -355,7 +355,7 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null });
           try {
             // Using the resume profile endpoint which updates User's firstName/lastName as well
-            const response = await apiClient.patch<{ data: any }>('/candidates/me/resume', { firstName, lastName });
+            await apiClient.patch<{ data: any }>('/candidates/me/resume', { firstName, lastName });
             
             set((state) => ({
               user: state.user ? { ...state.user, firstName, lastName } : null,

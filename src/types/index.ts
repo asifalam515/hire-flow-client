@@ -19,6 +19,11 @@ export interface CandidateProfileSummary {
   id: string;
   resumeUrl?: string | null;
   parsedText?: string | null;
+  favoriteCities?: string[];
+  preferredJobTitle?: string | null;
+  preferredJobTypes?: string[];
+  tendToRemote?: string | null;
+  receiveEmail?: boolean;
 }
 
 export interface User {

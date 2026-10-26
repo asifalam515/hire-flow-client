@@ -65,16 +65,23 @@ export default function CandidateDashboardPage() {
     const fetchData = async () => {
       try {
         const [appRes, savedRes, convRes, resumeRes] = await Promise.all([
-          apiClient.get('/candidates/me/applications').catch(() => null),
-          apiClient.get('/jobs/saved/me').catch(() => null),
-          apiClient.get('/messages/conversations').catch(() => null),
-          apiClient.get('/candidates/me/resume').catch(() => null)
+          apiClient.get<any>('/candidates/me/applications').catch(() => null),
+          apiClient.get<any>('/jobs/saved/me').catch(() => null),
+          apiClient.get<any>('/messages/conversations').catch(() => null),
+          apiClient.get<any>('/candidates/me/resume').catch(() => null)
         ]);
 
-        if (appRes?.data?.data) setApplications(appRes.data.data);
-        if (savedRes?.data?.data?.savedJobs) setRealSavedJobs(savedRes.data.data.savedJobs);
-        if (convRes?.data?.data) setConversations(convRes.data.data);
-        if (resumeRes?.data?.data) setResumeProfile(resumeRes.data.data);
+        const rawApps = appRes?.data?.data || appRes?.data;
+        if (Array.isArray(rawApps)) setApplications(rawApps);
+
+        const rawSaved = savedRes?.data?.data?.savedJobs || savedRes?.data?.savedJobs || savedRes?.data;
+        if (Array.isArray(rawSaved)) setRealSavedJobs(rawSaved);
+
+        const rawConvs = convRes?.data?.data || convRes?.data;
+        if (Array.isArray(rawConvs)) setConversations(rawConvs);
+
+        const rawResume = resumeRes?.data?.data || resumeRes?.data;
+        if (rawResume) setResumeProfile(rawResume);
       } catch (error) {
         console.error('Failed to fetch dashboard data:', error);
       }

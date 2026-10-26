@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useNotificationStore } from '@/store/useNotificationStore';
-import { Bell, Check, Trash2, CheckCircle2 } from 'lucide-react';
+import { Bell, Check, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 

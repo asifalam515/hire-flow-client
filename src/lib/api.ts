@@ -43,7 +43,7 @@ interface FetchOptions extends RequestInit {
  * Universal Fetch Wrapper targeting http://localhost:5000/api/v1
  * Handles cross-origin credentials and strict JSON normalization.
  */
-export async function apiClient<T>(
+export async function apiClient<T = any>(
   endpoint: string,
   options: FetchOptions = {}
 ): Promise<ApiResponse<T>> {
@@ -143,10 +143,10 @@ export async function apiClient<T>(
 }
 
 // HTTP Helper Methods
-apiClient.get = <T>(endpoint: string, options?: FetchOptions) =>
+apiClient.get = <T = any>(endpoint: string, options?: FetchOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'GET' });
 
-apiClient.post = <T>(endpoint: string, body?: any, options?: FetchOptions) => {
+apiClient.post = <T = any>(endpoint: string, body?: any, options?: FetchOptions) => {
   const isForm = body instanceof FormData;
   const headers = { ...options?.headers };
   if (isForm) {
@@ -161,21 +161,21 @@ apiClient.post = <T>(endpoint: string, body?: any, options?: FetchOptions) => {
   });
 };
 
-apiClient.put = <T>(endpoint: string, body?: any, options?: FetchOptions) =>
+apiClient.put = <T = any>(endpoint: string, body?: any, options?: FetchOptions) =>
   apiClient<T>(endpoint, {
     ...options,
     method: 'PUT',
     body: JSON.stringify(body),
   });
 
-apiClient.patch = <T>(endpoint: string, body?: any, options?: FetchOptions) =>
+apiClient.patch = <T = any>(endpoint: string, body?: any, options?: FetchOptions) =>
   apiClient<T>(endpoint, {
     ...options,
     method: 'PATCH',
     body: JSON.stringify(body),
   });
 
-apiClient.delete = <T>(endpoint: string, options?: FetchOptions) =>
+apiClient.delete = <T = any>(endpoint: string, options?: FetchOptions) =>
   apiClient<T>(endpoint, { ...options, method: 'DELETE' });
 
 /**

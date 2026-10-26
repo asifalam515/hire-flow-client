@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useNotificationStore } from '@/store/useNotificationStore';
-import { Bell, Check, Trash } from 'lucide-react';
+import { Bell, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export function NotificationDropdown() {

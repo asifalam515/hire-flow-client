@@ -1,219 +1,339 @@
-import React from 'react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import {
-  Search,
-  MapPin,
-  ChevronDown,
-  Calendar,
-  CheckCircle2,
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { 
+  Search, 
+  MapPin, 
+  Sparkles, 
+  ArrowRight, 
+  ChevronRight, 
+  CheckCircle2, 
+  Brain, 
+  Zap, 
+  Briefcase,
+  Users,
+  Compass
 } from 'lucide-react';
 
+interface MockCandidate {
+  id: string;
+  name: string;
+  role: string;
+  matchScore: number;
+  stage: 'APPLIED' | 'SCREENING' | 'OFFER';
+  avatarInitials: string;
+  avatarBg: string;
+  skills: string[];
+}
+
+const INITIAL_CANDIDATES: MockCandidate[] = [
+  {
+    id: 'c1',
+    name: 'Sarah Jenkins',
+    role: 'Full Stack Engineer',
+    matchScore: 98,
+    stage: 'SCREENING',
+    avatarInitials: 'SJ',
+    avatarBg: 'bg-blue-600',
+    skills: ['TypeScript', 'Next.js', 'PostgreSQL'],
+  },
+  {
+    id: 'c2',
+    name: 'David Chen',
+    role: 'Senior DevOps Architect',
+    matchScore: 94,
+    stage: 'APPLIED',
+    avatarInitials: 'DC',
+    avatarBg: 'bg-indigo-600',
+    skills: ['Kubernetes', 'AWS', 'Terraform'],
+  },
+  {
+    id: 'c3',
+    name: 'Elena Rostova',
+    role: 'Staff Product Designer',
+    matchScore: 99,
+    stage: 'OFFER',
+    avatarInitials: 'ER',
+    avatarBg: 'bg-emerald-600',
+    skills: ['Design Systems', 'Figma', 'UX Research'],
+  },
+];
+
 export function HeroSection() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'ALL' | 'TOP_MATCH' | 'REMOTE'>('ALL');
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/jobs');
+    }
+  };
+
   return (
-    <section className="relative w-full overflow-hidden pt-6 pb-20 lg:py-16 px-4 sm:px-6 lg:px-8 bg-[#EFF5FF] dark:bg-slate-950 transition-colors duration-300">
-      {/* Subtle Background Glows */}
-      <div className="absolute top-1/4 left-10 -z-10 size-96 rounded-full bg-blue-400/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 right-10 -z-10 size-[500px] rounded-full bg-indigo-400/10 blur-3xl pointer-events-none" />
+    <section className="relative w-full overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-32 linear-canvas linear-grid transition-colors">
+      {/* Ambient Lighting Layers */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[550px] linear-glow-blue pointer-events-none -z-10" />
+      <div className="absolute top-40 left-1/2 -translate-x-1/2 w-full max-w-5xl h-[400px] linear-glow-indigo pointer-events-none -z-10" />
 
-      <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          
-          {/* Left Column: Headline, Subtitle, Compact Search Bar, Social Proof */}
-          <div className="lg:col-span-6 space-y-7 text-left">
-            
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight text-foreground leading-[1.08]">
-              Your Future <br />
-              Starts with <br />
-              <span className="text-blue-600 dark:text-blue-500 relative inline-block">
-                Hire Flow!
-                <span className="absolute bottom-1 left-0 w-full h-3 bg-blue-200/60 dark:bg-blue-900/40 -z-10 rounded-full rotate-1" />
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg text-muted-foreground font-medium max-w-lg leading-relaxed">
-              Discover jobs that match your skills and passion. Type and explore!
-            </p>
-
-            {/* Compact, Professional Search Bar Card */}
-            <Card className="rounded-2xl border border-blue-200/60 dark:border-border/60 bg-white/95 dark:bg-zinc-900/95 p-1.5 sm:p-2 shadow-xl shadow-blue-900/5 backdrop-blur-md max-w-xl">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2">
-                
-                {/* Keyword Search Input */}
-                <div className="flex flex-1 items-center gap-2 px-3 py-1">
-                  <Search className="size-4 text-muted-foreground shrink-0" />
-                  <Input
-                    type="text"
-                    placeholder="Job title or keywords"
-                    className="border-0 shadow-none focus-visible:ring-0 px-0 text-sm sm:text-base font-medium placeholder:text-muted-foreground/70 h-9 bg-transparent w-full"
-                  />
-                </div>
-
-                {/* Vertical Divider for Desktop */}
-                <div className="hidden sm:block h-7 w-px bg-border/80 shrink-0" />
-                <div className="block sm:hidden h-px w-full bg-border/60 my-1" />
-
-                {/* Location Dropdown Trigger */}
-                <div className="flex items-center justify-between gap-2 px-3 py-2 sm:py-1 cursor-pointer hover:bg-blue-50/60 dark:hover:bg-muted/50 rounded-xl transition-colors h-9">
-                  <div className="flex items-center gap-1.5 font-medium text-foreground text-sm sm:text-base whitespace-nowrap">
-                    <MapPin className="size-4 text-muted-foreground shrink-0" />
-                    <span>location</span>
-                  </div>
-                  <ChevronDown className="size-4 text-muted-foreground ml-1.5 shrink-0" />
-                </div>
-
-                {/* Search Submit Button */}
-                <Button
-                  size="default"
-                  className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 h-10 text-sm sm:text-base shadow-md shadow-blue-600/20 hover:shadow-blue-600/30 transition-all duration-200 flex items-center justify-center gap-2 shrink-0"
-                >
-                  <Search className="size-4 sm:size-4.5" />
-                  <span>Search</span>
-                </Button>
-              </div>
-            </Card>
-
-            {/* Social Proof Avatars & Counter */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-1">
-              <div className="flex -space-x-3 overflow-hidden">
-                <div className="inline-block size-9 rounded-full border-2 border-white dark:border-zinc-900 bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  JD
-                </div>
-                <div className="inline-block size-9 rounded-full border-2 border-white dark:border-zinc-900 bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  AR
-                </div>
-                <div className="inline-block size-9 rounded-full border-2 border-white dark:border-zinc-900 bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
-                  MK
-                </div>
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-                Over <span className="font-extrabold text-blue-600 dark:text-blue-400">999+</span> jobseeker are successfully hired
-              </p>
-            </div>
-          </div>
-
-          {/* Right Column: Hero Illustration & Floating Glass UI Badges */}
-          <div className="lg:col-span-6 relative flex items-center justify-center min-h-[440px] sm:min-h-[540px] w-full mt-4 lg:mt-0">
-            
-            {/* Background Circle & Glow */}
-            <div className="absolute size-[320px] sm:size-[440px] rounded-full bg-gradient-to-tr from-blue-200/60 via-blue-100/40 to-indigo-100/60 dark:from-blue-900/30 dark:via-blue-950/20 dark:to-indigo-900/20 border border-white/80 dark:border-blue-800/30 shadow-inner flex items-center justify-center -z-10 animate-pulse duration-[6000ms]" />
-
-            {/* Central Hero Image inside Circle Frame */}
-            <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md">
-              <div className="relative size-72 sm:size-[370px] rounded-full overflow-hidden border-4 border-white dark:border-zinc-800 shadow-2xl bg-blue-50 dark:bg-zinc-900">
-                <Image
-                  src="/assets/images/interview.jpg"
-                  alt="Professional job interview at Hire Flow"
-                  fill
-                  className="object-cover object-center scale-105"
-                  priority
-                />
-              </div>
-            </div>
-
-            {/* Floating Card 1: 1k Assisted Candidates (Top Left near frame) */}
-            <Card className="absolute top-4 left-0 sm:left-4 z-20 rounded-2xl border border-blue-100/80 dark:border-border/60 bg-white/95 dark:bg-zinc-900/95 p-3.5 sm:p-4 shadow-xl shadow-blue-900/5 backdrop-blur-md flex items-center gap-3 hover:-translate-y-1 transition-all duration-300">
-              <div className="size-11 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-600/30 shrink-0">
-                <Calendar className="size-5.5" />
-              </div>
-              <div>
-                <h4 className="font-extrabold text-lg sm:text-xl leading-none text-foreground">1k</h4>
-                <p className="text-xs font-medium text-muted-foreground mt-1">
-                  Assisted Candidates.
-                </p>
-              </div>
-            </Card>
-
-            {/* Floating Card 2: 15 Total job Donut Chart (Top Right near frame) */}
-            <Card className="absolute top-20 right-0 sm:-right-2 z-20 rounded-2xl border border-blue-100/80 dark:border-border/60 bg-white/95 dark:bg-zinc-900/95 p-3.5 sm:p-4 shadow-xl shadow-blue-900/5 backdrop-blur-md flex items-center gap-3.5 hover:-translate-y-1 transition-all duration-300">
-              <div className="relative size-14 shrink-0 flex items-center justify-center">
-                <svg className="size-full -rotate-90 transform" viewBox="0 0 36 36">
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    fill="none"
-                    className="stroke-muted"
-                    strokeWidth="4"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    fill="none"
-                    stroke="#2563eb"
-                    strokeWidth="4"
-                    strokeDasharray="88"
-                    strokeDashoffset="35"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    fill="none"
-                    stroke="#60a5fa"
-                    strokeWidth="4"
-                    strokeDasharray="88"
-                    strokeDashoffset="65"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    fill="none"
-                    stroke="#bfdbfe"
-                    strokeWidth="4"
-                    strokeDasharray="88"
-                    strokeDashoffset="80"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-[10px] font-black leading-none text-foreground">15</span>
-                  <span className="text-[7px] font-semibold text-muted-foreground leading-tight">Total job</span>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-xs font-medium text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-blue-600 shrink-0" />
-                  <span className="text-foreground font-semibold">Under Review</span>
-                  <span className="ml-auto font-bold text-foreground">8</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-blue-400 shrink-0" />
-                  <span className="text-foreground font-semibold">Accepted</span>
-                  <span className="ml-auto font-bold text-foreground">8</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="size-2 rounded-full bg-blue-200 shrink-0" />
-                  <span className="text-foreground font-semibold">Rejected</span>
-                  <span className="ml-auto font-bold text-foreground">8</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Floating Card 3: Congratulations You have been hired (Bottom Center) */}
-            <Card className="absolute -bottom-1 sm:bottom-4 left-1/2 -translate-x-1/2 sm:translate-x-0 sm:left-12 z-20 rounded-2xl border border-blue-100/80 dark:border-border/60 bg-white/95 dark:bg-zinc-900/95 p-3.5 sm:p-4 shadow-xl shadow-blue-900/5 backdrop-blur-md flex items-center gap-3.5 hover:-translate-y-1 transition-all duration-300 w-max max-w-[92%] sm:max-w-xs">
-              <div className="size-11 rounded-xl bg-amber-500 flex items-center justify-center text-white shadow-md shadow-amber-500/30 shrink-0">
-                <CheckCircle2 className="size-5.5" />
-              </div>
-              <div>
-                <h4 className="font-extrabold text-sm sm:text-base leading-tight text-foreground">
-                  Congratulations
-                </h4>
-                <p className="text-xs font-medium text-muted-foreground mt-0.5">
-                  You have been hired
-                </p>
-              </div>
-            </Card>
-
-          </div>
-
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        {/* ── Top Announcement Badge ───────────────────────────────────── */}
+        <div className="flex justify-center mb-8">
+          <Link
+            href="/jobs"
+            className="group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full linear-pill text-xs font-medium text-[#8a8f98] hover:text-[#f7f8f8] hover:border-white/20 transition-all duration-160 shadow-[0_0_20px_-5px_rgba(59,130,246,0.3)]"
+          >
+            <span className="flex items-center justify-center size-4 rounded-full bg-blue-500/20 text-blue-400">
+              <Sparkles className="size-2.5" />
+            </span>
+            <span className="text-[#f7f8f8] font-semibold">HireFlow 2.0</span>
+            <span className="text-white/20">|</span>
+            <span>Real-time ATS & pgvector AI matching</span>
+            <ChevronRight className="size-3 text-[#8a8f98] group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </div>
+
+        {/* ── Main Typography Hero ─────────────────────────────────────── */}
+        <div className="text-center max-w-4xl mx-auto space-y-6">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#f7f8f8] leading-[1.06] text-balance">
+            Hiring at the <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
+              speed of thought.
+            </span>
+          </h1>
+
+          <p className="text-base sm:text-lg lg:text-xl text-[#8a8f98] max-w-2xl mx-auto font-normal leading-relaxed text-balance">
+            HireFlow is the precision ATS platform designed for high-growth tech teams. 
+            Streamline candidate pipelines with instant vector matching, real-time messaging, and frictionless applications.
+          </p>
+
+          {/* Dual Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
+            <Link
+              href="/employer/sign-up"
+              className="w-full sm:w-auto h-11 px-6 rounded-xl bg-[#f7f8f8] text-[#08090a] hover:bg-white font-bold text-sm shadow-[0_0_24px_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.8)] hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] transition-all duration-160 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Zap className="size-4 fill-current text-blue-600" />
+              <span>Start Hiring Free</span>
+              <ArrowRight className="size-4" />
+            </Link>
+
+            <Link
+              href="/jobs"
+              className="w-full sm:w-auto h-11 px-6 rounded-xl linear-card linear-card-hover font-semibold text-sm text-[#f7f8f8] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Compass className="size-4 text-[#8a8f98]" />
+              <span>Explore 500+ Open Roles</span>
+            </Link>
+          </div>
+
+          {/* Quick Search Bar */}
+          <form 
+            onSubmit={handleSearchSubmit}
+            className="pt-4 max-w-xl mx-auto"
+          >
+            <div className="relative flex items-center rounded-xl linear-card p-1.5 focus-within:border-blue-500/50 focus-within:ring-1 focus-within:ring-blue-500/30 transition-all duration-160">
+              <Search className="size-4 text-[#8a8f98] ml-3 shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by job title, skill (e.g. React, TypeScript), or company..."
+                className="w-full bg-transparent px-3 py-2 text-xs sm:text-sm text-[#f7f8f8] placeholder:text-[#8a8f98]/60 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="h-8 px-3.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>Find Jobs</span>
+              </button>
+            </div>
+            
+            {/* Quick Filter Tags */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-3 text-[11px] text-[#8a8f98]">
+              <span>Popular:</span>
+              {['Engineering', 'Remote', 'Product', 'Design', 'Data'].map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => router.push(`/jobs?category=${encodeURIComponent(tag)}`)}
+                  className="px-2 py-0.5 rounded-md bg-white/[0.03] hover:bg-white/[0.08] hover:text-[#f7f8f8] border border-white/[0.06] transition-colors"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </form>
+        </div>
+
+        {/* ── Centerpiece: Linear Interactive ATS Visualizer ───────────── */}
+        <div className="mt-14 lg:mt-20 max-w-5xl mx-auto">
+          <div className="rounded-2xl linear-card p-3 sm:p-5 shadow-[0_24px_64px_-16px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]">
+            
+            {/* Widget Window Titlebar */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/[0.06] px-1 sm:px-2">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-red-500/80" />
+                  <span className="size-2.5 rounded-full bg-yellow-500/80" />
+                  <span className="size-2.5 rounded-full bg-emerald-500/80" />
+                </div>
+                <span className="text-[11px] font-mono text-[#8a8f98] ml-2 hidden sm:inline">
+                  hireflow / pipeline / staff-fullstack-engineer
+                </span>
+              </div>
+
+              {/* Status & Filter Pills */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-semibold text-emerald-400">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Sync
+                </span>
+                <span className="text-xs font-mono text-[#8a8f98]">
+                  BullMQ: Active
+                </span>
+              </div>
+            </div>
+
+            {/* Pipeline Stage Columns */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+              
+              {/* Column 1: Applied / AI Vector Match */}
+              <div className="space-y-3 p-3 rounded-xl bg-white/[0.015] border border-white/[0.04]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#8a8f98]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-blue-500" />
+                    Applied & Parsed
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-white/[0.05] text-[10px] text-[#f7f8f8]">12</span>
+                </div>
+
+                {/* Candidate Card */}
+                <div className="p-3.5 rounded-xl linear-card linear-card-hover space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-7 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        DC
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#f7f8f8]">David Chen</h4>
+                        <p className="text-[10px] text-[#8a8f98]">Senior DevOps Architect</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/15 text-blue-400 border border-blue-500/20">
+                      94% Match
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    {['Kubernetes', 'AWS', 'Terraform'].map((skill) => (
+                      <span key={skill} className="px-1.5 py-0.5 rounded bg-white/[0.04] text-[9px] text-[#8a8f98]">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-white/[0.04] text-[10px] text-[#8a8f98]">
+                    <span>Cosine Vector: 0.941</span>
+                    <span className="text-emerald-400 font-medium">Ready for review</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 2: Technical Screening */}
+              <div className="space-y-3 p-3 rounded-xl bg-white/[0.015] border border-white/[0.04]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#8a8f98]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-indigo-500" />
+                    Technical Interview
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-white/[0.05] text-[10px] text-[#f7f8f8]">4</span>
+                </div>
+
+                {/* Candidate Card */}
+                <div className="p-3.5 rounded-xl linear-card linear-card-hover space-y-2.5 ring-1 ring-blue-500/40">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-7 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        SJ
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#f7f8f8]">Sarah Jenkins</h4>
+                        <p className="text-[10px] text-[#8a8f98]">Full Stack Engineer</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                      98% Match
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    {['TypeScript', 'Next.js', 'PostgreSQL', 'Tailwind'].map((skill) => (
+                      <span key={skill} className="px-1.5 py-0.5 rounded bg-white/[0.04] text-[9px] text-[#8a8f98]">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-white/[0.04] text-[10px] text-[#8a8f98]">
+                    <span>Interview: Today 3:00 PM</span>
+                    <span className="text-blue-400 font-medium">Socket Connected</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Column 3: Offer Extended */}
+              <div className="space-y-3 p-3 rounded-xl bg-white/[0.015] border border-white/[0.04]">
+                <div className="flex items-center justify-between text-xs font-semibold text-[#8a8f98]">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2 rounded-full bg-emerald-500" />
+                    Offer Extended
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded bg-white/[0.05] text-[10px] text-[#f7f8f8]">1</span>
+                </div>
+
+                {/* Candidate Card */}
+                <div className="p-3.5 rounded-xl linear-card linear-card-hover space-y-2.5 border-emerald-500/30">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                        ER
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-[#f7f8f8]">Elena Rostova</h4>
+                        <p className="text-[10px] text-[#8a8f98]">Staff Product Designer</p>
+                      </div>
+                    </div>
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+                      99% Match
+                    </span>
+                  </div>
+
+                  <div className="p-2 rounded-lg bg-emerald-950/20 border border-emerald-500/20 flex items-center justify-between text-[11px]">
+                    <span className="font-semibold text-emerald-300">$165,000 / year</span>
+                    <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-bold">
+                      <CheckCircle2 className="size-3" /> Offer Signed
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-1 border-t border-white/[0.04] text-[10px] text-[#8a8f98]">
+                    <span>Time to Hire: 8 Days</span>
+                    <span className="text-emerald-400 font-medium">Onboarding</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
       </div>
     </section>
   );

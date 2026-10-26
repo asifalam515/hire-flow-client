@@ -59,7 +59,7 @@ export function PostJobForm() {
     watch,
     formState: { errors },
   } = useForm<PostJobFormValues>({
-    resolver: zodResolver(postJobSchema),
+    resolver: zodResolver(postJobSchema) as any,
     defaultValues: {
       employmentTypes: [],
       benefits: [],

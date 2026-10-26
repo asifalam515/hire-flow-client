@@ -1,79 +1,67 @@
+'use client';
+
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ArrowRight, Sparkles, CheckCircle2, Zap } from 'lucide-react';
 
 export function EmployerCta() {
   return (
-    <section className="w-full py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-[#EFF5FF] dark:bg-slate-950 transition-colors duration-300">
+    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-white/[0.06] transition-colors relative overflow-hidden">
       <div className="mx-auto max-w-7xl">
         
-        {/* Main Banner Card Container with #EFF5FF background */}
-        <div className="group relative overflow-hidden rounded-3xl border border-blue-100/80 dark:border-border/60 bg-[#EFF5FF] dark:bg-zinc-900 shadow-md shadow-blue-900/5 px-6 sm:px-12 lg:px-16 pt-10 sm:pt-14 lg:pt-0 grid grid-cols-1 lg:grid-cols-12 items-center gap-8 min-h-[480px]">
+        {/* Main High-Conversion Banner Card */}
+        <div className="relative rounded-3xl linear-card p-8 sm:p-14 lg:p-16 overflow-hidden text-center max-w-5xl mx-auto shadow-[0_24px_64px_-16px_rgba(0,0,0,0.9),inset_0_1px_0_0_rgba(255,255,255,0.08)]">
           
-          {/* Left Column: Heading, Description & Action Button */}
-          <div className="lg:col-span-6 space-y-6 z-10 py-6 lg:py-16 text-center lg:text-left">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
-              Are you employer?
+          {/* Centered Ambient Lighting */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-blue-600/20 via-indigo-600/20 to-purple-600/15 blur-3xl pointer-events-none -z-10" />
+
+          <div className="max-w-2xl mx-auto space-y-6 z-10 relative">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-[#8a8f98]">
+              <Sparkles className="size-3 text-blue-400" />
+              <span>Zero Setup Fees • Instant Deployment</span>
+            </div>
+
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#f7f8f8] leading-tight text-balance">
+              Ready to accelerate your hiring pipeline?
             </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0 font-medium">
-              You can find various solutions just by accessing our platform. Because
-              we are committed to maintaining the quality of user service
+
+            <p className="text-sm sm:text-base text-[#8a8f98] font-normal leading-relaxed text-balance">
+              Join modern engineering and talent leaders building world-class teams with AI vector matching, real-time candidate chat, and frictionless hiring.
             </p>
-            <div className="pt-2">
-              <Link href="/employer/post-job" className="inline-block">
-                <Button
-                  type="button"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-6 rounded-xl text-base shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/35 hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
-                >
-                  Post a job
-                </Button>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+              <Link
+                href="/employer/sign-up"
+                className="w-full sm:w-auto h-11 px-7 rounded-xl bg-[#f7f8f8] text-[#08090a] hover:bg-white font-bold text-sm shadow-[0_0_24px_rgba(255,255,255,0.25),inset_0_1px_0_0_rgba(255,255,255,0.8)] hover:shadow-[0_0_32px_rgba(255,255,255,0.4)] transition-all duration-160 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Zap className="size-4 fill-current text-blue-600" />
+                <span>Post a Job Free</span>
+                <ArrowRight className="size-4" />
+              </Link>
+
+              <Link
+                href="/login"
+                className="w-full sm:w-auto h-11 px-6 rounded-xl linear-card linear-card-hover font-semibold text-sm text-[#f7f8f8] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Try Demo Credentials</span>
               </Link>
             </div>
-          </div>
 
-          {/* Right Column: Centered Employer Image with Concentric Contour Circles and Zoom Animation */}
-          <div className="lg:col-span-6 relative flex items-center justify-center h-[380px] sm:h-[460px] lg:h-[540px] z-10 mt-4 lg:mt-0">
-            
-            {/* Concentric Background Circle Curves Behind the Employer */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <svg
-                viewBox="0 0 600 600"
-                className="w-[120%] h-[120%] max-w-[650px] stroke-blue-200/80 dark:stroke-blue-900/40 fill-none transition-transform duration-700 ease-out group-hover:scale-105"
-                aria-hidden="true"
-              >
-                {/* Outer Contour Ring */}
-                <path
-                  d="M 300, 30 C 470, 30 580, 150 560, 320 C 540, 480 390, 580 250, 560 C 110, 540 20, 400 40, 240 C 60, 90 150, 30 300, 30 Z"
-                  strokeWidth="1.5"
-                />
-                {/* Middle Contour Ring */}
-                <path
-                  d="M 300, 90 C 430, 90 520, 180 500, 320 C 480, 450 360, 520 250, 500 C 140, 480 70, 370 90, 240 C 110, 120 180, 90 300, 90 Z"
-                  strokeWidth="1.5"
-                />
-                {/* Inner Contour Ring */}
-                <path
-                  d="M 300, 160 C 390, 160 450, 220 440, 320 C 430, 410 340, 460 260, 440 C 180, 420 130, 340 140, 250 C 150, 170 220, 160 300, 160 Z"
-                  strokeWidth="1.5"
-                />
-              </svg>
+            {/* Micro Feature Bullets */}
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 pt-4 text-xs text-[#8a8f98]">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-emerald-400" />
+                No credit card required
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-blue-400" />
+                Instant vector matching
+              </span>
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 text-indigo-400" />
+                Live in 2 minutes
+              </span>
             </div>
-
-            {/* Centered & Zoomed Image Container */}
-            <div className="relative size-full max-w-[440px] flex items-center justify-center">
-              <div className="relative w-full h-[115%] sm:h-[120%] flex items-center justify-center overflow-visible">
-                <Image
-                  src="/assets/images/employer.jpg"
-                  alt="Employer holding clipboard ready to post job"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 500px"
-                  className="object-contain object-bottom scale-110 sm:scale-115 lg:scale-120 group-hover:scale-125 sm:group-hover:scale-130 transition-transform duration-700 ease-out"
-                  priority
-                />
-              </div>
-            </div>
-
           </div>
 
         </div>

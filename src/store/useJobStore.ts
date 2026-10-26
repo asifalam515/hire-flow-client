@@ -65,7 +65,7 @@ export const useJobStore = create<JobState>((set, get) => ({
       const activeFilters = { ...get().filters, ...overrideParams };
       // Remove empty strings or undefined to clean up URL
       const params = Object.fromEntries(
-        Object.entries(activeFilters).filter(([_, v]) => v !== undefined && v !== '')
+        Object.entries(activeFilters).filter(([, v]) => v !== undefined && v !== '')
       );
 
       const response = await apiClient.get<any>('/jobs', { params });
