@@ -1,84 +1,88 @@
 'use client';
 
-import React from 'react';
-import { Search, Menu, User as UserIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { NotificationDropdown } from '../shared/NotificationDropdown';
+import { ThemeToggle } from '../shared/ThemeToggle';
+import { UserProfileMenu } from '../shared/UserProfileMenu';
 
 export function CandidateHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore();
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getPageTitle = () => {
-    if (pathname.includes('/settings')) return { title: 'Account Setting', subtitle: 'Updating your information will offer you the most relevant content' };
-    if (pathname.includes('/resume')) return { title: 'My Resume', subtitle: 'Manage your resume and profile details' };
-    if (pathname.includes('/notifications')) return { title: 'Notifications', subtitle: 'View your latest updates and alerts' };
-    if (pathname.includes('/messages')) return { title: 'Message', subtitle: 'Updating your information will offer you the most relevent content' };
-    if (pathname.includes('/activity')) return { title: 'Activity', subtitle: 'Updating your information will offer you the most relevant content' };
+    if (pathname.includes('/settings')) return { title: 'Account Settings', subtitle: 'Manage your profile preferences and account security' };
+    if (pathname.includes('/resume')) return { title: 'My Resume', subtitle: 'Manage your verified resume, skills and experience details' };
+    if (pathname.includes('/notifications')) return { title: 'Notifications', subtitle: 'View your latest updates, interview alerts and invitations' };
+    if (pathname.includes('/messages')) return { title: 'Messages', subtitle: 'Chat with recruiters and hiring managers in real time' };
+    if (pathname.includes('/activity')) return { title: 'Application Activity', subtitle: 'Track your application status and saved jobs' };
     return { title: 'Dashboard', subtitle: 'Here is your daily activity and career updates' };
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   const { title, subtitle } = getPageTitle();
 
   return (
-    <header className="h-20 lg:h-28 bg-white dark:bg-zinc-950 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10 shrink-0 border-b border-slate-100 dark:border-zinc-800">
+    <header className="h-20 lg:h-24 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 sticky top-0 z-20 shrink-0 border-b border-slate-100 dark:border-zinc-800">
       
       {/* Title Area & Mobile Menu */}
       <div className="flex items-center gap-4">
         <button 
-          className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-400 dark:hover:bg-zinc-900"
+          className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl dark:text-slate-400 dark:hover:bg-zinc-900 cursor-pointer"
           onClick={onMenuClick}
+          aria-label="Toggle navigation drawer"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-xl lg:text-3xl font-bold text-slate-900 dark:text-white">{title}</h1>
-          <p className="hidden md:block text-sm text-slate-500 mt-1">{subtitle}</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h1>
+          <p className="hidden md:block text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>
         </div>
       </div>
 
       {/* Actions Area */}
-      <div className="flex items-center gap-4 lg:gap-6">
+      <div className="flex items-center gap-3 lg:gap-4">
         {/* Search */}
-        <div className="relative hidden md:block w-72">
+        <form onSubmit={handleSearchSubmit} className="relative hidden md:block w-64 lg:w-72">
           <input
             type="text"
-            placeholder="Search"
-            className="block w-full pl-4 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search jobs or skills..."
+            className="block w-full pl-4 pr-10 py-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900/80 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-xs transition-colors"
           />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400" />
-          </div>
-        </div>
+          <button type="submit" aria-label="Submit search" className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer">
+            <Search className="h-4 w-4" />
+          </button>
+        </form>
         
         {/* Mobile Search Icon */}
-        <button className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-400 dark:hover:bg-zinc-900">
+        <button 
+          onClick={() => router.push('/jobs')}
+          aria-label="Find jobs"
+          className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl dark:text-slate-400 dark:hover:bg-zinc-900 cursor-pointer"
+        >
           <Search className="w-5 h-5" />
         </button>
         
-        {/* Notification & Profile */}
-        <div className="flex items-center gap-4 lg:gap-6">
-          <NotificationDropdown />
-          
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="flex items-center justify-center h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-600 overflow-hidden shrink-0 ring-2 ring-transparent hover:ring-blue-500 transition-all">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={`${user.firstName} ${user.lastName}`} className="w-full h-full object-cover" />
-              ) : (
-                <UserIcon className="w-5 h-5 lg:w-6 lg:h-6 text-slate-400" />
-              )}
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                {user ? `${user.firstName} ${user.lastName}` : 'Candidate'}
-              </p>
-              <p className="text-xs text-slate-500 leading-tight">
-                {user?.email || 'Loading...'}
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Theme Toggle */}
+        <ThemeToggle variant="icon-button" />
+
+        {/* Notification Dropdown */}
+        <NotificationDropdown />
+        
+        {/* User Profile Dropdown Menu */}
+        <UserProfileMenu />
       </div>
     </header>
   );

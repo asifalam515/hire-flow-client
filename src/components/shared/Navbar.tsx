@@ -27,6 +27,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavItem {
   label: string;
@@ -108,17 +109,17 @@ export function Navbar() {
 
   return (
     <header className="sticky top-4 z-50 w-full px-4 sm:px-6 lg:px-8 transition-all duration-200">
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/[0.08] bg-[#08090a]/85 p-2.5 sm:p-3 px-4 sm:px-6 shadow-[0_16px_36px_-8px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-slate-200/80 dark:border-white/[0.08] bg-white/80 dark:bg-[#08090a]/85 p-2.5 sm:p-3 px-4 sm:px-6 shadow-[0_12px_28px_-6px_rgba(0,0,0,0.06)] dark:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-xl">
         {/* Brand Logo - Linear Style */}
         <Link href="/" className="flex items-center gap-2.5 group focus:outline-none">
           <div className="flex items-center justify-center size-8 rounded-lg bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 border border-white/20 shadow-[0_0_16px_rgba(59,130,246,0.45)] group-hover:scale-105 transition-transform duration-160">
             <Sparkles className="size-4 text-white" />
           </div>
-          <div className="flex items-center tracking-tight text-xl font-bold text-[#f7f8f8]">
+          <div className="flex items-center tracking-tight text-xl font-bold text-slate-900 dark:text-[#f7f8f8]">
             <span>Hire</span>
-            <span className="text-blue-500 ml-0.5">Flow</span>
+            <span className="text-blue-600 dark:text-blue-500 ml-0.5">Flow</span>
           </div>
-          <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-white/[0.05] text-[#8a8f98] border border-white/[0.08] ml-0.5">
+          <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-white/[0.05] text-slate-500 dark:text-[#8a8f98] border border-slate-200 dark:border-white/[0.08] ml-0.5">
             ATS
           </span>
         </Link>
@@ -133,8 +134,8 @@ export function Navbar() {
                 href={item.href}
                 className={`text-sm font-medium transition-colors duration-160 ${
                   isActive
-                    ? 'text-[#f7f8f8]'
-                    : 'text-[#8a8f98] hover:text-[#f7f8f8]'
+                    ? 'text-slate-900 dark:text-[#f7f8f8] font-bold'
+                    : 'text-slate-600 dark:text-[#8a8f98] hover:text-slate-900 dark:hover:text-[#f7f8f8]'
                 }`}
               >
                 {item.label}
@@ -145,10 +146,12 @@ export function Navbar() {
 
         {/* Right Actions & Auth */}
         <div className="flex items-center space-x-2.5 sm:space-x-3.5">
+          <ThemeToggle variant="icon-button" />
+
           <Link
             href="/jobs"
             aria-label="Search jobs"
-            className="hidden sm:flex size-8 items-center justify-center rounded-lg text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-white/[0.05] border border-transparent hover:border-white/[0.08] transition-all duration-160"
+            className="hidden sm:flex size-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:text-[#8a8f98] dark:hover:text-[#f7f8f8] hover:bg-slate-100 dark:hover:bg-white/[0.05] border border-transparent hover:border-slate-200 dark:hover:border-white/[0.08] transition-all duration-160"
           >
             <Search className="size-3.5" />
           </Link>
@@ -162,15 +165,15 @@ export function Navbar() {
           {/* Role Switcher Pill - shown when not logged in */}
           {!isAuthenticated && (
             <>
-              <div className="hidden sm:block h-4 w-px bg-white/[0.08]" />
-              <div className="hidden md:flex items-center rounded-lg bg-white/[0.03] p-0.5 border border-white/[0.08] text-xs font-medium">
+              <div className="hidden sm:block h-4 w-px bg-slate-200 dark:bg-white/[0.08]" />
+              <div className="hidden md:flex items-center rounded-lg bg-slate-100 dark:bg-white/[0.03] p-0.5 border border-slate-200 dark:border-white/[0.08] text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setActiveRole('candidate')}
-                  className={`px-2.5 py-1 rounded-md transition-all duration-160 ${
+                  className={`px-2.5 py-1 rounded-md transition-all duration-160 cursor-pointer ${
                     activeRole === 'candidate'
-                      ? 'bg-white/[0.1] text-[#f7f8f8] shadow-xs'
-                      : 'text-[#8a8f98] hover:text-[#f7f8f8]'
+                      ? 'bg-white text-slate-900 dark:bg-white/[0.1] dark:text-[#f7f8f8] shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-[#8a8f98] hover:text-slate-900 dark:hover:text-[#f7f8f8]'
                   }`}
                 >
                   Candidate
@@ -178,10 +181,10 @@ export function Navbar() {
                 <button
                   type="button"
                   onClick={() => setActiveRole('employer')}
-                  className={`px-2.5 py-1 rounded-md transition-all duration-160 ${
+                  className={`px-2.5 py-1 rounded-md transition-all duration-160 cursor-pointer ${
                     activeRole === 'employer'
-                      ? 'bg-white/[0.1] text-[#f7f8f8] shadow-xs'
-                      : 'text-[#8a8f98] hover:text-[#f7f8f8]'
+                      ? 'bg-white text-slate-900 dark:bg-white/[0.1] dark:text-[#f7f8f8] shadow-xs font-bold'
+                      : 'text-slate-600 dark:text-[#8a8f98] hover:text-slate-900 dark:hover:text-[#f7f8f8]'
                   }`}
                 >
                   Recruiter
@@ -235,12 +238,12 @@ export function Navbar() {
 
               {/* Dropdown Menu Box */}
               {isDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2.5 w-60 rounded-xl bg-[#0f1011] border border-white/[0.08] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="px-3.5 py-2.5 border-b border-white/[0.06] mb-1 sm:hidden">
-                    <p className="text-xs font-semibold text-[#f7f8f8] truncate">
+                <div className="absolute right-0 top-full mt-2.5 w-60 rounded-xl bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] shadow-xl shadow-black/10 dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.8),inset_0_1px_0_0_rgba(255,255,255,0.06)] py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="px-3.5 py-2.5 border-b border-slate-100 dark:border-white/[0.06] mb-1 sm:hidden">
+                    <p className="text-xs font-semibold text-slate-900 dark:text-[#f7f8f8] truncate">
                       {getDisplayName()}
                     </p>
-                    <p className="text-[11px] font-medium text-[#8a8f98] truncate mt-0.5">
+                    <p className="text-[11px] font-medium text-slate-500 dark:text-[#8a8f98] truncate mt-0.5">
                       {user.email}
                     </p>
                   </div>
@@ -249,12 +252,12 @@ export function Navbar() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingAvatar}
-                    className="w-full flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group text-left cursor-pointer disabled:opacity-50"
+                    className="w-full flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group text-left cursor-pointer disabled:opacity-50"
                   >
                     {isUploadingAvatar ? (
-                      <Loader2 className="size-3.5 mr-2.5 text-[#8a8f98] animate-spin" />
+                      <Loader2 className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] animate-spin" />
                     ) : (
-                      <Camera className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                      <Camera className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                     )}
                     <span>Update profile photo</span>
                   </button>
@@ -266,43 +269,43 @@ export function Navbar() {
                     onChange={handleAvatarUpload}
                   />
 
-                  <div className="my-1 border-t border-white/[0.06]" />
+                  <div className="my-1 border-t border-slate-100 dark:border-white/[0.06]" />
 
                   {isRecruiter ? (
                     <>
                       <Link
                         href="/employer/dashboard"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <LayoutDashboard className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <LayoutDashboard className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Employer Dashboard</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/profile"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <Building2 className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <Building2 className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Company Profile</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/post-job"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <PlusCircle className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <PlusCircle className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Post New Job</span>
                       </Link>
 
                       <Link
                         href="/employer/dashboard/messages"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <MessageSquare className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <MessageSquare className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Candidate Chat</span>
                       </Link>
                     </>
@@ -311,33 +314,33 @@ export function Navbar() {
                       <Link
                         href="/candidates/dashboard"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <LayoutDashboard className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <LayoutDashboard className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Candidate Dashboard</span>
                       </Link>
 
                       <Link
                         href="/candidates/applications"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <Briefcase className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <Briefcase className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>My Applications</span>
                       </Link>
 
                       <Link
                         href="/candidates/dashboard/messages"
                         onClick={() => setIsDropdownOpen(false)}
-                        className="flex items-center px-3.5 py-2 text-xs font-medium text-[#8a8f98] hover:bg-white/[0.05] hover:text-[#f7f8f8] transition-colors group"
+                        className="flex items-center px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-100 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors group"
                       >
-                        <MessageSquare className="size-3.5 mr-2.5 text-[#8a8f98] group-hover:text-blue-400 transition-colors" />
+                        <MessageSquare className="size-3.5 mr-2.5 text-slate-400 dark:text-[#8a8f98] group-hover:text-blue-500 transition-colors" />
                         <span>Recruiter Messages</span>
                       </Link>
                     </>
                   )}
 
-                  <div className="my-1 border-t border-white/[0.06]" />
+                  <div className="my-1 border-t border-slate-100 dark:border-white/[0.06]" />
 
                   <button
                     type="button"
@@ -345,7 +348,7 @@ export function Navbar() {
                       setIsDropdownOpen(false);
                       logout();
                     }}
-                    className="w-full flex items-center px-3.5 py-2 text-xs font-semibold text-red-400 hover:bg-red-950/20 transition-colors cursor-pointer text-left"
+                    className="w-full flex items-center px-3.5 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors cursor-pointer text-left"
                   >
                     <LogOut className="size-3.5 mr-2.5" />
                     <span>Sign out</span>
@@ -356,7 +359,7 @@ export function Navbar() {
           ) : (
             <div className="flex items-center gap-2">
               <Link href="/login">
-                <button className="text-xs sm:text-sm font-medium text-[#8a8f98] hover:text-[#f7f8f8] px-3 py-1.5 rounded-lg hover:bg-white/[0.05] transition-all duration-160">
+                <button className="text-xs sm:text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-[#8a8f98] dark:hover:text-[#f7f8f8] px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all duration-160 cursor-pointer">
                   Log in
                 </button>
               </Link>
@@ -365,7 +368,7 @@ export function Navbar() {
                   activeRole === 'employer' ? '/employer/sign-up' : '/candidates/sign-up'
                 }
               >
-                <button className="h-8 sm:h-9 px-3.5 sm:px-4 rounded-lg bg-[#f7f8f8] text-[#08090a] hover:bg-white font-semibold text-xs sm:text-sm shadow-[0_0_16px_rgba(255,255,255,0.2),inset_0_1px_0_0_rgba(255,255,255,0.8)] hover:shadow-[0_0_24px_rgba(255,255,255,0.35)] transition-all duration-160 flex items-center gap-1.5 cursor-pointer">
+                <button className="h-8 sm:h-9 px-3.5 sm:px-4 rounded-xl bg-blue-600 text-white hover:bg-blue-500 dark:bg-[#f7f8f8] dark:text-[#08090a] dark:hover:bg-white font-semibold text-xs sm:text-sm shadow-md shadow-blue-600/20 dark:shadow-[0_0_16px_rgba(255,255,255,0.2)] transition-all duration-160 flex items-center gap-1.5 cursor-pointer">
                   <span>Sign up</span>
                   <ArrowRight className="size-3.5" />
                 </button>

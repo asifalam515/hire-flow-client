@@ -1,85 +1,99 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Plus, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
+import { usePathname, useRouter } from 'next/navigation';
 import { NotificationDropdown } from '../shared/NotificationDropdown';
+import { ThemeToggle } from '../shared/ThemeToggle';
+import { UserProfileMenu } from '../shared/UserProfileMenu';
 
 export function EmployerHeader({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user } = useAuthStore();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const getPageTitle = () => {
+    if (pathname.includes('/post-job')) return { title: 'Post a Job', subtitle: 'Create and publish job listings to attract top verified talent' };
+    if (pathname.includes('/profile')) return { title: 'Company Profile', subtitle: 'Manage your organization branding, perks and culture' };
+    if (pathname.includes('/settings')) return { title: 'Account Settings', subtitle: 'Manage company access, team members and billing' };
+    if (pathname.includes('/messages')) return { title: 'Candidate Messages', subtitle: 'Real-time conversation with active applicants' };
+    if (pathname.includes('/notifications')) return { title: 'Notifications', subtitle: 'System updates and applicant status changes' };
+    if (pathname.includes('/jobs')) return { title: 'Applicant Pipeline', subtitle: 'Review, screen, and interview candidates for this role' };
+    return { title: 'Employer Dashboard', subtitle: 'Real-time overview of active jobs, applicant counts and team velocity' };
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/jobs?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const { title, subtitle } = getPageTitle();
 
   return (
-    <header className="h-20 lg:h-24 bg-white dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-10">
+    <header className="h-20 lg:h-24 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-slate-100 dark:border-zinc-800 flex items-center justify-between px-4 lg:px-8 shrink-0 sticky top-0 z-20">
       
       {/* Title & Mobile Menu Area */}
       <div className="flex items-center gap-4">
         <button 
-          className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-400 dark:hover:bg-zinc-800"
+          className="lg:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-xl dark:text-slate-400 dark:hover:bg-zinc-800 cursor-pointer"
           onClick={onMenuClick}
+          aria-label="Toggle navigation drawer"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
         <div>
-          <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white">Activity</h2>
-          <p className="hidden md:block text-sm text-slate-500">Updating your information will offer you the most relevant content</p>
+          <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{title}</h2>
+          <p className="hidden md:block text-xs text-slate-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>
         </div>
       </div>
 
       {/* Actions Area */}
-      <div className="flex items-center gap-4 lg:gap-6">
+      <div className="flex items-center gap-3 lg:gap-4">
         
         {/* Search */}
-        <div className="relative hidden md:block w-64 lg:w-80">
+        <form onSubmit={handleSearchSubmit} className="relative hidden md:block w-56 lg:w-72">
           <input
             type="text"
-            placeholder="Search"
-            className="w-full bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-sm rounded-xl pl-4 pr-11 py-2.5 focus:outline-none focus:border-blue-500 transition-colors placeholder:text-slate-400"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search candidates or jobs..."
+            className="w-full bg-slate-50/80 dark:bg-zinc-900/80 border border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white text-xs rounded-xl pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors placeholder:text-slate-400"
           />
-          <Search className="w-5 h-5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" />
-        </div>
+          <button type="submit" aria-label="Submit search" className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer">
+            <Search className="w-4 h-4" />
+          </button>
+        </form>
         
         {/* Mobile Search Icon */}
-        <button className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg dark:text-slate-400 dark:hover:bg-zinc-800">
+        <button 
+          onClick={() => router.push('/jobs')}
+          aria-label="Find jobs"
+          className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl dark:text-slate-400 dark:hover:bg-zinc-800 cursor-pointer"
+        >
           <Search className="w-5 h-5" />
         </button>
 
         {/* Post Job Button */}
         <Link href="/employer/dashboard/post-job">
-          <button className="hidden sm:flex items-center gap-2 bg-white dark:bg-zinc-950 border border-slate-300 dark:border-zinc-700 hover:bg-slate-50 dark:hover:bg-zinc-900 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm">
+          <button className="hidden sm:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-3.5 py-2 rounded-xl font-bold text-xs transition-all shadow-md shadow-blue-600/20 cursor-pointer">
             <Plus className="w-4 h-4" />
             Post a Job
           </button>
         </Link>
 
+        {/* Theme Toggle */}
+        <ThemeToggle variant="icon-button" />
+
         {/* Notifications & Profile */}
-        <div className="flex items-center gap-4 border-l border-slate-200 dark:border-zinc-800 pl-4 lg:pl-6 ml-2 lg:ml-0">
-          <NotificationDropdown />
-          
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="flex items-center justify-center w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-slate-200 dark:bg-zinc-800 text-slate-600 overflow-hidden ring-2 ring-transparent hover:ring-blue-500 transition-all shrink-0">
-              {user?.company?.logoUrl || user?.avatarUrl ? (
-                <img 
-                  src={user?.company?.logoUrl || user?.avatarUrl || ''} 
-                  alt={user?.company?.name || user?.firstName || "Profile"} 
-                  className="w-full h-full object-cover" 
-                />
-              ) : (
-                <span className="font-bold text-sm">
-                  {(user?.company?.name || user?.firstName || 'E').charAt(0).toUpperCase()}
-                </span>
-              )}
-            </div>
-            <div className="hidden sm:block">
-              <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight max-w-[120px] truncate">
-                {user?.company?.name || (user ? `${user.firstName} ${user.lastName}` : 'Employer')}
-              </p>
-              <p className="text-xs text-slate-500 leading-tight max-w-[120px] truncate">
-                {user?.email || 'Loading...'}
-              </p>
-            </div>
-          </div>
-        </div>
+        <NotificationDropdown />
+        
+        {/* User Profile Dropdown Menu */}
+        <UserProfileMenu />
       </div>
     </header>
   );

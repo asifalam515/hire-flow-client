@@ -34,7 +34,7 @@ export function EmployerSidebar({ onMobileClose }: { onMobileClose?: () => void 
     { name: 'Notification', href: '/employer/dashboard/notifications', icon: Bell, badge: notificationCount > 0 ? notificationCount : undefined },
     { name: 'Message', href: '/employer/dashboard/messages', icon: MessageSquare, badge: unreadMessagesCount > 0 ? unreadMessagesCount : undefined },
     { name: 'Account Setting', href: '/employer/dashboard/settings', icon: Settings },
-    { name: 'Manage hiring', href: '/employer/dashboard/hiring', icon: Sliders },
+    { name: 'Manage Jobs', href: '/employer/dashboard', icon: Sliders },
   ];
 
   return (
@@ -95,7 +95,10 @@ export function EmployerSidebar({ onMobileClose }: { onMobileClose?: () => void 
 
       {/* Bottom Actions */}
       <div className="px-4 py-6 mt-auto">
-        <button className="flex w-full items-center gap-4 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors">
+        <button 
+          onClick={() => logout()}
+          className="flex w-full items-center gap-4 px-4 py-3 rounded-xl font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+        >
           <LogOut className="w-5 h-5" />
           Log out
         </button>

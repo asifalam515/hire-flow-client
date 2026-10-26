@@ -8,7 +8,7 @@ import { Footer } from "@/components/shared/Footer";
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col linear-canvas text-[#f7f8f8] font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen flex flex-col linear-canvas text-slate-900 dark:text-[#f7f8f8] font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200">
       {/* Top Floating Navbar */}
       <Navbar />
 

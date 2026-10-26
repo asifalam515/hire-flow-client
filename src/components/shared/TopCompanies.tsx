@@ -57,19 +57,19 @@ const METRICS = [
 
 export function TopCompanies() {
   return (
-    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-white/[0.06] transition-colors">
+    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-slate-200/80 dark:border-white/[0.06] transition-colors">
       <div className="mx-auto max-w-7xl">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-[#8a8f98]">
-            <Zap className="size-3 text-blue-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-slate-600 dark:text-[#8a8f98]">
+            <Zap className="size-3 text-blue-500 dark:text-blue-400" />
             <span>High-Velocity Engineering Teams</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#f7f8f8]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-[#f7f8f8]">
             Trusted by teams that ship fast.
           </h2>
-          <p className="text-sm sm:text-base text-[#8a8f98] font-normal max-w-xl mx-auto">
+          <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a8f98] font-normal max-w-xl mx-auto">
             From seed-stage startups to scaling enterprises, modern teams use HireFlow to build world-class engineering organizations.
           </p>
         </div>
@@ -81,11 +81,11 @@ export function TopCompanies() {
               key={metric.label}
               className="p-5 rounded-xl linear-card linear-card-hover space-y-1.5"
             >
-              <span className="text-2xl sm:text-3xl font-mono font-extrabold text-[#f7f8f8]">
+              <span className="text-2xl sm:text-3xl font-mono font-extrabold text-slate-900 dark:text-[#f7f8f8]">
                 {metric.value}
               </span>
-              <p className="text-xs font-semibold text-[#f7f8f8]">{metric.label}</p>
-              <p className="text-[11px] text-[#8a8f98] leading-relaxed">{metric.desc}</p>
+              <p className="text-xs font-semibold text-slate-900 dark:text-[#f7f8f8]">{metric.label}</p>
+              <p className="text-[11px] text-slate-500 dark:text-[#8a8f98] leading-relaxed">{metric.desc}</p>
             </div>
           ))}
         </div>
@@ -100,31 +100,31 @@ export function TopCompanies() {
               <div className="space-y-4">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className={`size-11 rounded-xl ${company.logoBg} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-sm border border-white/20`}>
+                    <div className={`size-11 rounded-xl ${company.logoBg} text-white font-black text-sm flex items-center justify-center shrink-0 shadow-sm border border-slate-200/60 dark:border-white/20`}>
                       {company.logoLetter}
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-[#f7f8f8] group-hover:text-blue-400 transition-colors">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-[#f7f8f8] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {company.name}
                       </h3>
-                      <p className="text-xs text-[#8a8f98]">{company.location}</p>
+                      <p className="text-xs text-slate-500 dark:text-[#8a8f98]">{company.location}</p>
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20">
                     {company.openRoles} Open Roles
                   </span>
                 </div>
 
-                <p className="text-xs text-[#8a8f98] leading-relaxed">
+                <p className="text-xs text-slate-600 dark:text-[#8a8f98] leading-relaxed">
                   {company.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-white/[0.04] flex items-center justify-between text-xs">
-                <span className="text-[#8a8f98] text-[11px]">{company.field}</span>
+              <div className="pt-4 border-t border-slate-200/60 dark:border-white/[0.04] flex items-center justify-between text-xs">
+                <span className="text-slate-500 dark:text-[#8a8f98] text-[11px]">{company.field}</span>
                 <Link
                   href="/companies"
-                  className="font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 text-[11px] group-hover:translate-x-0.5 transition-transform"
+                  className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 text-[11px] group-hover:translate-x-0.5 transition-transform"
                 >
                   <span>Explore</span>
                   <ArrowRight className="size-3" />

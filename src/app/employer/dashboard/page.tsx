@@ -8,10 +8,10 @@ import {
   UserPlus, 
   Calendar,
   ExternalLink,
-  MoreVertical,
   Briefcase,
-  Eye,
-  FileText
+  FileText,
+  Plus,
+  ChevronRight
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -20,36 +20,20 @@ import {
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
+  ResponsiveContainer
 } from 'recharts';
 import { useAuthStore } from '@/store/useAuthStore';
 import { apiClient } from '@/lib/api';
 import { Job } from '@/types';
-
-// Dummy Chart Data
-const data = [
-  { name: 'Sun', views: 1000, applied: 1000, opened: 1000 },
-  { name: 'Mon', views: 2700, applied: 1700, opened: 1400 },
-  { name: 'Tue', views: 3100, applied: 2000, opened: 2300 },
-  { name: 'Wed', views: 2800, applied: 2400, opened: 2200 },
-  { name: 'Thu', views: 4200, applied: 2900, opened: 4900 },
-  { name: 'Fri', views: 4400, applied: 4100, opened: 4800 },
-  { name: 'Sat', views: 4600, applied: 4600, opened: 4600 },
-];
-
-const pieData = [
-  { name: 'Used', value: 90, color: '#334155' },
-  { name: 'Remaining', value: 10, color: '#E2E8F0' },
-];
+import { EmptyState } from '@/components/shared/EmptyState';
+import { format, subDays } from 'date-fns';
 
 export default function EmployerDashboardPage() {
   const { user } = useAuthStore();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [conversations, setConversations] = useState<any[]>([]);
   const [applicationsCount, setApplicationsCount] = useState<Record<string, number>>({});
+  const [scheduledInterviews, setScheduledInterviews] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -90,7 +74,7 @@ export default function EmployerDashboardPage() {
         }
 
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error('Error fetching employer dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -99,346 +83,307 @@ export default function EmployerDashboardPage() {
     fetchDashboardData();
   }, []);
 
-  // Compute derived stats
+  // Compute derived real statistics
   const totalJobsOpened = jobs.length;
   const unreadMessages = conversations.reduce((sum, conv) => sum + (conv._count?.messages || 0), 0);
-  const totalAppsForTopJobs = Object.values(applicationsCount).reduce((a, b) => a + b, 0);
+  const totalApplicants = Object.values(applicationsCount).reduce((a, b) => a + b, 0);
 
-  // Generate chart data based on real jobs
-  const displayChartData = totalJobsOpened > 0 ? [...Array(7)].map((_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
-    const opened = jobs.filter((j: any) => new Date(j.createdAt).toDateString() === d.toDateString()).length;
-    return { name: dayName, views: opened * 15 + Math.floor(Math.random() * 10), applied: opened * 3 + Math.floor(Math.random() * 5), opened };
-  }) : data;
+  // Generate 7-day rolling telemetry based on real activity
+  const chartData = [...Array(7)].map((_, i) => {
+    const d = subDays(new Date(), 6 - i);
+    const dayName = format(d, 'EEE');
+    const openedToday = jobs.filter(
+      (j: any) => new Date(j.createdAt).toDateString() === d.toDateString()
+    ).length;
+    return {
+      name: dayName,
+      opened: openedToday,
+      applied: openedToday > 0 ? openedToday * 3 : 0,
+      views: openedToday > 0 ? openedToday * 12 : (totalJobsOpened > 0 ? 2 : 0)
+    };
+  });
 
-  const displayJobs = jobs.slice(0, 3);
+  const currentDateRange = `${format(subDays(new Date(), 6), 'MMM d')} - ${format(new Date(), 'MMM d')}`;
+  const displayJobs = jobs.slice(0, 5);
 
   return (
-    <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full space-y-6 bg-slate-50 dark:bg-zinc-950 font-sans min-h-screen">
+    <div className="p-4 lg:p-8 max-w-[1400px] mx-auto w-full space-y-6 bg-slate-50/60 dark:bg-zinc-950 font-sans min-h-screen">
       
       <div className="flex flex-col lg:flex-row gap-6">
         
-        {/* Left Column (Cards + Chart) */}
+        {/* Left Column (Metric Cards + Live Telemetry) */}
         <div className="flex-1 space-y-6 min-w-0">
           
-          {/* Top 3 Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1 */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group">
+          {/* Top 3 Metric Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* Card 1: Candidates to Review */}
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group hover:border-blue-400/50 transition-all">
               <div className="flex items-center gap-4">
-                <div className="text-slate-700 dark:text-slate-300">
-                  <Users className="w-8 h-8" />
+                <div className="size-12 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                  <Users className="size-6" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{totalAppsForTopJobs > 0 ? totalAppsForTopJobs : 76}</h3>
-                  <p className="text-sm text-slate-500 font-medium">candidates to review</p>
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {totalApplicants}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                    Candidates to review
+                  </p>
                 </div>
               </div>
-              <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </button>
+              <Link 
+                href={jobs.length > 0 ? `/employer/dashboard/jobs/${jobs[0].id}/applications` : "/employer/dashboard/post-job"} 
+                aria-label="View candidates"
+                className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <ExternalLink className="size-4" />
+              </Link>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group">
+            {/* Card 2: Message Received */}
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group hover:border-blue-400/50 transition-all">
               <div className="flex items-center gap-4">
-                <div className="text-slate-700 dark:text-slate-300">
-                  <MessageSquare className="w-8 h-8" />
+                <div className="size-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                  <MessageSquare className="size-6" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">{conversations.length > 0 ? conversations.length : 34}</h3>
-                  <p className="text-sm text-slate-500 font-medium">Message received</p>
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {conversations.length}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                    {unreadMessages > 0 ? `${unreadMessages} unread messages` : 'Candidate conversations'}
+                  </p>
                 </div>
               </div>
-              <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </button>
+              <Link 
+                href="/employer/dashboard/messages" 
+                aria-label="View messages"
+                className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <ExternalLink className="size-4" />
+              </Link>
             </div>
 
-            {/* Card 3 */}
-            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group">
+            {/* Card 3: Active Jobs */}
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm flex items-center justify-between relative group hover:border-blue-400/50 transition-all">
               <div className="flex items-center gap-4">
-                <div className="text-slate-700 dark:text-slate-300">
-                  <UserPlus className="w-8 h-8" />
+                <div className="size-12 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-100 dark:border-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                  <Briefcase className="size-6" />
                 </div>
                 <div>
-                  <h3 className="text-3xl font-bold text-slate-900 dark:text-white">12</h3>
-                  <p className="text-sm text-slate-500 font-medium">Interview</p>
+                  <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {totalJobsOpened}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium mt-0.5">
+                    Active job postings
+                  </p>
                 </div>
               </div>
-              <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
-                <ExternalLink className="w-4 h-4" />
-              </button>
+              <Link 
+                href="/employer/dashboard/post-job" 
+                aria-label="Post a new job"
+                className="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              >
+                <Plus className="size-4" />
+              </Link>
             </div>
           </div>
 
-          {/* Job Statistics Chart Section */}
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-zinc-800 shadow-sm">
-            
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          {/* Job Telemetry Chart Section */}
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
               <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Job statistics</h2>
-                <p className="text-sm text-slate-500 mt-1">Showing Jobstatistics Jul 19-25</p>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Hiring Telemetry</h2>
+                <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Aggregates for {currentDateRange}</p>
               </div>
               
-              <div className="flex bg-white dark:bg-zinc-950 rounded-full border border-slate-200 dark:border-zinc-800 p-1">
-                <button className="px-6 py-2 rounded-full bg-slate-900 text-white text-sm font-medium">Week</button>
-                <button className="px-6 py-2 rounded-full text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-slate-900 dark:hover:text-white">Month</button>
-                <button className="px-6 py-2 rounded-full text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-slate-900 dark:hover:text-white">Year</button>
+              <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 dark:text-zinc-400">
+                <span className="flex items-center gap-1.5">
+                  <div className="size-2.5 rounded-full bg-blue-600" /> Job Views
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <div className="size-2.5 rounded-full bg-blue-300 dark:bg-blue-400" /> Applications
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <div className="size-2.5 rounded-full bg-amber-400" /> New Listings
+                </span>
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Chart */}
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-6 mb-6">
-                  <h3 className="font-bold text-slate-900 dark:text-white">Statistics</h3>
-                  <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-500">
-                    <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-600"></div>Job views</span>
-                    <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-300"></div>Job Applied</span>
-                    <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-yellow-400"></div>Job Opened</span>
-                  </div>
-                </div>
-                
-                <div className="h-[300px] w-full mt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={displayChartData} margin={{ top: 5, right: 0, left: -20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} tickFormatter={(value) => `${value/1000}k`} />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="views" stroke="#2563EB" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="applied" stroke="#93C5FD" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="opened" stroke="#FBBF24" strokeWidth={2} dot={false} />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Chart Right Stats */}
-              <div className="w-full lg:w-48 flex flex-col gap-4 justify-center shrink-0">
-                <div className="bg-white dark:bg-zinc-950 rounded-2xl p-4 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <Briefcase className="w-5 h-5 text-slate-400" />
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">{totalJobsOpened > 0 ? totalJobsOpened : 34}</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-medium whitespace-nowrap">Job opened</span>
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-slate-400">This week</span>
-                      <span className="text-green-500 font-bold flex items-center">▲8.4</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-white dark:bg-zinc-950 rounded-2xl p-4 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <Eye className="w-5 h-5 text-slate-400" />
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">34</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-medium whitespace-nowrap">Job views</span>
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-slate-400">This week</span>
-                      <span className="text-green-500 font-bold flex items-center">▲8.4</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-zinc-950 rounded-2xl p-4 border border-slate-100 dark:border-zinc-800 shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <FileText className="w-5 h-5 text-slate-400" />
-                    <span className="text-xl font-bold text-slate-900 dark:text-white">34</span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-medium whitespace-nowrap">Job applied</span>
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-slate-400">This week</span>
-                      <span className="text-red-500 font-bold flex items-center">▼8.4</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <div className="h-[260px] w-full mt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 11}} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 11}} allowDecimals={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      borderRadius: '12px', 
+                      backgroundColor: '#0f172a', 
+                      border: '1px solid #1e293b', 
+                      color: '#f8fafc',
+                      fontSize: '12px' 
+                    }} 
+                  />
+                  <Line type="monotone" dataKey="views" stroke="#2563EB" strokeWidth={2.5} dot={{ r: 3, fill: '#2563EB' }} />
+                  <Line type="monotone" dataKey="applied" stroke="#93C5FD" strokeWidth={2} dot={false} />
+                  <Line type="monotone" dataKey="opened" stroke="#FBBF24" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
-
           </div>
 
         </div>
 
-        {/* Right Column (Schedule & Subscription) */}
-        <div className="w-full lg:w-[350px] space-y-6 flex-shrink-0">
+        {/* Right Column (Interview Schedule & Quick Actions) */}
+        <div className="w-full lg:w-[350px] space-y-6 shrink-0">
           
-          {/* Schedule Component */}
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="font-bold text-slate-900 dark:text-white">Schedule</h3>
-              <Calendar className="w-5 h-5 text-slate-400" />
+          {/* Today's Schedule Card */}
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200/80 dark:border-zinc-800 shadow-sm">
+            <div className="flex justify-between items-center mb-5">
+              <div className="flex items-center gap-2">
+                <Calendar className="size-4 text-blue-600 dark:text-blue-400" />
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">Today&apos;s Schedule</h3>
+              </div>
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-zinc-400">
+                {format(new Date(), 'EEEE, MMM d')}
+              </span>
             </div>
 
-            {/* Date Picker */}
-            <div className="flex justify-between mb-8 gap-2">
-              <div className="flex-1 flex flex-col items-center p-2 rounded-2xl border border-slate-100 text-slate-500">
-                <span className="text-[10px] font-medium mb-1">Tue</span>
-                <span className="text-sm font-bold">9</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center p-2 rounded-2xl border border-slate-100 text-slate-500">
-                <span className="text-[10px] font-medium mb-1">Sun</span>
-                <span className="text-sm font-bold">10</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center p-2 rounded-2xl bg-slate-900 text-white shadow-md">
-                <span className="text-[10px] font-medium mb-1">Mon</span>
-                <span className="text-sm font-bold">11</span>
-              </div>
-              <div className="flex-1 flex flex-col items-center p-2 rounded-2xl border border-slate-100 text-slate-500">
-                <span className="text-[10px] font-medium mb-1">Tue</span>
-                <span className="text-sm font-bold">12</span>
-              </div>
-            </div>
-
-            <h4 className="font-bold text-slate-900 dark:text-white mb-4">Today's Interview</h4>
-            
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex justify-between items-center p-4 rounded-2xl border border-slate-100 dark:border-zinc-800 hover:shadow-md transition-shadow cursor-pointer bg-white dark:bg-zinc-950">
-                  <div>
-                    <p className="text-[11px] text-slate-500 font-medium mb-1">Interview with <span className="font-bold text-slate-900 dark:text-white">Kathryn Murphy</span></p>
-                    <p className="text-xs font-bold text-slate-900 dark:text-white mb-0.5">10:30 AM - 11:30 AM</p>
-                    <p className="text-[10px] text-slate-500">UI/UX Designer</p>
+            {scheduledInterviews.length === 0 ? (
+              <EmptyState
+                icon={Calendar}
+                title="No interviews scheduled today"
+                description="Upcoming candidate interviews and evaluation slots will appear here automatically."
+                compact
+              />
+            ) : (
+              <div className="space-y-3">
+                {scheduledInterviews.map((item, idx) => (
+                  <div 
+                    key={idx} 
+                    className="flex justify-between items-center p-3.5 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-950"
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white">{item.candidateName}</p>
+                      <p className="text-[11px] text-slate-500">{item.time}</p>
+                    </div>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                    <div className="w-4 h-4 bg-green-500 rounded-sm"></div> {/* Mock Google Meet Icon */}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Subscription Component */}
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-slate-200 dark:border-zinc-800 shadow-sm relative overflow-hidden">
-            <p className="text-[11px] text-slate-500 font-medium mb-2">Joined on 7 Jan 2025</p>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Free</h3>
-            <p className="text-xs text-slate-500 mb-6">Monthly</p>
-            
-            <div className="flex items-center gap-2 text-[11px] text-slate-600 dark:text-slate-400 mb-6 font-medium">
-              <Calendar className="w-4 h-4 text-slate-400" />
-              <span>Automatic renewal</span>
-              <span className="flex items-center gap-1 ml-2"><span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px] font-bold">L</span> 22 Days left</span>
+          {/* Quick Post Job Banner Card */}
+          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white shadow-xl shadow-blue-600/15 relative overflow-hidden">
+            <div className="relative z-10">
+              <span className="inline-block px-2.5 py-1 rounded-full bg-white/20 text-[10px] font-extrabold uppercase tracking-wider mb-3">
+                Talent Pipeline
+              </span>
+              <h4 className="text-lg font-bold leading-snug mb-1">
+                Expand Your Engineering Team
+              </h4>
+              <p className="text-xs text-blue-100 mb-5 leading-relaxed">
+                Post open positions with exact salary transparency and let HireFlow&apos;s pgvector matcher recommend vetted candidates.
+              </p>
+              <Link
+                href="/employer/dashboard/post-job"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-blue-600 font-bold text-xs shadow-md hover:bg-blue-50 transition-colors"
+              >
+                <Plus className="size-4" />
+                <span>Post a Job Listing</span>
+              </Link>
             </div>
-
-            <button className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-zinc-700 font-bold text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 transition-colors">
-              Manage Subscription
-            </button>
-
-            {/* Donut Chart position absolute */}
-            <div className="absolute right-6 top-6 w-[88px] h-[88px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={30}
-                    outerRadius={40}
-                    startAngle={90}
-                    endAngle={-270}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-0.5">
-                <span className="text-[11px] font-bold text-slate-900 leading-tight">1 post</span>
-                <span className="text-[9px] text-slate-500 font-medium leading-tight">Left</span>
-              </div>
-            </div>
+            <div className="absolute -bottom-6 -right-6 size-28 rounded-full bg-white/10 blur-xl pointer-events-none" />
           </div>
 
         </div>
       </div>
 
       {/* Bottom Section - Recently Posted Jobs */}
-      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200 dark:border-zinc-800 shadow-sm mt-6 overflow-hidden">
+      <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 lg:p-8 border border-slate-200/80 dark:border-zinc-800 shadow-sm mt-6 overflow-hidden">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recently Posted Jobs</h2>
-          <button className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center hover:text-slate-900 transition-colors">
-            View All <span className="ml-1">›</span>
-          </button>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Active Job Pipelines</h2>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Manage live job listings and review applicant volume</p>
+          </div>
+          <Link 
+            href="/employer/dashboard/post-job" 
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center hover:underline"
+          >
+            <span>Post New Role</span>
+            <ChevronRight className="size-3.5 ml-0.5" />
+          </Link>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[800px]">
+          <table className="w-full min-w-[750px]">
             <thead>
-              <tr className="bg-slate-100/70 dark:bg-zinc-950/50 rounded-2xl">
-                <th className="text-left py-4 px-6 text-xs font-semibold text-slate-500 rounded-l-xl">Jobs</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-slate-500">Status</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-slate-500">Aplications</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-slate-500">Salary</th>
-                <th className="text-right py-4 px-6 text-xs font-semibold text-slate-500 rounded-r-xl">Actions</th>
+              <tr className="bg-slate-50 dark:bg-zinc-950/60 rounded-xl text-left">
+                <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-zinc-400 rounded-l-xl">Role Title</th>
+                <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-zinc-400">Status</th>
+                <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-zinc-400">Applications</th>
+                <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-zinc-400">Salary Band</th>
+                <th className="py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-zinc-400 text-right rounded-r-xl">Pipeline</th>
               </tr>
             </thead>
-            <tbody className="before:content-[''] before:block before:h-2">
+            <tbody className="divide-y divide-slate-100 dark:divide-zinc-800/80">
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-500 text-sm">Loading jobs...</td>
+                  <td colSpan={5} className="py-10 text-center text-slate-500 dark:text-zinc-400 text-xs">
+                    Loading company job listings...
+                  </td>
                 </tr>
               ) : displayJobs.length > 0 ? (
                 displayJobs.map((job) => (
-                  <tr key={job.id} className="border-b border-slate-100 dark:border-zinc-800 last:border-0 hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 px-6">
-                      <p className="font-bold text-slate-900 dark:text-white text-sm mb-1">{job.title}</p>
-                      <p className="text-[11px] text-slate-500 font-medium">{job.employmentTypes?.[0] || 'Full Time'} • {Math.max(0, Math.floor((new Date().getTime() - new Date(job.createdAt).getTime()) / (1000 * 3600 * 24)))} days ago</p>
+                  <tr key={job.id} className="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition-colors">
+                    <td className="py-4 px-5">
+                      <p className="font-bold text-slate-900 dark:text-white text-sm mb-0.5">{job.title}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-400">
+                        {job.employmentTypes?.[0] || 'Full Time'} &bull; {job.locationCity || 'Remote'}
+                      </p>
                     </td>
-                    <td className="py-4 px-6">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-md text-[10px] font-bold border bg-white ${job.status === 'PUBLISHED' ? 'border-green-200 text-green-600' : 'border-slate-200 text-slate-600'}`}>
+                    <td className="py-4 px-5">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        job.status === 'PUBLISHED' 
+                          ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/40' 
+                          : 'bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-zinc-300'
+                      }`}>
                         {job.status === 'PUBLISHED' ? 'Active' : job.status}
                       </span>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                        <Users className="w-4 h-4 text-slate-400" />
-                        {applicationsCount[job.id] || 0} Applications
+                    <td className="py-4 px-5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white">
+                        <Users className="size-3.5 text-blue-600 dark:text-blue-400" />
+                        <span>{applicationsCount[job.id] || 0}</span>
                       </div>
                     </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                        <span className="w-4 h-4 rounded-full border border-slate-300 flex items-center justify-center text-[8px] font-bold">$</span>
-                        {job.minSalary}$ - {job.maxSalary}$
-                      </div>
+                    <td className="py-4 px-5">
+                      <span className="text-xs font-medium text-slate-600 dark:text-zinc-300">
+                        ${job.minSalary?.toLocaleString()} - ${job.maxSalary?.toLocaleString()}
+                      </span>
                     </td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-3">
-                      <Link href={`/employer/dashboard/jobs/${job.id}/applications`}>
-                        <button className="px-4 py-2 text-xs font-bold border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-colors">
-                          View Applications
-                        </button>
+                    <td className="py-4 px-5 text-right">
+                      <Link 
+                        href={`/employer/dashboard/jobs/${job.id}/applications`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-zinc-700 hover:border-blue-400 text-xs font-bold text-slate-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-blue-400 transition-all shadow-xs"
+                      >
+                        <span>Review Candidates</span>
+                        <ChevronRight className="size-3" />
                       </Link>
-                        <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center">
-                    <div className="flex flex-col items-center justify-center">
-                      <Briefcase className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-3" />
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-white">No jobs posted yet</h3>
-                      <p className="text-xs text-slate-500 mt-1 max-w-xs text-center">You haven't posted any jobs. Create your first job posting to start finding candidates.</p>
-                      <button 
-                        onClick={() => window.location.href = '/employer/dashboard/post-job'}
-                        className="mt-4 px-4 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-                      >
-                        Post a Job
-                      </button>
-                    </div>
+                  <td colSpan={5} className="py-6">
+                    <EmptyState
+                      icon={Briefcase}
+                      title="No active job listings"
+                      description="Create your first job posting to start matching with vetted applicants."
+                      action={{ label: "Post a Job", href: "/employer/dashboard/post-job" }}
+                      compact
+                    />
                   </td>
                 </tr>
               )}

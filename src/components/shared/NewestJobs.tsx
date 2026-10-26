@@ -55,27 +55,27 @@ export function NewestJobs() {
   }, []);
 
   return (
-    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-white/[0.06] transition-colors">
+    <section className="w-full py-20 px-4 sm:px-6 lg:px-8 linear-canvas linear-grid border-t border-slate-200/80 dark:border-white/[0.06] transition-colors">
       <div className="mx-auto max-w-7xl">
         
         {/* Section Header */}
         <div className="flex flex-col items-start sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-[#8a8f98]">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full linear-pill text-xs font-semibold text-slate-600 dark:text-[#8a8f98]">
               <span className="size-1.5 rounded-full bg-blue-500 animate-pulse" />
               <span>Real-Time Job Pipeline</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#f7f8f8]">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-[#f7f8f8]">
               Featured Positions
             </h2>
-            <p className="text-sm sm:text-base text-[#8a8f98] font-normal">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-[#8a8f98] font-normal">
               High-growth engineering, product, and AI roles with verified salary bands.
             </p>
           </div>
 
           <Link
             href="/jobs"
-            className="group inline-flex items-center gap-1.5 font-semibold text-xs sm:text-sm text-[#8a8f98] hover:text-[#f7f8f8] px-3.5 py-2 rounded-lg linear-card linear-card-hover transition-colors"
+            className="group inline-flex items-center gap-1.5 font-semibold text-xs sm:text-sm text-slate-700 dark:text-[#8a8f98] hover:text-slate-900 dark:hover:text-[#f7f8f8] px-3.5 py-2 rounded-lg linear-card linear-card-hover transition-colors"
           >
             <span>View all 15+ jobs</span>
             <ChevronRight className="size-4 transition-transform duration-160 group-hover:translate-x-0.5" />
