@@ -11,7 +11,9 @@ import {
   Loader2,
   ChevronRight,
   Filter,
-  DollarSign
+  DollarSign,
+  Video,
+  Bot
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { Navbar } from '@/components/shared/Navbar';
@@ -53,9 +55,26 @@ export default function ApplicationsPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>('ALL');
+  const [startingAiAppId, setStartingAiAppId] = useState<string | null>(null);
   
   const { user, isAuthenticated } = useAuthStore();
   const router = useRouter();
+
+  const handleStartAiInterview = async (applicationId: string) => {
+    setStartingAiAppId(applicationId);
+    try {
+      const res = await apiClient.post<{ session: { id: string } }>('/ai-interviews/start', {
+        applicationId,
+      });
+      if (res.data?.session?.id) {
+        router.push(`/interviews/ai/${res.data.session.id}`);
+      }
+    } catch (err: any) {
+      console.error('Failed to launch AI interview:', err);
+      alert(err.message || 'Failed to start AI interview');
+      setStartingAiAppId(null);
+    }
+  };
 
   useEffect(() => {
     // If we're definitely missing user after initial mount, we could redirect,
@@ -163,8 +182,7 @@ export default function ApplicationsPage() {
         ) : (
           <div className="grid gap-4">
             {filteredApplications.map((app) => (
-              <Link 
-                href={`/jobs/${app.job.id}`} 
+              <div 
                 key={app.id}
                 className="group block bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800/80 rounded-2xl p-5 lg:p-6 hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-none dark:hover:border-zinc-700 transition-all duration-300 relative overflow-hidden"
               >
@@ -195,9 +213,11 @@ export default function ApplicationsPage() {
                       </span>
                     </div>
                     
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white truncate mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {app.job.title}
-                    </h2>
+                    <Link href={`/jobs/${app.job.id}`} className="hover:underline">
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white truncate mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {app.job.title}
+                      </h2>
+                    </Link>
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
                       <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-zinc-950 px-3 py-1 rounded-lg border border-slate-100 dark:border-zinc-800">
@@ -220,19 +240,55 @@ export default function ApplicationsPage() {
                   </div>
 
                   {/* Status & Action */}
-                  <div className="flex sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-zinc-800 gap-4 shrink-0">
+                  <div className="flex sm:flex-col items-center sm:items-end justify-between mt-4 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-0 border-slate-100 dark:border-zinc-800 gap-3 shrink-0">
                     <span className={`px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wide uppercase border ${statusConfig[app.status]?.color || statusConfig['APPLIED'].color}`}>
                       {statusConfig[app.status]?.label || app.status}
                     </span>
                     
-                    <div className="text-blue-600 dark:text-blue-400 text-sm font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-                      View Details
-                      <ChevronRight className="w-4 h-4" />
+                    <div className="flex items-center gap-2">
+                      {app.status === 'INTERVIEW' && (
+                        <Link
+                          href={`/interviews/${app.id}`}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-600/20 transition-all duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <Video className="w-3.5 h-3.5 animate-pulse" />
+                          Live Room
+                        </Link>
+                      )}
+
+                      {app.status !== 'REJECTED' && (
+                        <button
+                          type="button"
+                          onClick={() => handleStartAiInterview(app.id)}
+                          disabled={startingAiAppId === app.id}
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 rounded-xl text-xs font-bold transition-all disabled:opacity-50"
+                        >
+                          {startingAiAppId === app.id ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Launching...
+                            </>
+                          ) : (
+                            <>
+                              <Bot className="w-3.5 h-3.5" />
+                              AI Screening
+                            </>
+                          )}
+                        </button>
+                      )}
+
+                      <Link
+                        href={`/jobs/${app.job.id}`}
+                        className="text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center gap-1 opacity-90 hover:opacity-100 transition-all"
+                      >
+                        Details
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </Link>
                     </div>
                   </div>
 
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bookmark, Clock, Calendar, MapPin, DollarSign, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { Bookmark, Clock, Calendar, MapPin, DollarSign, ChevronRight, Loader2, Sparkles, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useJobStore } from '@/store/useJobStore';
@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useApplicationStore } from '@/store/useApplicationStore';
 import { JobCard } from '@/components/candidate/jobs/JobCard';
 import { AtsMatchModal } from '@/components/candidate/jobs/AtsMatchModal';
+import { ColdMessageModal } from '@/components/candidate/jobs/ColdMessageModal';
 import { apiClient } from '@/lib/api';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -33,6 +34,7 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
   const [hasApplied, setHasApplied] = useState(false);
   const [isCheckingApplication, setIsCheckingApplication] = useState(true);
   const [isAtsModalOpen, setIsAtsModalOpen] = useState(false);
+  const [isColdModalOpen, setIsColdModalOpen] = useState(false);
 
   const handleApply = async () => {
     if (!user) {
@@ -168,8 +170,19 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
                     'Apply Now'
                   )}
                 </button>
-                <button className="border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-8 py-2.5 rounded-lg font-medium transition-colors">
-                  Message
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (!user) {
+                      router.push('/auth/login');
+                      return;
+                    }
+                    setIsColdModalOpen(true);
+                  }}
+                  className="flex items-center gap-2 border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-6 py-2.5 rounded-lg font-medium transition-colors"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  Cold Message
                 </button>
               </div>
             </div>
@@ -395,6 +408,17 @@ export default function JobDetailsPage({ params }: { params: Promise<{ id: strin
           jobTitle={job.title}
           companyName={job.company?.name || 'Company'}
           breakdown={matchBreakdown}
+          matchScore={matchScore}
+        />
+
+        {/* Candidate Recruiter Cold Outreach Modal */}
+        <ColdMessageModal
+          isOpen={isColdModalOpen}
+          onClose={() => setIsColdModalOpen(false)}
+          jobId={id}
+          jobTitle={job.title}
+          companyName={job.company?.name || 'Company'}
+          companyLogoUrl={job.company?.logoUrl}
           matchScore={matchScore}
         />
 

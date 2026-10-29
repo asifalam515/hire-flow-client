@@ -7,6 +7,14 @@ export interface ChatData {
   time: string;
   unreadCount: number;
   isOnline: boolean;
+  candidateEmail?: string;
+  candidateUserId?: string;
+  atsContext?: {
+    matchScore: number | null;
+    jobTitle: string | null;
+    applicationId: string;
+    status: string;
+  } | null;
 }
 
 export interface MessageData {

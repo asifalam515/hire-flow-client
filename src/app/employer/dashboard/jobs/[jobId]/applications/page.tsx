@@ -15,10 +15,14 @@ import {
   GraduationCap, 
   MessageSquare,
   Sparkles,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Video,
+  Bot
 } from 'lucide-react';
 import Link from 'next/link';
 import { AtsScorecardModal } from '@/components/employer/AtsScorecardModal';
+import { ScheduleInterviewModal } from '@/components/employer/ScheduleInterviewModal';
+import { AiScreeningModal } from '@/components/employer/AiScreeningModal';
 
 interface CandidateUser {
   id: string;
@@ -69,6 +73,8 @@ export default function JobApplicationsPage() {
   const [sortBy, setSortBy] = useState<'MATCH' | 'RECENT'>('MATCH');
   const [isMessaging, setIsMessaging] = useState<string | null>(null);
   const [selectedScorecardApp, setSelectedScorecardApp] = useState<Application | null>(null);
+  const [schedulingApp, setSchedulingApp] = useState<Application | null>(null);
+  const [aiScreeningApp, setAiScreeningApp] = useState<Application | null>(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -375,6 +381,34 @@ export default function JobApplicationsPage() {
                 
                 <div className="flex items-center gap-2">
                   <button
+                    type="button"
+                    onClick={() => setAiScreeningApp(app)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    <Bot className="w-3.5 h-3.5" />
+                    AI Screening
+                  </button>
+
+                  {app.status === 'INTERVIEW' ? (
+                    <Link
+                      href={`/interviews/${app.id}`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-colors shadow-xs"
+                    >
+                      <Video className="w-3.5 h-3.5" />
+                      Join Room
+                    </Link>
+                  ) : app.status !== 'REJECTED' ? (
+                    <button
+                      type="button"
+                      onClick={() => setSchedulingApp(app)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 hover:bg-blue-100 dark:hover:bg-blue-900/60 rounded-lg text-xs font-bold transition-colors"
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      Schedule
+                    </button>
+                  ) : null}
+
+                  <button
                     onClick={() => handleMessageCandidate(app.candidate.user.id)}
                     disabled={isMessaging === app.candidate.user.id}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
@@ -415,6 +449,28 @@ export default function JobApplicationsPage() {
         jobTitle={jobTitle}
         matchScore={selectedScorecardApp?.matchScore}
         breakdown={selectedScorecardApp?.matchBreakdown}
+      />
+
+      {/* Recruiter Schedule LiveKit Interview Modal */}
+      <ScheduleInterviewModal
+        isOpen={!!schedulingApp}
+        onClose={() => setSchedulingApp(null)}
+        applicationId={schedulingApp?.id || ''}
+        candidateName={`${schedulingApp?.candidate.user.firstName || ''} ${schedulingApp?.candidate.user.lastName || ''}`.trim() || 'Applicant'}
+        candidateEmail={schedulingApp?.candidate.user.email || ''}
+        jobTitle={jobTitle}
+        onScheduledSuccess={(appId) => {
+          setApplications(prev => prev.map(a => a.id === appId ? { ...a, status: 'INTERVIEW' } : a));
+        }}
+      />
+
+      {/* Recruiter Autonomous AI Screening & Scorecard Modal */}
+      <AiScreeningModal
+        isOpen={!!aiScreeningApp}
+        onClose={() => setAiScreeningApp(null)}
+        applicationId={aiScreeningApp?.id || ''}
+        candidateName={`${aiScreeningApp?.candidate.user.firstName || ''} ${aiScreeningApp?.candidate.user.lastName || ''}`.trim() || 'Candidate'}
+        jobTitle={jobTitle}
       />
     </div>
   );

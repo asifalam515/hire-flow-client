@@ -64,6 +64,21 @@ export function ChatList({ chats, selectedChatId, onSelectChat }: ChatListProps)
                   </span>
                 )}
               </div>
+
+              {chat.atsContext && (
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  {typeof chat.atsContext.matchScore === 'number' && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                      ⚡ {chat.atsContext.matchScore}% Fit
+                    </span>
+                  )}
+                  {chat.atsContext.jobTitle && (
+                    <span className="text-[11px] text-slate-500 dark:text-zinc-400 truncate">
+                      {chat.atsContext.jobTitle}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </button>
         ))}

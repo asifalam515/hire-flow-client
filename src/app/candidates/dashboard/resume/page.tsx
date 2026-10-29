@@ -18,8 +18,10 @@ import {
   Copy,
   Loader2,
   Check,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
+import Link from 'next/link';
 import * as candidateService from '../../../../services/candidate.service';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -379,6 +381,13 @@ export default function CandidateResumePage() {
               <p className="text-sm text-slate-500 mb-4">{profile.user.email}</p>
               
               <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                <Link
+                  href="/candidates/dashboard/resume/studio"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center gap-2 transform hover:-translate-y-0.5"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Launch AI CV Studio
+                </Link>
                 <button onClick={handleViewResume} className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold transition-colors flex items-center gap-2">
                   View resume
                 </button>
