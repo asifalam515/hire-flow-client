@@ -137,44 +137,44 @@ export default function CompaniesPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#08090a] transition-colors duration-200">
       <Navbar />
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
         
         {/* Header and Search */}
         <div className="flex flex-col items-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-[#f7f8f8] mb-8 tracking-tight">
             Discover the Best Workplaces
           </h1>
 
           <div className="w-full max-w-4xl">
-            <div className="flex flex-col sm:flex-row shadow-sm border border-slate-200 rounded-lg overflow-hidden bg-white mb-6">
-              <div className="flex-1 flex items-center px-4 py-3 sm:border-r border-slate-200">
-                <Search className="w-5 h-5 text-slate-400 shrink-0" />
+            <div className="flex flex-col sm:flex-row shadow-sm border border-slate-200 dark:border-white/[0.08] rounded-xl overflow-hidden bg-white dark:bg-[#0f1011] mb-6">
+              <div className="flex-1 flex items-center px-4 py-3 sm:border-r border-slate-200 dark:border-white/[0.08]">
+                <Search className="w-5 h-5 text-slate-400 dark:text-zinc-500 shrink-0" />
                 <input 
                   type="text" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Job title or keywords" 
-                  className="w-full pl-3 pr-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+                  className="w-full pl-3 pr-2 text-sm text-slate-900 dark:text-[#f7f8f8] placeholder:text-slate-400 dark:placeholder:text-zinc-500 bg-transparent focus:outline-none"
                 />
               </div>
-              <div className="flex-1 flex items-center px-4 py-3 border-t sm:border-t-0 border-slate-200">
-                <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
+              <div className="flex-1 flex items-center px-4 py-3 border-t sm:border-t-0 border-slate-200 dark:border-white/[0.08]">
+                <MapPin className="w-5 h-5 text-slate-400 dark:text-zinc-500 shrink-0" />
                 <select 
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full pl-2 pr-2 text-sm text-slate-900 bg-transparent focus:outline-none appearance-none cursor-pointer"
+                  className="w-full pl-2 pr-2 text-sm text-slate-900 dark:text-[#f7f8f8] bg-transparent focus:outline-none appearance-none cursor-pointer"
                 >
-                  <option value="">location</option>
-                  <option value="New York, NY">New York, NY</option>
-                  <option value="San Francisco, CA">San Francisco, CA</option>
-                  <option value="Remote">Remote</option>
-                  <option value="London, UK">London, UK</option>
-                  <option value="Toronto, CA">Toronto, CA</option>
+                  <option value="" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">location</option>
+                  <option value="New York, NY" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">New York, NY</option>
+                  <option value="San Francisco, CA" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">San Francisco, CA</option>
+                  <option value="Remote" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">Remote</option>
+                  <option value="London, UK" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">London, UK</option>
+                  <option value="Toronto, CA" className="dark:bg-[#0f1011] dark:text-[#f7f8f8]">Toronto, CA</option>
                 </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-500 shrink-0" />
               </div>
               <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 sm:py-0 transition-colors h-auto sm:h-[52px]">
                 Search
@@ -184,25 +184,25 @@ export default function CompaniesPage() {
             <div className="flex flex-wrap items-center justify-center gap-3">
               <button 
                 onClick={() => setSortMode('popular')}
-                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'popular' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortMode === 'popular' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}`}
               >
                 Most popular
               </button>
               <button 
                 onClick={() => setSortMode('viewed')}
-                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'viewed' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortMode === 'viewed' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}`}
               >
                 Most viewed
               </button>
               <button 
                 onClick={() => setSortMode('rated')}
-                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'rated' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortMode === 'rated' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}`}
               >
                 Top-rated
               </button>
               <button 
                 onClick={() => setSortMode('successful')}
-                className={`px-4 py-1.5 text-sm font-medium rounded transition-colors ${sortMode === 'successful' ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors ${sortMode === 'successful' ? 'bg-blue-600 text-white shadow-sm' : 'bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]'}`}
               >
                 Most successful
               </button>
@@ -215,28 +215,28 @@ export default function CompaniesPage() {
           
           {/* Left Sidebar */}
           <div className="w-full lg:w-[280px] shrink-0">
-            <h2 className="text-lg font-bold text-slate-900 mb-6">All Filters</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-[#f7f8f8] mb-6">All Filters</h2>
             
             {(selectedWorkplaces.length > 0 || selectedGender || selectedCompanySize) && (
               <div className="mb-8">
-                <h3 className="text-sm font-bold text-slate-900 mb-3">Active Filters</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8] mb-3">Active Filters</h3>
                 <div className="flex flex-wrap gap-2">
                   {selectedWorkplaces.map(wp => (
-                    <div key={wp} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                    <div key={wp} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-white/[0.06] rounded-md text-xs font-medium text-slate-700 dark:text-[#8a8f98] border border-slate-200 dark:border-white/[0.08]">
                       {wp}
-                      <X onClick={() => clearFilter('workplace', wp)} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                      <X onClick={() => clearFilter('workplace', wp)} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900 dark:hover:text-[#f7f8f8]" />
                     </div>
                   ))}
                   {selectedGender && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-white/[0.06] rounded-md text-xs font-medium text-slate-700 dark:text-[#8a8f98] border border-slate-200 dark:border-white/[0.08]">
                       {selectedGender}
-                      <X onClick={() => clearFilter('gender')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                      <X onClick={() => clearFilter('gender')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900 dark:hover:text-[#f7f8f8]" />
                     </div>
                   )}
                   {selectedCompanySize && (
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 dark:bg-white/[0.06] rounded-md text-xs font-medium text-slate-700 dark:text-[#8a8f98] border border-slate-200 dark:border-white/[0.08]">
                       {selectedCompanySize}
-                      <X onClick={() => clearFilter('companySize')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900" />
+                      <X onClick={() => clearFilter('companySize')} className="w-3.5 h-3.5 cursor-pointer hover:text-slate-900 dark:hover:text-[#f7f8f8]" />
                     </div>
                   )}
                 </div>
@@ -244,13 +244,13 @@ export default function CompaniesPage() {
             )}
 
             {/* Workplace Accordion */}
-            <div className="border-t border-slate-200 py-4">
+            <div className="border-t border-slate-200 dark:border-white/[0.08] py-4">
               <button 
                 onClick={() => toggleSection('workplace')}
                 className="flex items-center justify-between w-full text-left"
               >
-                <span className="text-sm font-bold text-slate-900">Workplace</span>
-                {openSections.workplace ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">Workplace</span>
+                {openSections.workplace ? <ChevronUp className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" /> : <ChevronDown className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" />}
               </button>
               {openSections.workplace && (
                 <div className="mt-4 space-y-3">
@@ -262,13 +262,13 @@ export default function CompaniesPage() {
                             prev.includes(item) ? prev.filter(w => w !== item) : [...prev, item]
                           )
                         }}
-                        className={`w-4 h-4 border rounded-[2px] flex items-center justify-center transition-colors ${
-                          selectedWorkplaces.includes(item) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                        className={`w-4 h-4 border rounded-[3px] flex items-center justify-center transition-colors ${
+                          selectedWorkplaces.includes(item) ? 'bg-blue-600 border-blue-600' : 'border-slate-300 dark:border-zinc-700 group-hover:border-blue-500'
                         }`}
                       >
-                        {selectedWorkplaces.includes(item) && <div className="w-2 h-2 bg-white rounded-sm" />}
+                        {selectedWorkplaces.includes(item) && <div className="w-2 h-2 bg-white rounded-xs" />}
                       </div>
-                      <span className="text-sm text-slate-600">{item}</span>
+                      <span className="text-sm text-slate-600 dark:text-[#8a8f98] group-hover:text-slate-900 dark:group-hover:text-[#f7f8f8] transition-colors">{item}</span>
                     </label>
                   ))}
                 </div>
@@ -276,13 +276,13 @@ export default function CompaniesPage() {
             </div>
 
             {/* Gender Accordion */}
-            <div className="border-t border-slate-200 py-4">
+            <div className="border-t border-slate-200 dark:border-white/[0.08] py-4">
               <button 
                 onClick={() => toggleSection('gender')}
                 className="flex items-center justify-between w-full text-left"
               >
-                <span className="text-sm font-bold text-slate-900">Gender</span>
-                {openSections.gender ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">Gender</span>
+                {openSections.gender ? <ChevronUp className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" /> : <ChevronDown className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" />}
               </button>
               {openSections.gender && (
                 <div className="mt-4 space-y-3">
@@ -291,12 +291,12 @@ export default function CompaniesPage() {
                       <div 
                         onClick={() => setSelectedGender(selectedGender === item ? '' : item)}
                         className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                          selectedGender === item ? 'border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                          selectedGender === item ? 'border-blue-600' : 'border-slate-300 dark:border-zinc-700 group-hover:border-blue-500'
                         }`}
                       >
                         {selectedGender === item && <div className="w-2 h-2 rounded-full bg-blue-600" />}
                       </div>
-                      <span className="text-sm text-slate-600">{item}</span>
+                      <span className="text-sm text-slate-600 dark:text-[#8a8f98] group-hover:text-slate-900 dark:group-hover:text-[#f7f8f8] transition-colors">{item}</span>
                     </label>
                   ))}
                 </div>
@@ -304,13 +304,13 @@ export default function CompaniesPage() {
             </div>
 
             {/* Company Size Accordion */}
-            <div className="border-t border-slate-200 py-4">
+            <div className="border-t border-slate-200 dark:border-white/[0.08] py-4">
               <button 
                 onClick={() => toggleSection('companySize')}
                 className="flex items-center justify-between w-full text-left"
               >
-                <span className="text-sm font-bold text-slate-900">Company size</span>
-                {openSections.companySize ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
+                <span className="text-sm font-bold text-slate-900 dark:text-[#f7f8f8]">Company size</span>
+                {openSections.companySize ? <ChevronUp className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" /> : <ChevronDown className="w-4 h-4 text-slate-500 dark:text-[#8a8f98]" />}
               </button>
               {openSections.companySize && (
                 <div className="mt-4 space-y-3">
@@ -319,12 +319,12 @@ export default function CompaniesPage() {
                       <div 
                         onClick={() => setSelectedCompanySize(selectedCompanySize === item ? '' : item)}
                         className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                          selectedCompanySize === item ? 'border-blue-600' : 'border-slate-300 group-hover:border-blue-500'
+                          selectedCompanySize === item ? 'border-blue-600' : 'border-slate-300 dark:border-zinc-700 group-hover:border-blue-500'
                         }`}
                       >
                         {selectedCompanySize === item && <div className="w-2 h-2 rounded-full bg-blue-600" />}
                       </div>
-                      <span className="text-sm text-slate-600">{item}</span>
+                      <span className="text-sm text-slate-600 dark:text-[#8a8f98] group-hover:text-slate-900 dark:group-hover:text-[#f7f8f8] transition-colors">{item}</span>
                     </label>
                   ))}
                 </div>
@@ -339,10 +339,10 @@ export default function CompaniesPage() {
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
               </div>
             ) : filteredCompanies.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-xl border border-slate-200">
-                <Building2 className="w-12 h-12 text-slate-400 mb-4" />
-                <h3 className="text-lg font-bold text-slate-900">No companies found</h3>
-                <p className="text-slate-500">Try adjusting your filters or search terms.</p>
+              <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-[#0f1011] rounded-2xl border border-slate-200 dark:border-white/[0.08]">
+                <Building2 className="w-12 h-12 text-slate-400 dark:text-zinc-600 mb-4" />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-[#f7f8f8]">No companies found</h3>
+                <p className="text-slate-500 dark:text-[#8a8f98]">Try adjusting your filters or search terms.</p>
               </div>
             ) : (
               filteredCompanies.map((company) => {
@@ -351,14 +351,14 @@ export default function CompaniesPage() {
                   <Link 
                     href={`/companies/${company.slug}`} 
                     key={company.id}
-                    className="flex flex-col sm:flex-row gap-5 p-5 bg-white border border-slate-200 rounded-xl hover:border-blue-300 hover:shadow-md transition-all group relative"
+                    className="flex flex-col sm:flex-row gap-5 p-5 bg-white dark:bg-[#0f1011] border border-slate-200 dark:border-white/[0.08] rounded-2xl hover:border-blue-400/50 dark:hover:border-blue-500/40 hover:shadow-lg dark:hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.6)] transition-all group relative"
                   >
                     {/* Logo */}
-                    <div className="w-[72px] h-[72px] shrink-0 rounded-full border border-slate-100 bg-white flex items-center justify-center overflow-hidden p-2 shadow-sm">
+                    <div className="w-[72px] h-[72px] shrink-0 rounded-2xl border border-slate-100 dark:border-white/[0.08] bg-white dark:bg-[#16181a] flex items-center justify-center overflow-hidden p-2 shadow-xs">
                       {company.logoUrl ? (
                         <img src={company.logoUrl} alt={company.name} className="w-full h-full object-contain" />
                       ) : (
-                        <span className="text-xl font-bold text-slate-400">{company.name.charAt(0)}</span>
+                        <span className="text-xl font-bold text-slate-600 dark:text-zinc-400">{company.name.charAt(0)}</span>
                       )}
                     </div>
                     
@@ -366,37 +366,37 @@ export default function CompaniesPage() {
                     <div className="flex-1 min-w-0 pr-6">
                       <div className="flex items-start justify-between mb-1">
                         <div>
-                          <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-[#f7f8f8] group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             {company.name}
                           </h3>
-                          <p className="text-xs text-slate-500 mt-0.5 mb-2">
+                          <p className="text-xs text-slate-500 dark:text-[#8a8f98] mt-0.5 mb-2">
                             {company.field ? company.field : 'Technology'} · {stats.location}
                           </p>
                         </div>
                         {/* Rating */}
-                        <div className="flex items-center gap-1 shrink-0 bg-white shadow-sm border border-amber-100 rounded-full px-2 py-0.5">
-                          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                          <span className="text-xs font-bold text-slate-700">{stats.rating}</span>
+                        <div className="flex items-center gap-1 shrink-0 bg-amber-50/60 dark:bg-amber-950/30 shadow-xs border border-amber-200/60 dark:border-amber-800/40 rounded-full px-2 py-0.5">
+                          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                          <span className="text-xs font-bold text-amber-900 dark:text-amber-300">{stats.rating}</span>
                         </div>
                       </div>
 
                       {/* Badges */}
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold text-blue-700 border border-blue-200 bg-blue-50/50 uppercase tracking-wide">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50 bg-blue-50/70 dark:bg-blue-950/40 uppercase tracking-wide">
                           Global
                         </span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold text-emerald-700 border border-emerald-200 bg-emerald-50/50 uppercase tracking-wide">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/70 dark:bg-emerald-950/40 uppercase tracking-wide">
                           Hiring
                         </span>
                       </div>
 
                       {/* Description */}
-                      <p className="text-sm text-slate-600 line-clamp-2 mb-4 leading-relaxed">
+                      <p className="text-sm text-slate-600 dark:text-[#8a8f98] line-clamp-2 mb-4 leading-relaxed">
                         {company.description || `${company.name} is a leading organization dedicated to excellence and innovation in their field.`}
                       </p>
 
                       {/* Footer Stats */}
-                      <div className="flex items-center gap-6 text-xs text-slate-500 font-medium">
+                      <div className="flex items-center gap-6 text-xs text-slate-500 dark:text-[#8a8f98] font-medium">
                         <span>{company._count.jobs || (Math.abs(company.name.charCodeAt(0)) % 100) + 10} Jobs</span>
                         <span>{stats.reviews} Reviews</span>
                         <span>{stats.salaries} Salaries</span>
@@ -405,7 +405,7 @@ export default function CompaniesPage() {
 
                     {/* Right Chevron */}
                     <div className="absolute right-6 top-1/2 -translate-y-1/2">
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      <ChevronRight className="w-5 h-5 text-slate-400 dark:text-zinc-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                     </div>
                   </Link>
                 );
@@ -415,26 +415,26 @@ export default function CompaniesPage() {
             {/* Pagination */}
             {!isLoading && companies.length > 0 && (
               <div className="flex items-center justify-center gap-1 mt-8">
-                <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <button className="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center border border-slate-900 rounded bg-white text-sm font-bold text-slate-900">
+                <button className="w-8 h-8 flex items-center justify-center border border-slate-900 dark:border-white rounded-lg bg-slate-900 dark:bg-white text-sm font-bold text-white dark:text-[#08090a]">
                   1
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded text-sm font-medium text-slate-600">
+                <button className="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0f1011] rounded-lg text-sm font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]">
                   2
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded text-sm font-medium text-slate-600">
+                <button className="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0f1011] rounded-lg text-sm font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]">
                   3
                 </button>
-                <span className="w-8 h-8 flex items-center justify-center text-slate-400 text-sm">...</span>
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded text-sm font-medium text-slate-600">
+                <span className="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-zinc-600 text-sm">...</span>
+                <button className="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0f1011] rounded-lg text-sm font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]">
                   9
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-slate-50 rounded text-sm font-medium text-slate-600">
+                <button className="w-8 h-8 flex items-center justify-center border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0f1011] rounded-lg text-sm font-medium text-slate-600 dark:text-[#8a8f98] hover:bg-slate-50 dark:hover:bg-white/[0.04]">
                   10
                 </button>
-                <button className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <button className="w-8 h-8 flex items-center justify-center text-slate-400 dark:text-zinc-500 hover:text-slate-900 dark:hover:text-[#f7f8f8] transition-colors">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>

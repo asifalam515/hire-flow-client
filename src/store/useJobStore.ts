@@ -13,12 +13,24 @@ export interface JobFilters {
   maxSalary?: number;
 }
 
+export interface AtsBreakdown {
+  overallScore: number;
+  semanticScore: number;
+  skillsScore: number;
+  experienceScore: number;
+  matchedSkills: string[];
+  missingSkills: string[];
+  recommendation: 'STRONG_MATCH' | 'GOOD_MATCH' | 'MODERATE_MATCH' | 'LOW_MATCH';
+  summary: string;
+}
+
 interface JobState {
   jobs: Job[];
   selectedJob: Job | null;
   similarJobs: Job[];
   matchScore: number | null;
   matchMissingProfile: boolean;
+  matchBreakdown: AtsBreakdown | null;
   savedJobIds: string[];
   isLoading: boolean;
   error: string | null;
@@ -41,6 +53,7 @@ export const useJobStore = create<JobState>((set, get) => ({
   similarJobs: [],
   matchScore: null,
   matchMissingProfile: false,
+  matchBreakdown: null,
   savedJobIds: [],
   isLoading: false,
   error: null,
@@ -99,18 +112,20 @@ export const useJobStore = create<JobState>((set, get) => ({
       set({ similarJobs: response.data?.jobs || [] });
     } catch (err: any) {
       console.error('Failed to fetch similar jobs:', err);
-      // We don't necessarily want to blow up the whole page UI for similar jobs failing
     }
   },
 
   fetchJobMatch: async (jobId: string) => {
-    set({ matchScore: null, matchMissingProfile: false });
+    set({ matchScore: null, matchMissingProfile: false, matchBreakdown: null });
     try {
       const response = await apiClient.get<any>(`/jobs/${jobId}/match`);
-      const { matchScore, profileMissing } = response.data;
-      set({ matchScore, matchMissingProfile: profileMissing });
+      const { matchScore, profileMissing, breakdown } = response.data;
+      set({
+        matchScore,
+        matchMissingProfile: profileMissing,
+        matchBreakdown: breakdown || null,
+      });
     } catch (err: any) {
-      // 401 means not logged in, we ignore and leave matchScore null
       console.error('Failed to fetch job match:', err);
     }
   },
@@ -129,20 +144,20 @@ export const useJobStore = create<JobState>((set, get) => ({
   toggleSaveJob: async (jobId: string) => {
     const { savedJobIds } = get();
     const isSaved = savedJobIds.includes(jobId);
-    
+
     // Optimistic update
     const newSavedJobIds = isSaved
       ? savedJobIds.filter((id) => id !== jobId)
       : [...savedJobIds, jobId];
-      
+
     set({ savedJobIds: newSavedJobIds });
 
     try {
       await apiClient.post(`/jobs/${jobId}/save`);
-    } catch (err) {
-      // Revert on failure
-      set({ savedJobIds });
+    } catch (err: any) {
       console.error('Failed to toggle save job:', err);
+      // Revert optimistic update on failure
+      set({ savedJobIds });
     }
   },
 }));

@@ -11,11 +11,14 @@ import {
   FileText, 
   Calendar, 
   User, 
-  Briefcase,
-  GraduationCap,
-  MessageSquare
+  Briefcase, 
+  GraduationCap, 
+  MessageSquare,
+  Sparkles,
+  SlidersHorizontal
 } from 'lucide-react';
 import Link from 'next/link';
+import { AtsScorecardModal } from '@/components/employer/AtsScorecardModal';
 
 interface CandidateUser {
   id: string;
@@ -43,6 +46,8 @@ interface Application {
   id: string;
   status: string;
   appliedAt: string;
+  matchScore?: number | null;
+  matchBreakdown?: any;
   candidate: CandidateProfile;
   job: {
     id: string;
@@ -60,7 +65,10 @@ export default function JobApplicationsPage() {
   const [jobTitle, setJobTitle] = useState('Job Applications');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [matchFilter, setMatchFilter] = useState<'ALL' | 'HIGH' | 'MEDIUM'>('ALL');
+  const [sortBy, setSortBy] = useState<'MATCH' | 'RECENT'>('MATCH');
   const [isMessaging, setIsMessaging] = useState<string | null>(null);
+  const [selectedScorecardApp, setSelectedScorecardApp] = useState<Application | null>(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -100,7 +108,7 @@ export default function JobApplicationsPage() {
   const handleMessageCandidate = async (candidateUserId: string) => {
     setIsMessaging(candidateUserId);
     try {
-      const res = await apiClient.post('/messages/conversations', {
+      await apiClient.post('/messages/conversations', {
         targetUserId: candidateUserId
       });
       // Navigate to messages dashboard
@@ -113,14 +121,26 @@ export default function JobApplicationsPage() {
     }
   };
 
-  const filteredApplications = applications.filter(app => {
-    const candidateName = `${app.candidate.user.firstName || ''} ${app.candidate.user.lastName || ''}`.toLowerCase();
-    const matchesSearch = candidateName.includes(searchTerm.toLowerCase()) || 
-                          app.candidate.user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || app.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  const filteredApplications = applications
+    .filter(app => {
+      const candidateName = `${app.candidate.user.firstName || ''} ${app.candidate.user.lastName || ''}`.toLowerCase();
+      const matchesSearch = candidateName.includes(searchTerm.toLowerCase()) || 
+                            app.candidate.user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'ALL' || app.status === statusFilter;
+      const score = app.matchScore ?? 0;
+      const matchesMatch = 
+        matchFilter === 'ALL' || 
+        (matchFilter === 'HIGH' && score >= 75) || 
+        (matchFilter === 'MEDIUM' && score >= 50);
+      
+      return matchesSearch && matchesStatus && matchesMatch;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'MATCH') {
+        return (b.matchScore ?? 0) - (a.matchScore ?? 0);
+      }
+      return new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime();
+    });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -145,9 +165,22 @@ export default function JobApplicationsPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Candidates for {jobTitle}</h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              {applications.length} total applicant{applications.length !== 1 ? 's' : ''}
+              {applications.length} total applicant{applications.length !== 1 ? 's' : ''} &bull; Ranked by ATS Match
             </p>
           </div>
+        </div>
+
+        {/* Sort Controls */}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">Sort by:</span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as 'MATCH' | 'RECENT')}
+            className="text-xs font-semibold bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="MATCH">Highest ATS Match</option>
+            <option value="RECENT">Most Recent</option>
+          </select>
         </div>
       </div>
 
@@ -164,6 +197,7 @@ export default function JobApplicationsPage() {
           />
         </div>
         
+        {/* Stage Filter */}
         <div className="flex flex-wrap gap-2">
           {['ALL', 'APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'REJECTED'].map(status => (
             <button
@@ -179,6 +213,21 @@ export default function JobApplicationsPage() {
             </button>
           ))}
         </div>
+
+        {/* ATS Quality Filter */}
+        <div className="flex gap-1.5 border-l border-slate-200 dark:border-zinc-800 pl-3">
+          <button
+            onClick={() => setMatchFilter(matchFilter === 'HIGH' ? 'ALL' : 'HIGH')}
+            className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-colors flex items-center gap-1.5 ${
+              matchFilter === 'HIGH'
+                ? 'bg-emerald-600 text-white border-emerald-600'
+                : 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Top Fit (&gt;75%)
+          </button>
+        </div>
       </div>
 
       {/* Applications List */}
@@ -192,7 +241,7 @@ export default function JobApplicationsPage() {
           <User className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-4" />
           <h3 className="text-lg font-bold text-slate-900 dark:text-white">No candidates found</h3>
           <p className="text-slate-500 mt-2 text-sm max-w-sm text-center">
-            {searchTerm || statusFilter !== 'ALL' 
+            {searchTerm || statusFilter !== 'ALL' || matchFilter !== 'ALL'
               ? 'Try adjusting your filters or search term to find candidates.' 
               : 'You have no applications for this job yet.'}
           </p>
@@ -228,6 +277,30 @@ export default function JobApplicationsPage() {
                   <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${getStatusColor(app.status)}`}>
                     {app.status}
                   </span>
+                </div>
+
+                {/* ATS Match Score Pill */}
+                <div className="mb-4">
+                  {app.matchScore !== null && app.matchScore !== undefined ? (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedScorecardApp(app)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                        app.matchScore >= 75
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
+                          : app.matchScore >= 50
+                          ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60'
+                          : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-100 dark:hover:bg-amber-900/60'
+                      }`}
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {app.matchScore}% ATS Scorecard &bull; View Rubric
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-100 dark:bg-zinc-800">
+                      Standard Apply
+                    </span>
+                  )}
                 </div>
                 
                 <div className="space-y-3 mb-4 flex-1">
@@ -332,6 +405,17 @@ export default function JobApplicationsPage() {
           ))}
         </div>
       )}
+
+      {/* Recruiter Detailed Scorecard Modal */}
+      <AtsScorecardModal
+        isOpen={!!selectedScorecardApp}
+        onClose={() => setSelectedScorecardApp(null)}
+        candidateName={`${selectedScorecardApp?.candidate.user.firstName || ''} ${selectedScorecardApp?.candidate.user.lastName || ''}`.trim() || 'Applicant'}
+        candidateEmail={selectedScorecardApp?.candidate.user.email || ''}
+        jobTitle={jobTitle}
+        matchScore={selectedScorecardApp?.matchScore}
+        breakdown={selectedScorecardApp?.matchBreakdown}
+      />
     </div>
   );
 }
